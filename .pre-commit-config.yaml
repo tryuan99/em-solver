@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/google/yapf
+    rev: v0.40.2
+    hooks:
+      - id: yapf
+        args: [-i]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+  - repo: https://github.com/keith/pre-commit-buildifier
+    rev: 6.4.0
+    hooks:
+      - id: buildifier
+      - id: buildifier-lint

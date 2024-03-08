@@ -73,6 +73,12 @@ fonttools==4.38.0 \
     --hash=sha256:2bb244009f9bf3fa100fc3ead6aeb99febe5985fa20afbfbaa2f8946c2fbdaf1 \
     --hash=sha256:820466f43c8be8c3009aef8b87e785014133508f0de64ec469e4efb643ae54fb
     # via matplotlib
+gmsh==4.12.2 \
+    --hash=sha256:0620c62006443da23fffb211e6c579bf284b2340a1b9a74b5636b3367fc14096 \
+    --hash=sha256:28d91487f1666eacbcf3b24bf832ee5e4e09acfb8cff966e90a263623fbd26e0 \
+    --hash=sha256:3af271f67efe7cb921fbcbd66bf994bf0e556324cc3b33b6ae582359cb12cd9e \
+    --hash=sha256:df6981be2dee9e6083a6d4f6a9b1d1ebd56e7c0cf2ed49ae97bc791f268af78e
+    # via -r deps/pip_requirements.in
 kiwisolver==1.4.4 \
     --hash=sha256:02f79693ec433cb4b5f51694e8477ae83b3205768a6fb48ffba60549080e295b \
     --hash=sha256:03baab2d6b4a54ddbb43bba1a3a2d1627e82d205c5cf8f4c924dc49284b87166 \

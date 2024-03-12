@@ -1,0 +1,42 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "capacitor_mesh_generator",
+    srcs = ["capacitor_mesh_generator.py"],
+    deps = [
+        ":mesh_generator",
+        requirement("gmsh"),
+        requirement("numpy"),
+    ],
+)
+
+py_binary(
+    name = "capacitor_mesh_generator_2d_main",
+    srcs = ["capacitor_mesh_generator_2d_main.py"],
+    data = ["//cad/capacitor:capacitor_2d_models"],
+    deps = [
+        ":capacitor_mesh_generator",
+        requirement("absl-py"),
+    ],
+)
+
+py_binary(
+    name = "capacitor_mesh_generator_3d_main",
+    srcs = ["capacitor_mesh_generator_3d_main.py"],
+    data = ["//cad/capacitor:capacitor_3d_models"],
+    deps = [
+        ":capacitor_mesh_generator",
+        requirement("absl-py"),
+    ],
+)
+
+py_library(
+    name = "mesh_generator",
+    srcs = ["mesh_generator.py"],
+    deps = [
+        requirement("gmsh"),
+        requirement("numpy"),
+    ],
+)

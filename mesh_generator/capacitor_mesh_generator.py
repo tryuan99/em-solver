@@ -3,50 +3,23 @@ structure, including a parallel plate capacitor or a metal finger capacitor.
 """
 
 from abc import ABC
-from enum import IntEnum
 
 import gmsh
 import numpy as np
 
 from mesh_generator.mesh_generator import (MeshGenerator, MeshGenerator2D,
                                            MeshGenerator3D)
-
-
-class CapacitorEntityTag(IntEnum):
-    """Capacitor entity tag enumeration."""
-    GROUND_PLATE_TAG = 1
-    VDD_PLATE_TAG = 2
-    BOUNDING_BOX_TAG = 3
+from model.capacitor import CapacitorEntityTag
 
 
 class CapacitorMeshGenerator(MeshGenerator):
-    """Interface for a capacitor mesh generator.
+    """Interface for a capacitor mesh generator."""
 
-    Attributes:
-        dc_voltage: DC voltage applied to the capacitor plates.
-    """
-
-    def __init__(self, input_file: str, dc_voltage: float) -> None:
+    def __init__(self, input_file: str) -> None:
         super().__init__(input_file)
-        self.dc_voltage = dc_voltage
 
         # Validate the model.
         self._validate_model()
-
-    def get_dc_voltage(self, tag: int) -> float:
-        """Returns the DC voltage for the tag.
-
-        Args:
-            tag: Tag of the entity.
-
-        Raises:
-            ValueError: If the tag does not belong to the capacitor structure.
-        """
-        if tag == CapacitorEntityTag.GROUND_PLATE_TAG:
-            return 0
-        if tag == CapacitorEntityTag.VDD_PLATE_TAG:
-            return self.dc_voltage
-        raise ValueError("Invalid capacitor entity tag.")
 
     def _validate_model(self) -> None:
         """Validates the capacitor model.
@@ -77,12 +50,10 @@ class CapacitorMeshGenerator(MeshGenerator):
 class CapacitorMeshGenerator2D(CapacitorMeshGenerator, MeshGenerator2D):
     """2D capacitor mesh generator."""
 
-    def __init__(self, input_file: str, dc_voltage: float = -1):
-        super().__init__(input_file, dc_voltage)
+    pass
 
 
 class CapacitorMeshGenerator3D(CapacitorMeshGenerator, MeshGenerator3D):
     """3D capacitor mesh generator."""
 
-    def __init__(self, input_file: str, dc_voltage: float = -1):
-        super().__init__(input_file, dc_voltage)
+    pass

@@ -7,6 +7,7 @@ py_library(
     srcs = ["capacitor_mesh_generator.py"],
     deps = [
         ":mesh_generator",
+        "//model:capacitor",
         requirement("gmsh"),
         requirement("numpy"),
     ],
@@ -33,9 +34,19 @@ py_binary(
 )
 
 py_library(
+    name = "gmsh_interface",
+    srcs = ["gmsh_interface.py"],
+    deps = [
+        requirement("gmsh"),
+        requirement("numpy"),
+    ],
+)
+
+py_library(
     name = "mesh_generator",
     srcs = ["mesh_generator.py"],
     deps = [
+        ":gmsh_interface",
         requirement("gmsh"),
         requirement("numpy"),
     ],

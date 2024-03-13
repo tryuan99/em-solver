@@ -6,6 +6,8 @@ from enum import IntEnum
 import gmsh
 import numpy as np
 
+from mesh_generator.gmsh_interface import GmshInterface
+
 # Mesh resolution factor. The higher the factor, the finer the resolution.
 MESH_RESOLUTION_FACTOR = 100
 
@@ -19,19 +21,7 @@ MESH_THRESHOLD_FIELD_DISTANCE_MIN_FACTOR = 1
 MESH_THRESHOLD_FIELD_DISTANCE_MAX_FACTOR = 10
 
 
-class MeshElementType(IntEnum):
-    """Mesh element type enumeration."""
-    TWO_NODE_LINE = 1
-    THREE_NODE_TRIANGLE = 2
-    FOUR_NODE_QUADRANGLE = 3
-    FOUR_NODE_TETRAHEDRON = 4
-    EIGHT_NODE_HEXAHEDRON = 5
-    SIX_NODE_PRISM = 6
-    FIVE_NODE_PYRAMID = 7
-    ONE_NODE_POINT = 15
-
-
-class MeshGenerator(ABC):
+class MeshGenerator(GmshInterface):
     """Interface for a mesh generator.
 
     Args:
@@ -39,8 +29,7 @@ class MeshGenerator(ABC):
     """
 
     def __init__(self, input_file: str) -> None:
-        # Initialize gmsh.
-        gmsh.initialize()
+        super().__init__()
 
         # Generate the mesh.
         self._generate_mesh(input_file)
@@ -52,15 +41,6 @@ class MeshGenerator(ABC):
     @abstractmethod
     def dimension(cls) -> int:
         """Returns the dimension of the structure."""
-
-    @staticmethod
-    def write_mesh_file(mesh_file: str) -> None:
-        """Writes the mesh to the output file.
-
-        Args:
-            mesh_file: Mesh file.
-        """
-        gmsh.write(mesh_file)
 
     @abstractmethod
     def get_bounding_box(self) -> tuple[np.ndarray, np.ndarray]:
@@ -79,41 +59,6 @@ class MeshGenerator(ABC):
             structure.
         """
         return gmsh.model.getEntities(dim=self.dimension())
-
-    @staticmethod
-    def get_nodes(tag: int = -1, boundary_only: bool = False) -> np.ndarray:
-        """Returns the list of nodes for the tag.
-
-        Args:
-            tag: Tag of the entity.
-            boundary_only: If true, return boundary nodes only. Otherwise,
-              return all nodes.
-
-        Returns:
-            The list of node tags.
-        """
-        node_tags, _, _ = gmsh.model.mesh.getNodes(tag=tag,
-                                                   includeBoundary=True)
-        if not boundary_only:
-            return node_tags
-        internal_node_tags, _, _ = gmsh.model.mesh.getNodes(
-            tag=tag, includeBoundary=False)
-        return np.setdiff1d(node_tags, internal_node_tags)
-
-    @staticmethod
-    def get_faces(tag: int = -1) -> tuple[np.ndarray, np.ndarray]:
-        """Returns the list of triangular faces in the mesh.
-
-        Args:
-            tag: Tag of the entity.
-
-        Returns:
-            A 2-tuple consisting of the list of tags corresponding to the faces
-            and the list of nodes belonging to each face.
-        """
-        element_tags, node_tags = gmsh.model.mesh.getElementsByType(
-            MeshElementType.THREE_NODE_TRIANGLE, tag=tag)
-        return element_tags, np.reshape(node_tags, (-1, 3))
 
     def _generate_mesh(self, input_file: str) -> None:
         """Generates a mesh.
@@ -282,21 +227,6 @@ class MeshGenerator3D(MeshGenerator):
         (x_min, y_min, z_min, x_max, y_max,
          z_max) = gmsh.model.getBoundingBox(dim=-1, tag=-1)
         return np.array([x_min, y_min, z_min]), np.array([x_max, y_max, z_max])
-
-    @staticmethod
-    def get_tetrahedra(tag: int = -1) -> tuple[np.ndarray, np.ndarray]:
-        """Returns the list of tetrahedra volumes in the mesh.
-
-        Args:
-            tag: Tag of the entity.
-
-        Returns:
-            A 2-tuple consisting of the list of tags corresponding to the
-            tetrahedra and the list of nodes belonging to each volume.
-        """
-        element_tags, node_tags = gmsh.model.mesh.getElementsByType(
-            MeshElementType.FOUR_NODE_TETRAHEDRON, tag=tag)
-        return element_tags, np.reshape(node_tags, (-1, 4))
 
     @classmethod
     def _add_bounding_box_impl(cls, min_coordinates: np.ndarray,

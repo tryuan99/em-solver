@@ -147,6 +147,10 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
                                                 node_type=GmshNodeType.INTERNAL)
             for tag in internal_node_tags:
                 voltage_unknown_index = self._get_voltage_unknown_index(tag)
+                electric_field_x_unknown_index = (
+                    self._get_electric_field_x_unknown_index(tag))
+                electric_field_y_unknown_index = (
+                    self._get_electric_field_y_unknown_index(tag))
 
                 # Voltage boundary conditions.
                 voltage_equation_index = (
@@ -157,12 +161,14 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
                 # Electric field in the x-direction.
                 electric_field_x_equation_index = (
                     self._get_electric_field_x_equation_index(tag))
-                A[electric_field_x_equation_index, voltage_unknown_index] = 1
+                A[electric_field_x_equation_index,
+                  electric_field_x_unknown_index] = 1
 
                 # Electric field in the y-direction.
                 electric_field_y_equation_index = (
                     self._get_electric_field_y_equation_index(tag))
-                A[electric_field_y_equation_index, voltage_unknown_index] = 1
+                A[electric_field_y_equation_index,
+                  electric_field_y_unknown_index] = 1
 
             # Set the voltage boundary conditions for the boundary nodes at the
             # capacitor plates.

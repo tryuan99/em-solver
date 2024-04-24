@@ -1,7 +1,7 @@
 """The Gmsh interface class provides an interface to gmsh utilities."""
 
 from abc import ABC
-from enum import IntEnum
+from enum import Enum, IntEnum, auto
 
 import gmsh
 import numpy as np
@@ -17,6 +17,13 @@ class GmshElementType(IntEnum):
     SIX_NODE_PRISM = 6
     FIVE_NODE_PYRAMID = 7
     ONE_NODE_POINT = 15
+
+
+class GmshNodeType(Enum):
+    """Node type enumeration."""
+    ALL = auto()
+    INTERNAL = auto()
+    BOUNDARY = auto()
 
 
 class GmshInterface(ABC):
@@ -38,38 +45,56 @@ class GmshInterface(ABC):
         gmsh.write(mesh_file)
 
     @staticmethod
-    def get_nodes(tag: int = -1, boundary_only: bool = False) -> np.ndarray:
-        """Returns the list of nodes for the tag.
+    def get_nodes(tag: int = -1,
+                  dim: int = -1,
+                  node_type: GmshNodeType = GmshNodeType.ALL) -> np.ndarray:
+        """Returns the list of nodes for the tag and dimension.
 
         Args:
             tag: Tag of the entity.
-            boundary_only: If true, return boundary nodes only. Otherwise,
-              return all nodes.
+            dim: Dimension of the nodes.
+            node_type: The type of nodes to return.
 
         Returns:
-            The list of node tags.
+            The list of node tags. The node tags may be duplicated across multiple
+            dimensions.
+
+        Raises:
+            ValueError: If the node type is invalid.
         """
+
         node_tags, _, _ = gmsh.model.mesh.getNodes(tag=tag,
+                                                   dim=dim,
                                                    includeBoundary=True)
-        if not boundary_only:
-            return node_tags
         internal_node_tags, _, _ = gmsh.model.mesh.getNodes(
-            tag=tag, includeBoundary=False)
-        return np.setdiff1d(node_tags, internal_node_tags)
+            tag=tag, dim=dim, includeBoundary=False)
+        if node_type == GmshNodeType.ALL:
+            return node_tags
+        if node_type == GmshNodeType.INTERNAL:
+            return internal_node_tags
+        if node_type == GmshNodeType.BOUNDARY:
+            return np.setdiff1d(node_tags, internal_node_tags)
+        raise ValueError("Invalid node type.")
 
     @staticmethod
-    def get_node_coordinates(tag: int = -1) -> dict[int, np.ndarray]:
+    def get_node_coordinates(tag: int = -1,
+                             dim: int = -1,
+                             coordinates_dim: int = 3) -> dict[int, np.ndarray]:
         """Returns the coordinates of the nodes.
 
         Args:
             tag: Tag of the entity.
+            dim: Dimension of the nodes.
+            coordinates_dim: Dimension of the coordinates.
 
         Returns:
             A dictionary mapping from the node tag to the node's coordinates.
         """
         node_tags, node_coordinates, _ = gmsh.model.mesh.getNodes(
-            tag=tag, includeBoundary=True)
-        return dict(zip(node_tags, node_coordinates))
+            tag=tag, dim=dim, includeBoundary=True)
+        return dict(
+            zip(node_tags,
+                np.reshape(node_coordinates, (-1, 3))[:, :dim]))
 
     @staticmethod
     def get_faces(tag: int = -1) -> tuple[np.ndarray, np.ndarray]:

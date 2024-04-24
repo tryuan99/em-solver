@@ -34,9 +34,6 @@ class MeshGenerator(GmshInterface):
         # Generate the mesh.
         self._generate_mesh(input_file)
 
-    def __del__(self) -> None:
-        gmsh.finalize()
-
     @classmethod
     @abstractmethod
     def dimension(cls) -> int:

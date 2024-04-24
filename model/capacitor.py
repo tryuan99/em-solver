@@ -7,7 +7,7 @@ class CapacitorEntityTag(IntEnum):
     """Capacitor entity tag enumeration."""
     GROUND_PLATE_TAG = 1
     VDD_PLATE_TAG = 2
-    BOUNDING_BOX_TAG = 3
+    DIELECTRIC_TAG = 3
 
 
 class Capacitor:

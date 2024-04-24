@@ -34,7 +34,7 @@ class CapacitorMeshGenerator(MeshGenerator):
         # Check that tag 3 corresponds to the bounding box.
         (x_min, y_min, z_min, x_max, y_max,
          z_max) = gmsh.model.occ.getBoundingBox(
-             dim=self.dimension(), tag=CapacitorEntityTag.BOUNDING_BOX_TAG)
+             dim=self.dimension(), tag=CapacitorEntityTag.DIELECTRIC_TAG)
         min_coordinates = np.array([x_min, y_min, z_min])
         max_coordinates = np.array([x_max, y_max, z_max])
         (bounding_box_min_coordinates,

@@ -2,7 +2,10 @@ package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "capacitor_2d_models",
-    srcs = ["capacitor_m7_m8_100um_2d.geo"],
+    srcs = [
+        "capacitor_m7_m8_100um_2d.geo",
+        "capacitor_simple_2d.geo",
+    ],
 )
 
 filegroup(

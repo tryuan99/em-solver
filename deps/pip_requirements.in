@@ -2,4 +2,5 @@ absl-py==2.1.0
 gmsh==4.12.2
 matplotlib==3.8.0
 numpy==1.26.3
+SciencePlots==2.1.1
 scipy==1.11.4

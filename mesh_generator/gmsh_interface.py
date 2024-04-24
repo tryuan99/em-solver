@@ -77,9 +77,10 @@ class GmshInterface(ABC):
         raise ValueError("Invalid node type.")
 
     @staticmethod
-    def get_node_coordinates(tag: int = -1,
-                             dim: int = -1,
-                             coordinates_dim: int = 3) -> dict[int, np.ndarray]:
+    def get_node_coordinates(
+            tag: int = -1,
+            dim: int = -1,
+            coordinates_dim: int = 3) -> tuple[np.ndarray, np.ndarray]:
         """Returns the coordinates of the nodes.
 
         Args:
@@ -88,13 +89,12 @@ class GmshInterface(ABC):
             coordinates_dim: Dimension of the coordinates.
 
         Returns:
-            A dictionary mapping from the node tag to the node's coordinates.
+            A 2-tuple consisting of the list of node tags and the list of
+            corresponding coordinates.
         """
         node_tags, node_coordinates, _ = gmsh.model.mesh.getNodes(
             tag=tag, dim=dim, includeBoundary=True)
-        return dict(
-            zip(node_tags,
-                np.reshape(node_coordinates, (-1, 3))[:, :dim]))
+        return node_tags, np.reshape(node_coordinates, (-1, 3))[:, :dim]
 
     @staticmethod
     def get_faces(tag: int = -1) -> tuple[np.ndarray, np.ndarray]:

@@ -31,7 +31,9 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
         magnetic vector potential, and the magnetic field.
         """
         # Get the node coordinates.
-        node_coordinates = self.get_node_coordinates(dim=self.dimension())
+        node_tags, node_coordinates = self.get_node_coordinates(
+            dim=self.dimension())
+        node_tag_to_coordinates = dict(zip(node_tags, node_coordinates))
 
         # Initialize the matrix-vector equation.
         A = scipy.sparse.lil_matrix((self.num_unknowns, self.num_unknowns),
@@ -48,7 +50,7 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
         dielectric_node_tags = self.get_nodes(
             tag=CapacitorEntityTag.DIELECTRIC_TAG, dim=self.dimension())
         for tag in dielectric_node_tags:
-            x, y = node_coordinates[tag]
+            x, y = node_tag_to_coordinates[tag]
             poisson_equation_index = (
                 self._get_poisson_voltage_equation_index(tag))
             electric_field_x_equation_index = (
@@ -66,8 +68,10 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
             # Iterate through all adjacent triangles.
             for (tag_neighbor1, tag_neighbor2
                 ) in dielectric_triangle_neighbors.get_neighbors(tag):
-                x_neighbor1, y_neighbor1 = node_coordinates[tag_neighbor1]
-                x_neighbor2, y_neighbor2 = node_coordinates[tag_neighbor2]
+                x_neighbor1, y_neighbor1 = node_tag_to_coordinates[
+                    tag_neighbor1]
+                x_neighbor2, y_neighbor2 = node_tag_to_coordinates[
+                    tag_neighbor2]
                 voltage_unknown_index_neighbor1 = (
                     self._get_voltage_unknown_index(tag_neighbor1))
                 voltage_unknown_index_neighbor2 = (

@@ -5,7 +5,13 @@ package(default_visibility = ["//visibility:public"])
 py_library(
     name = "electrostatic_solver",
     srcs = ["electrostatic_solver.py"],
-    deps = [":electromagnetic_solver"],
+    deps = [
+        ":electromagnetic_solver",
+        "//visualization:color_maps",
+        requirement("matplotlib"),
+        requirement("numpy"),
+        requirement("SciencePlots"),
+    ],
 )
 
 py_library(

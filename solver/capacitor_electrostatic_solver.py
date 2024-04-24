@@ -30,10 +30,6 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
         """Implementation for solving for the voltage, the electric field, the
         magnetic vector potential, and the magnetic field.
         """
-        # Get the triangles in the mesh.
-        _, triangle_node_tags = self.get_faces()
-        triangle_neighbors = NeighborLookup(triangle_node_tags)
-
         # Get the node coordinates.
         node_coordinates = self.get_node_coordinates(dim=self.dimension())
 
@@ -45,6 +41,10 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
 
         # Fill in Poisson's equations and the electric field equations for the
         # nodes within the dielectric, including the boundary nodes.
+        _, dielectric_triangle_node_tags = self.get_faces(
+            tag=CapacitorEntityTag.DIELECTRIC_TAG)
+        dielectric_triangle_neighbors = NeighborLookup(
+            dielectric_triangle_node_tags)
         dielectric_node_tags = self.get_nodes(
             tag=CapacitorEntityTag.DIELECTRIC_TAG, dim=self.dimension())
         for tag in dielectric_node_tags:
@@ -61,11 +61,11 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
             electric_field_y_unknown_index = (
                 self._get_electric_field_y_unknown_index(tag))
             num_adjacent_triangles = (
-                triangle_neighbors.get_num_adjacent_entities(tag))
+                dielectric_triangle_neighbors.get_num_adjacent_entities(tag))
 
             # Iterate through all adjacent triangles.
-            for (tag_neighbor1,
-                 tag_neighbor2) in triangle_neighbors.get_neighbors(tag):
+            for (tag_neighbor1, tag_neighbor2
+                ) in dielectric_triangle_neighbors.get_neighbors(tag):
                 x_neighbor1, y_neighbor1 = node_coordinates[tag_neighbor1]
                 x_neighbor2, y_neighbor2 = node_coordinates[tag_neighbor2]
                 voltage_unknown_index_neighbor1 = (

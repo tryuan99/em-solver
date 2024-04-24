@@ -1,4 +1,4 @@
-from absl import app, flags
+from absl import app, flags, logging
 
 FLAGS = flags.FLAGS
 
@@ -13,6 +13,8 @@ def main(argv):
     capacitor_solver.solve()
     capacitor_solver.plot_voltage()
     capacitor_solver.plot_electric_field()
+    capacitance = capacitor_solver.calculate_capacitance()
+    logging.info("Capacitance = %f", capacitance)
 
 
 if __name__ == "__main__":

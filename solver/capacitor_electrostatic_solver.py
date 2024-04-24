@@ -196,6 +196,17 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
             x[self.num_voltage_unknowns:self.num_voltage_unknowns +
               self.num_electric_field_unknowns], (-1, self.dimension()))
 
+    def calculate_capacitance(self) -> float:
+        """Calculates the capacitance."""
+        ground_plate_boundary_node_tags = self.get_nodes(
+            tag=CapacitorEntityTag.GROUND_PLATE_TAG,
+            dim=self.dimension(),
+            node_type=GmshNodeType.BOUNDARY)
+        # TODO(titan): Integrate the electric field over the surface of the
+        # ground plate to find the surface charge. Then, apply C = Q / V to
+        # find the capacitance.
+        return 0
+
     def _get_voltage_unknown_index(self, tag: int) -> int:
         """Returns the unknown index corresponding to the node's voltage."""
         return self._get_index_from_tag(tag)

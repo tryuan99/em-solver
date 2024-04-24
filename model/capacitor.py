@@ -1,5 +1,6 @@
 """The capacitor model defines constants for a capacitor model."""
 
+from abc import abstractmethod
 from enum import IntEnum
 
 
@@ -34,3 +35,7 @@ class Capacitor:
         if tag == CapacitorEntityTag.VDD_PLATE_TAG:
             return self.dc_voltage
         raise ValueError("Invalid capacitor entity tag.")
+
+    @abstractmethod
+    def calculate_capacitance(self) -> float:
+        """Calculates the capacitance."""

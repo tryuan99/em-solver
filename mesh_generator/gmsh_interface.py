@@ -97,6 +97,21 @@ class GmshInterface(ABC):
         return node_tags, np.reshape(node_coordinates, (-1, 3))[:, :dim]
 
     @staticmethod
+    def get_lines(tag: int = -1) -> tuple[np.ndarray, np.ndarray]:
+        """Returns the list of lines in the mesh.
+
+        Args:
+            tag: Tag of the entity.
+
+        Returns:
+            A 2-tuple consisting of the list of tags corresponding to the lines
+            and the list of nodes adjacent to each line.
+        """
+        element_tags, node_tags = gmsh.model.mesh.getElementsByType(
+            GmshElementType.TWO_NODE_LINE, tag=tag)
+        return element_tags, np.reshape(node_tags, (-1, 2))
+
+    @staticmethod
     def get_faces(tag: int = -1) -> tuple[np.ndarray, np.ndarray]:
         """Returns the list of triangular faces in the mesh.
 

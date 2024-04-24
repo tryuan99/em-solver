@@ -1,0 +1,47 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "electrostatic_solver",
+    srcs = ["electrostatic_solver.py"],
+    deps = [":electromagnetic_solver"],
+)
+
+py_library(
+    name = "electromagnetic_solver",
+    srcs = ["electromagnetic_solver.py"],
+    deps = [
+        "//mesh_generator:gmsh_interface",
+        requirement("gmsh"),
+        requirement("numpy"),
+    ],
+)
+
+py_library(
+    name = "capacitor_electrostatic_solver",
+    srcs = ["capacitor_electrostatic_solver.py"],
+    deps = [
+        ":electrostatic_solver",
+        ":neighbor_lookup",
+        "//mesh_generator:gmsh_interface",
+        "//model:capacitor",
+        requirement("numpy"),
+        requirement("scipy"),
+    ],
+)
+
+py_binary(
+    name = "capacitor_electrostatic_solver_main",
+    srcs = ["capacitor_electrostatic_solver_main.py"],
+    deps = [
+        ":capacitor_electrostatic_solver",
+        requirement("absl-py"),
+    ],
+)
+
+py_library(
+    name = "neighbor_lookup",
+    srcs = ["neighbor_lookup.py"],
+    deps = [requirement("numpy")],
+)

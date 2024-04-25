@@ -94,7 +94,8 @@ class GmshInterface(ABC):
         """
         node_tags, node_coordinates, _ = gmsh.model.mesh.getNodes(
             tag=tag, dim=dim, includeBoundary=True)
-        return node_tags, np.reshape(node_coordinates, (-1, 3))[:, :dim]
+        return node_tags, np.reshape(node_coordinates,
+                                     (-1, 3))[:, :coordinates_dim]
 
     @staticmethod
     def get_lines(tag: int = -1) -> tuple[np.ndarray, np.ndarray]:

@@ -7,6 +7,7 @@ import scipy.sparse
 
 from mesh_generator.gmsh_interface import GmshNodeType
 from model.capacitor import Capacitor, CapacitorEntityTag
+from solver.constants import VACUUM_PERMITTIVITY
 from solver.electrostatic_solver import ElectrostaticSolver2D
 from solver.neighbor_lookup import NeighborLookup
 
@@ -32,7 +33,7 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
         """
         # Get the node coordinates.
         node_tags, node_coordinates = self.get_node_coordinates(
-            dim=self.dimension())
+            dim=self.dimension(), coordinates_dim=self.dimension())
         node_tag_to_coordinates = dict(zip(node_tags, node_coordinates))
 
         # Initialize the matrix-vector equation.
@@ -65,7 +66,7 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
             num_adjacent_triangles = (
                 dielectric_triangle_neighbors.get_num_adjacent_entities(tag))
 
-            # Iterate through all adjacent triangles.
+            # Iterate over all adjacent triangles.
             for (tag_neighbor1, tag_neighbor2
                 ) in dielectric_triangle_neighbors.get_neighbors(tag):
                 x_neighbor1, y_neighbor1 = node_tag_to_coordinates[
@@ -90,7 +91,8 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
                                x_neighbor2 * y_neighbor1 + x_neighbor2 * y +
                                x * y_neighbor1 - x * y_neighbor2)
 
-                # Add the coefficients of the electric fields for Poisson's equation.
+                # Add the coefficients of the electric fields for Poisson's
+                # equation.
                 A[poisson_equation_index,
                   electric_field_x_unknown_index_neighbor1] += (
                       (y_neighbor2 - y) / denominator)
@@ -132,7 +134,8 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
                   voltage_unknown_index] += ((x_neighbor2 - x_neighbor1) /
                                              denominator)
 
-            # Set the coefficient for the electric fields for the electric field equations.
+            # Set the coefficient for the electric fields for the electric
+            # field equations.
             A[electric_field_x_equation_index,
               electric_field_x_unknown_index] = -num_adjacent_triangles
             A[electric_field_y_equation_index,
@@ -202,10 +205,71 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
             tag=CapacitorEntityTag.GROUND_PLATE_TAG,
             dim=self.dimension(),
             node_type=GmshNodeType.BOUNDARY)
-        # TODO(titan): Integrate the electric field over the surface of the
-        # ground plate to find the surface charge. Then, apply C = Q / V to
-        # find the capacitance.
-        return 0
+
+        # Find the center of all the boundary nodes.
+        node_tags, node_coordinates = self.get_node_coordinates(
+            tag=CapacitorEntityTag.GROUND_PLATE_TAG,
+            dim=self.dimension(),
+            coordinates_dim=self.dimension())
+        is_boundary_node_tag = np.isin(node_tags,
+                                       ground_plate_boundary_node_tags)
+        ground_plate_boundary_node_tags = node_tags[is_boundary_node_tag]
+        ground_plate_boundary_node_coordinates = node_coordinates[
+            is_boundary_node_tag]
+        ground_plate_boundary_node_tag_to_coordinates = dict(
+            zip(ground_plate_boundary_node_tags,
+                ground_plate_boundary_node_coordinates))
+        ground_plate_center = np.mean(ground_plate_boundary_node_coordinates,
+                                      axis=0)
+
+        # Find all lines along the boundary of the ground plate.
+        line_tags, line_node_tags = self.get_lines()
+        is_line_on_ground_plate = np.all(np.isin(
+            line_node_tags, ground_plate_boundary_node_tags),
+                                         axis=1)
+        boundary_line_node_tags = line_node_tags[is_line_on_ground_plate]
+
+        # Iterate over all lines along the boundary of the ground plate to find
+        # the electric flux.
+        total_line_length = 0
+        electric_flux = 0
+        for neighbor1, neighbor2 in boundary_line_node_tags:
+            # Find the normal vector pointing out of the ground plate.
+            # TODO(titan): Using the center of the ground plate to determine
+            # the direction of the normal vector only works for convex surfaces.
+            node_coordinates_neighbor1 = (
+                ground_plate_boundary_node_tag_to_coordinates[neighbor1])
+            node_coordinates_neighbor2 = (
+                ground_plate_boundary_node_tag_to_coordinates[neighbor2])
+            line_vector = (node_coordinates_neighbor2 -
+                           node_coordinates_neighbor1)
+            neighbor1_to_center = (ground_plate_center -
+                                   node_coordinates_neighbor1)
+            cross_product = np.cross(line_vector, neighbor1_to_center)
+            normal_vector = (-np.sign(cross_product) *
+                             np.array([[0, -1], [1, 0]]) @ line_vector)
+            normal_vector /= np.linalg.norm(normal_vector)
+
+            # Average the electric fields at the adjacent vertices.
+            electric_field_neighbor1 = (
+                self.electric_field[self._get_index_from_tag(neighbor1)])
+            electric_field_neighbor2 = (
+                self.electric_field[self._get_index_from_tag(neighbor2)])
+            electric_field_averaged = (
+                (electric_field_neighbor1 + electric_field_neighbor2) / 2)
+
+            # Integrate the dot product between the electric field and the
+            # normal vector.
+            line_length = np.linalg.norm(line_vector)
+            total_line_length += line_length
+            electric_flux += (line_length *
+                              np.dot(electric_field_averaged, normal_vector))
+        electric_flux /= total_line_length
+
+        # Calculate the surface charge and the capacitance.
+        Q = electric_flux * VACUUM_PERMITTIVITY
+        C = Q / self.dc_voltage
+        return C
 
     def _get_voltage_unknown_index(self, tag: int) -> int:
         """Returns the unknown index corresponding to the node's voltage."""

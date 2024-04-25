@@ -3,6 +3,11 @@ load("@pip_deps//:requirements.bzl", "requirement")
 package(default_visibility = ["//visibility:public"])
 
 py_library(
+    name = "constants",
+    srcs = ["constants.py"],
+)
+
+py_library(
     name = "electrostatic_solver",
     srcs = ["electrostatic_solver.py"],
     deps = [
@@ -28,6 +33,7 @@ py_library(
     name = "capacitor_electrostatic_solver",
     srcs = ["capacitor_electrostatic_solver.py"],
     deps = [
+        ":constants",
         ":electrostatic_solver",
         ":neighbor_lookup",
         "//mesh_generator:gmsh_interface",

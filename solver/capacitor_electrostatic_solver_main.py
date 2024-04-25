@@ -14,7 +14,7 @@ def main(argv):
     capacitor_solver.plot_voltage()
     capacitor_solver.plot_electric_field()
     capacitance = capacitor_solver.calculate_capacitance()
-    logging.info("Capacitance = %f", capacitance)
+    logging.info("Capacitance = %g", capacitance)
 
 
 if __name__ == "__main__":

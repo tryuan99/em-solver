@@ -17,8 +17,8 @@ MESH_BOUNDING_BOX_FACTOR = 2
 # Mesh threshold field.
 MESH_THRESHOLD_FIELD_LC_MIN_FACTOR = 1
 MESH_THRESHOLD_FIELD_LC_MAX_FACTOR = 10
-MESH_THRESHOLD_FIELD_DISTANCE_MIN_FACTOR = 1
-MESH_THRESHOLD_FIELD_DISTANCE_MAX_FACTOR = 10
+MESH_THRESHOLD_FIELD_DISTANCE_MIN_FACTOR = 10
+MESH_THRESHOLD_FIELD_DISTANCE_MAX_FACTOR = 100
 
 
 class MeshGenerator(GmshInterface):
@@ -140,11 +140,17 @@ class MeshGenerator(GmshInterface):
             dimensions: The (x, y, z) dimensions of the structure.
         """
         boundaries = gmsh.model.getBoundary(dimTags=entities, oriented=False)
+        dimension_tags = [boundary[0] for boundary in boundaries]
         boundary_tags = [boundary[1] for boundary in boundaries]
 
         # Add a distance field.
         distance = gmsh.model.mesh.field.add("Distance")
-        gmsh.model.mesh.field.setNumbers(distance, "FacesList", boundary_tags)
+        if np.unique(dimension_tags)[0] == 1:
+            gmsh.model.mesh.field.setNumbers(distance, "CurvesList",
+                                             boundary_tags)
+        elif np.unique(dimension_tags)[0] == 2:
+            gmsh.model.mesh.field.setNumbers(distance, "SurfacesList",
+                                             boundary_tags)
 
         # Add a threshold field.
         resolution = np.min(

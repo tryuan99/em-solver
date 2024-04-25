@@ -98,6 +98,34 @@ class GmshInterface(ABC):
                                      (-1, 3))[:, :coordinates_dim]
 
     @staticmethod
+    def get_boundary(dim: int, tag: int) -> list[tuple[int, int]]:
+        """Returns the boundary entities of the given entity.
+
+        Args:
+            dim: Dimension of the entity.
+            tag: Tag of the entity.
+
+        Returns:
+            A list of 2-tuples consisting of the dimension and tag of each
+            bounding entity.
+        """
+        return gmsh.model.getBoundary(dimTags=[(dim, tag)], oriented=False)
+
+    @staticmethod
+    def get_adjacencies(dim: int, tag: int) -> tuple[np.ndarray, np.ndarray]:
+        """Returns the upward and downward adjacencies of the given entity.
+
+        Args:
+            dim: Dimension of the entity.
+            tag: Tag of the entity.
+
+        Returns:
+            A 2-tuple consisting of the upward adjacent entities and the
+            downward adjacent entities.
+        """
+        return gmsh.model.getAdjacencies(dim=dim, tag=tag)
+
+    @staticmethod
     def get_lines(tag: int = -1) -> tuple[np.ndarray, np.ndarray]:
         """Returns the list of lines in the mesh.
 

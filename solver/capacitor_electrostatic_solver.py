@@ -223,11 +223,10 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
                                       axis=0)
 
         # Find all lines along the boundary of the ground plate.
-        line_tags, line_node_tags = self.get_lines()
-        is_line_on_ground_plate = np.all(np.isin(
-            line_node_tags, ground_plate_boundary_node_tags),
-                                         axis=1)
-        boundary_line_node_tags = line_node_tags[is_line_on_ground_plate]
+        _, line_tags = self.get_adjacencies(
+            dim=self.dimension(), tag=CapacitorEntityTag.GROUND_PLATE_TAG)
+        line_node_tags = [self.get_lines(tag)[1] for tag in line_tags]
+        boundary_line_node_tags = np.vstack(line_node_tags)
 
         # Iterate over all lines along the boundary of the ground plate to find
         # the electric flux.

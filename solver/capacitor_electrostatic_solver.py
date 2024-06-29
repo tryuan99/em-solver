@@ -5,7 +5,7 @@ a capacitor.
 import numpy as np
 import scipy.sparse
 
-from mesh_generator.gmsh_interface import GmshNodeType
+from mesh.gmsh_interface import GmshNodeType
 from model.capacitor import Capacitor, CapacitorEntityTag
 from solver.constants import VACUUM_PERMITTIVITY
 from solver.electrostatic_solver import ElectrostaticSolver2D

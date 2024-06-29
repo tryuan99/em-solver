@@ -23,7 +23,7 @@ py_library(
     name = "electromagnetic_solver",
     srcs = ["electromagnetic_solver.py"],
     deps = [
-        "//mesh_generator:gmsh_interface",
+        "//mesh:gmsh_interface",
         requirement("gmsh"),
         requirement("numpy"),
     ],
@@ -36,7 +36,7 @@ py_library(
         ":constants",
         ":electrostatic_solver",
         ":neighbor_lookup",
-        "//mesh_generator:gmsh_interface",
+        "//mesh:gmsh_interface",
         "//model:capacitor",
         requirement("numpy"),
         requirement("scipy"),

@@ -6,7 +6,7 @@ from enum import IntEnum
 import gmsh
 import numpy as np
 
-from mesh_generator.gmsh_interface import GmshInterface
+from mesh.gmsh_interface import GmshInterface
 
 # Mesh resolution factor. The higher the factor, the finer the resolution.
 MESH_RESOLUTION_FACTOR = 100

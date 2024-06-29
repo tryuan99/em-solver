@@ -7,8 +7,7 @@ from abc import ABC
 import gmsh
 import numpy as np
 
-from mesh_generator.mesh_generator import (MeshGenerator, MeshGenerator2D,
-                                           MeshGenerator3D)
+from mesh.mesh_generator import MeshGenerator, MeshGenerator2D, MeshGenerator3D
 from model.capacitor import CapacitorEntityTag
 
 

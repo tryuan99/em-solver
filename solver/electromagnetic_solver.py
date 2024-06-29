@@ -7,7 +7,7 @@ from typing import Any
 import gmsh
 import numpy as np
 
-from mesh_generator.gmsh_interface import GmshInterface
+from mesh.gmsh_interface import GmshInterface
 
 
 class ElectromagneticSolver(GmshInterface):

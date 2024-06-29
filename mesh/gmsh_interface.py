@@ -45,6 +45,11 @@ class GmshInterface(ABC):
         gmsh.write(mesh_file)
 
     @staticmethod
+    def launch() -> None:
+        """Launches the GUI."""
+        gmsh.fltk.run()
+
+    @staticmethod
     def get_nodes(tag: int = -1,
                   dim: int = -1,
                   node_type: GmshNodeType = GmshNodeType.ALL) -> np.ndarray:

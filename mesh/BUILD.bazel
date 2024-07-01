@@ -47,7 +47,13 @@ py_library(
     srcs = ["mesh_generator.py"],
     deps = [
         ":gmsh_interface",
+        ":mesh_generator_config",
         requirement("gmsh"),
         requirement("numpy"),
     ],
+)
+
+py_library(
+    name = "mesh_generator_config",
+    srcs = ["mesh_generator_config.py"],
 )

@@ -5,20 +5,22 @@ from enum import IntEnum
 
 import gmsh
 import numpy as np
+from absl import flags
 
 from mesh.gmsh_interface import GmshInterface
+from mesh.mesh_generator_config import (MESH_GENERATOR_COARSE_CONFIG,
+                                        MESH_GENERATOR_FINE_CONFIG)
 
-# Mesh resolution factor. The higher the factor, the finer the resolution.
-MESH_RESOLUTION_FACTOR = 100
+FLAGS = flags.FLAGS
+
+flags.DEFINE_boolean("fine", False, "If true, mesh with a finer resolution.")
 
 # Mesh bounding box factor.
 MESH_BOUNDING_BOX_FACTOR = 2
 
-# Mesh threshold field.
-MESH_THRESHOLD_FIELD_LC_MIN_FACTOR = 1
-MESH_THRESHOLD_FIELD_LC_MAX_FACTOR = 10
-MESH_THRESHOLD_FIELD_DISTANCE_MIN_FACTOR = 10
-MESH_THRESHOLD_FIELD_DISTANCE_MAX_FACTOR = 100
+# Linear number of sampling points per dimension for calculating the distance
+# for the mesh field.
+MESH_DISTANCE_NUM_SAMPLING_POINTS = 10000
 
 
 class MeshGenerator(GmshInterface):
@@ -88,6 +90,7 @@ class MeshGenerator(GmshInterface):
 
         # Generate a mesh.
         gmsh.model.occ.synchronize()
+        gmsh.option.setNumber("Mesh.MeshSizeFactor", 1)
         gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
         gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
@@ -151,22 +154,24 @@ class MeshGenerator(GmshInterface):
         elif np.unique(dimension_tags)[0] == 2:
             gmsh.model.mesh.field.setNumbers(distance, "SurfacesList",
                                              boundary_tags)
+        gmsh.model.mesh.field.setNumber(distance, "Sampling",
+                                        MESH_DISTANCE_NUM_SAMPLING_POINTS)
 
         # Add a threshold field.
-        resolution = np.min(
-            dimensions[:self.dimension()]) / MESH_RESOLUTION_FACTOR
+        min_dimension = np.min(dimensions[:self.dimension()])
         threshold = gmsh.model.mesh.field.add("Threshold")
+        mesh_config = MESH_GENERATOR_FINE_CONFIG if FLAGS.fine else MESH_GENERATOR_COARSE_CONFIG
         gmsh.model.mesh.field.setNumber(threshold, "IField", distance)
         gmsh.model.mesh.field.setNumber(
-            threshold, "LcMin", MESH_THRESHOLD_FIELD_LC_MIN_FACTOR * resolution)
+            threshold, "LcMin", mesh_config.lc_min_factor * min_dimension)
         gmsh.model.mesh.field.setNumber(
-            threshold, "LcMax", MESH_THRESHOLD_FIELD_LC_MAX_FACTOR * resolution)
+            threshold, "LcMax", mesh_config.lc_max_factor * min_dimension)
         gmsh.model.mesh.field.setNumber(
             threshold, "DistMin",
-            MESH_THRESHOLD_FIELD_DISTANCE_MIN_FACTOR * resolution)
+            mesh_config.distance_min_factor * min_dimension)
         gmsh.model.mesh.field.setNumber(
             threshold, "DistMax",
-            MESH_THRESHOLD_FIELD_DISTANCE_MAX_FACTOR * resolution)
+            mesh_config.distance_max_factor * min_dimension)
         gmsh.model.mesh.field.setAsBackgroundMesh(threshold)
 
 

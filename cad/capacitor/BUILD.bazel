@@ -10,5 +10,8 @@ filegroup(
 
 filegroup(
     name = "capacitor_3d_models",
-    srcs = ["capacitor_m7_m8_100um_100um.step"],
+    srcs = [
+        "capacitor_m7_m8_100um_100um.step",
+        "capacitor_simple_3d.step",
+    ],
 )

@@ -143,17 +143,22 @@ class MeshGenerator(GmshInterface):
             dimensions: The (x, y, z) dimensions of the structure.
         """
         boundaries = gmsh.model.getBoundary(dimTags=entities, oriented=False)
-        dimension_tags = [boundary[0] for boundary in boundaries]
         boundary_tags = [boundary[1] for boundary in boundaries]
 
         # Add a distance field.
         distance = gmsh.model.mesh.field.add("Distance")
-        if np.unique(dimension_tags)[0] == 1:
+        if self.dimension() == 2:
             gmsh.model.mesh.field.setNumbers(distance, "CurvesList",
                                              boundary_tags)
-        elif np.unique(dimension_tags)[0] == 2:
-            gmsh.model.mesh.field.setNumbers(distance, "SurfacesList",
-                                             boundary_tags)
+        elif self.dimension() == 3:
+            # SurfacesList only supports OpenCASCADE and discrete surfaces, so
+            # use the bounding curves for the distance field instead.
+            line_tags = []
+            for boundary_tag in boundary_tags:
+                _, boundary_line_tags = self.get_adjacencies(
+                    dim=self.dimension() - 1, tag=boundary_tag)
+                line_tags.extend(boundary_line_tags)
+            gmsh.model.mesh.field.setNumbers(distance, "CurvesList", line_tags)
         gmsh.model.mesh.field.setNumber(distance, "Sampling",
                                         MESH_DISTANCE_NUM_SAMPLING_POINTS)
 

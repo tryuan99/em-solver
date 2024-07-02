@@ -1,4 +1,5 @@
 load("@pip_deps//:requirements.bzl", "requirement")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -23,6 +24,14 @@ py_binary(
     ],
 )
 
+pkg_tar(
+    name = "capacitor_mesh_generator_2d_main_tar_pkg",
+    srcs = [":capacitor_mesh_generator_2d_main"],
+    extension = ".tar.gz",
+    include_runfiles = True,
+    strip_prefix = "/mesh/",
+)
+
 py_binary(
     name = "capacitor_mesh_generator_3d_main",
     srcs = ["capacitor_mesh_generator_3d_main.py"],
@@ -31,6 +40,14 @@ py_binary(
         ":capacitor_mesh_generator",
         requirement("absl-py"),
     ],
+)
+
+pkg_tar(
+    name = "capacitor_mesh_generator_3d_main_tar_pkg",
+    srcs = [":capacitor_mesh_generator_3d_main"],
+    extension = ".tar.gz",
+    include_runfiles = True,
+    strip_prefix = "/mesh/",
 )
 
 py_library(

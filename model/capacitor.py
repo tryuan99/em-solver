@@ -23,7 +23,7 @@ class Capacitor:
             tag: Tag of the entity.
 
         Raises:
-            ValueError: If the tag does not belong to the capacitor structure.
+            ValueError: If the tag does not belong to the structure.
         """
         if tag == CapacitorEntity.GROUND_PLATE:
             return 0

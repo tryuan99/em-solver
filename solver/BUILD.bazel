@@ -12,10 +12,14 @@ py_library(
     srcs = ["electrostatic_solver.py"],
     deps = [
         ":electromagnetic_solver",
+        "//mesh:gmsh_interface",
+        "//model:material",
         "//visualization:color_maps",
         requirement("matplotlib"),
         requirement("numpy"),
         requirement("SciencePlots"),
+        requirement("scipy"),
+        ":neighbor_lookup",
     ],
 )
 
@@ -36,13 +40,11 @@ py_library(
     deps = [
         ":constants",
         ":electrostatic_solver",
-        ":neighbor_lookup",
         "//mesh:gmsh_interface",
         "//model:capacitor",
         "//model:material",
         "//proto:capacitor_py_proto",
         requirement("numpy"),
-        requirement("scipy"),
     ],
 )
 

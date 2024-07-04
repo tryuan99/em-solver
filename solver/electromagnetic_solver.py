@@ -63,6 +63,19 @@ class ElectromagneticSolver(GmshInterface):
                 self.num_magnetic_vector_potential_unknowns +
                 self.num_magnetic_field_unknowns)
 
+    def get_material_for_physical_group(self, dim: int, tag: int) -> Material:
+        """Returns the material of the physical group.
+
+        Args:
+            dim: Dimension of the physical group.
+            tag: Tag of the physical group.
+
+        Returns:
+            The material of the physical group.
+        """
+        physical_group_name = gmsh.model.getPhysicalName(dim=dim, tag=tag)
+        return Material.Value(physical_group_name)
+
     def get_material_for_entity(self, dim: int, tag: int) -> Material:
         """Returns the material of the entity.
 
@@ -82,9 +95,8 @@ class ElectromagneticSolver(GmshInterface):
                              f"multiple physical groups.")
 
         physical_group_tag = physical_group_tags[0]
-        physical_group_name = gmsh.model.getPhysicalName(dim=dim,
-                                                         tag=physical_group_tag)
-        return Material.Value(physical_group_name)
+        return self.get_material_for_physical_group(dim=dim,
+                                                    tag=physical_group_tag)
 
     def solve(self) -> None:
         """Solves for the voltage, the electric field, the magnetic vector

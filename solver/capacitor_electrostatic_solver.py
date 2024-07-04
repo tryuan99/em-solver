@@ -60,122 +60,135 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
             dim=self.dimension(), coordinates_dim=self.dimension())
         node_tag_to_coordinates = dict(zip(node_tags, node_coordinates))
 
+        # Get the conductor and the insulator entities.
+        physical_groups = self.get_physical_groups(dim=self.dimension())
+        conductor_entity_tags = []
+        insulator_entity_tags = []
+        for physical_group_dimension, physical_group_tag in physical_groups:
+            material = self.get_material_for_physical_group(
+                physical_group_dimension, physical_group_tag)
+            entities = self.get_entities_for_physical_group(
+                physical_group_dimension, physical_group_tag)
+            if MaterialProperties.is_conductor(material):
+                conductor_entity_tags.extend(entities)
+            elif MaterialProperties.is_insulator(material):
+                insulator_entity_tags.extend(entities)
+
         # Initialize the matrix-vector equation.
         A = scipy.sparse.lil_matrix((self.num_unknowns, self.num_unknowns),
                                     dtype=np.float64)
         b = np.zeros(self.num_unknowns)
 
         # Fill in Poisson's equations and the electric field equations for the
-        # nodes within the dielectric, including the boundary nodes.
-        _, dielectric_triangle_node_tags = self.get_faces(
-            tag=CapacitorEntity.DIELECTRIC)
-        dielectric_triangle_neighbors = NeighborLookup(
-            dielectric_triangle_node_tags)
-        dielectric_node_tags = self.get_nodes(tag=CapacitorEntity.DIELECTRIC,
-                                              dim=self.dimension())
-        for tag in dielectric_node_tags:
-            x, y = node_tag_to_coordinates[tag]
-            poisson_equation_index = (
-                self._get_poisson_voltage_equation_index(tag))
-            electric_field_x_equation_index = (
-                self._get_electric_field_x_equation_index(tag))
-            electric_field_y_equation_index = (
-                self._get_electric_field_y_equation_index(tag))
-            voltage_unknown_index = self._get_voltage_unknown_index(tag)
-            electric_field_x_unknown_index = (
-                self._get_electric_field_x_unknown_index(tag))
-            electric_field_y_unknown_index = (
-                self._get_electric_field_y_unknown_index(tag))
-            num_adjacent_triangles = (
-                dielectric_triangle_neighbors.get_num_adjacent_entities(tag))
+        # nodes within the insulators, including the boundary nodes.
+        for insulator_tag in insulator_entity_tags:
+            _, insulator_triangle_node_tags = self.get_faces(tag=insulator_tag)
+            insulator_triangle_neighbors = NeighborLookup(
+                insulator_triangle_node_tags)
+            insulator_node_tags = self.get_nodes(tag=insulator_tag,
+                                                 dim=self.dimension())
+            for tag in insulator_node_tags:
+                x, y = node_tag_to_coordinates[tag]
+                poisson_equation_index = (
+                    self._get_poisson_voltage_equation_index(tag))
+                electric_field_x_equation_index = (
+                    self._get_electric_field_x_equation_index(tag))
+                electric_field_y_equation_index = (
+                    self._get_electric_field_y_equation_index(tag))
+                voltage_unknown_index = self._get_voltage_unknown_index(tag)
+                electric_field_x_unknown_index = (
+                    self._get_electric_field_x_unknown_index(tag))
+                electric_field_y_unknown_index = (
+                    self._get_electric_field_y_unknown_index(tag))
+                num_adjacent_triangles = (
+                    insulator_triangle_neighbors.get_num_adjacent_entities(tag))
 
-            # Iterate over all adjacent triangles.
-            for (tag_neighbor1, tag_neighbor2
-                ) in dielectric_triangle_neighbors.get_neighbors(tag):
-                x_neighbor1, y_neighbor1 = node_tag_to_coordinates[
-                    tag_neighbor1]
-                x_neighbor2, y_neighbor2 = node_tag_to_coordinates[
-                    tag_neighbor2]
-                voltage_unknown_index_neighbor1 = (
-                    self._get_voltage_unknown_index(tag_neighbor1))
-                voltage_unknown_index_neighbor2 = (
-                    self._get_voltage_unknown_index(tag_neighbor2))
-                electric_field_x_unknown_index_neighbor1 = (
-                    self._get_electric_field_x_unknown_index(tag_neighbor1))
-                electric_field_y_unknown_index_neighbor1 = (
-                    self._get_electric_field_y_unknown_index(tag_neighbor1))
-                electric_field_x_unknown_index_neighbor2 = (
-                    self._get_electric_field_x_unknown_index(tag_neighbor2))
-                electric_field_y_unknown_index_neighbor2 = (
-                    self._get_electric_field_y_unknown_index(tag_neighbor2))
+                # Iterate over all adjacent triangles.
+                for (tag_neighbor1, tag_neighbor2
+                    ) in insulator_triangle_neighbors.get_neighbors(tag):
+                    x_neighbor1, y_neighbor1 = node_tag_to_coordinates[
+                        tag_neighbor1]
+                    x_neighbor2, y_neighbor2 = node_tag_to_coordinates[
+                        tag_neighbor2]
+                    voltage_unknown_index_neighbor1 = (
+                        self._get_voltage_unknown_index(tag_neighbor1))
+                    voltage_unknown_index_neighbor2 = (
+                        self._get_voltage_unknown_index(tag_neighbor2))
+                    electric_field_x_unknown_index_neighbor1 = (
+                        self._get_electric_field_x_unknown_index(tag_neighbor1))
+                    electric_field_y_unknown_index_neighbor1 = (
+                        self._get_electric_field_y_unknown_index(tag_neighbor1))
+                    electric_field_x_unknown_index_neighbor2 = (
+                        self._get_electric_field_x_unknown_index(tag_neighbor2))
+                    electric_field_y_unknown_index_neighbor2 = (
+                        self._get_electric_field_y_unknown_index(tag_neighbor2))
 
-                # Calculate the denominator.
-                denominator = (x_neighbor1 * y_neighbor2 - x_neighbor1 * y -
-                               x_neighbor2 * y_neighbor1 + x_neighbor2 * y +
-                               x * y_neighbor1 - x * y_neighbor2)
+                    # Calculate the denominator.
+                    denominator = (x_neighbor1 * y_neighbor2 - x_neighbor1 * y -
+                                   x_neighbor2 * y_neighbor1 + x_neighbor2 * y +
+                                   x * y_neighbor1 - x * y_neighbor2)
 
-                # Add the coefficients of the electric fields for Poisson's
-                # equation.
-                A[poisson_equation_index,
-                  electric_field_x_unknown_index_neighbor1] += (
-                      (y_neighbor2 - y) / denominator)
-                A[poisson_equation_index,
-                  electric_field_y_unknown_index_neighbor1] += (
-                      (x - x_neighbor2) / denominator)
-                A[poisson_equation_index,
-                  electric_field_x_unknown_index_neighbor2] += (
-                      (y - y_neighbor1) / denominator)
-                A[poisson_equation_index,
-                  electric_field_y_unknown_index_neighbor2] += (
-                      (x_neighbor1 - x) / denominator)
-                A[poisson_equation_index, electric_field_x_unknown_index] += (
-                    (y_neighbor1 - y_neighbor2) / denominator)
-                A[poisson_equation_index, electric_field_y_unknown_index] += (
-                    (x_neighbor2 - x_neighbor1) / denominator)
+                    # Add the coefficients of the electric fields for Poisson's
+                    # equation.
+                    A[poisson_equation_index,
+                      electric_field_x_unknown_index_neighbor1] += (
+                          (y_neighbor2 - y) / denominator)
+                    A[poisson_equation_index,
+                      electric_field_y_unknown_index_neighbor1] += (
+                          (x - x_neighbor2) / denominator)
+                    A[poisson_equation_index,
+                      electric_field_x_unknown_index_neighbor2] += (
+                          (y - y_neighbor1) / denominator)
+                    A[poisson_equation_index,
+                      electric_field_y_unknown_index_neighbor2] += (
+                          (x_neighbor1 - x) / denominator)
+                    A[poisson_equation_index,
+                      electric_field_x_unknown_index] += (
+                          (y_neighbor1 - y_neighbor2) / denominator)
+                    A[poisson_equation_index,
+                      electric_field_y_unknown_index] += (
+                          (x_neighbor2 - x_neighbor1) / denominator)
 
-                # Add the coefficients of the voltages for the electric field
-                # equation in the x-direction.
+                    # Add the coefficients of the voltages for the electric
+                    # field equation in the x-direction.
+                    A[electric_field_x_equation_index,
+                      voltage_unknown_index_neighbor1] += ((y_neighbor2 - y) /
+                                                           denominator)
+                    A[electric_field_x_equation_index,
+                      voltage_unknown_index_neighbor2] += ((y - y_neighbor1) /
+                                                           denominator)
+                    A[electric_field_x_equation_index,
+                      voltage_unknown_index] += ((y_neighbor1 - y_neighbor2) /
+                                                 denominator)
+
+                    # Add the coefficients of the voltages for the electric
+                    # field equation in the y-direction.
+                    A[electric_field_y_equation_index,
+                      voltage_unknown_index_neighbor1] += ((x - x_neighbor2) /
+                                                           denominator)
+                    A[electric_field_y_equation_index,
+                      voltage_unknown_index_neighbor2] += ((x_neighbor1 - x) /
+                                                           denominator)
+                    A[electric_field_y_equation_index,
+                      voltage_unknown_index] += ((x_neighbor2 - x_neighbor1) /
+                                                 denominator)
+
+                # Set the coefficient for the electric fields for the
+                # electric field equations.
                 A[electric_field_x_equation_index,
-                  voltage_unknown_index_neighbor1] += ((y_neighbor2 - y) /
-                                                       denominator)
-                A[electric_field_x_equation_index,
-                  voltage_unknown_index_neighbor2] += ((y - y_neighbor1) /
-                                                       denominator)
-                A[electric_field_x_equation_index,
-                  voltage_unknown_index] += ((y_neighbor1 - y_neighbor2) /
-                                             denominator)
-
-                # Add the coefficients of the voltages for the electric field
-                # equation in the y-direction.
+                  electric_field_x_unknown_index] = -num_adjacent_triangles
                 A[electric_field_y_equation_index,
-                  voltage_unknown_index_neighbor1] += ((x - x_neighbor2) /
-                                                       denominator)
-                A[electric_field_y_equation_index,
-                  voltage_unknown_index_neighbor2] += ((x_neighbor1 - x) /
-                                                       denominator)
-                A[electric_field_y_equation_index,
-                  voltage_unknown_index] += ((x_neighbor2 - x_neighbor1) /
-                                             denominator)
-
-            # Set the coefficient for the electric fields for the electric
-            # field equations.
-            A[electric_field_x_equation_index,
-              electric_field_x_unknown_index] = -num_adjacent_triangles
-            A[electric_field_y_equation_index,
-              electric_field_y_unknown_index] = -num_adjacent_triangles
+                  electric_field_y_unknown_index] = -num_adjacent_triangles
 
         # Fill in the voltage and electric field equations for the nodes within
         # the conductors.
         # At steady state, the voltage is constant throughout the insulator,
         # and the electric field is zero throughout, even with a non-zero
         # resistivity.
-        for entity_tag in [
-                CapacitorEntity.GROUND_PLATE,
-                CapacitorEntity.VDD_PLATE,
-        ]:
+        for conductor_tag in conductor_entity_tags:
             # Set the voltage boundary conditions and electric fields within
             # the capacitor plates.
-            internal_node_tags = self.get_nodes(tag=entity_tag,
+            internal_node_tags = self.get_nodes(tag=conductor_tag,
                                                 dim=self.dimension(),
                                                 node_type=GmshNodeType.INTERNAL)
             for tag in internal_node_tags:
@@ -189,7 +202,7 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
                 voltage_equation_index = (
                     self._get_poisson_voltage_equation_index(tag))
                 A[voltage_equation_index, voltage_unknown_index] = 1
-                b[voltage_equation_index] = self.get_dc_voltage(entity_tag)
+                b[voltage_equation_index] = self.get_dc_voltage(conductor_tag)
 
                 # Electric field in the x-direction.
                 electric_field_x_equation_index = (
@@ -205,7 +218,7 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
 
             # Set the voltage boundary conditions for the boundary nodes at the
             # capacitor plates.
-            boundary_node_tags = self.get_nodes(tag=entity_tag,
+            boundary_node_tags = self.get_nodes(tag=conductor_tag,
                                                 dim=self.dimension(),
                                                 node_type=GmshNodeType.BOUNDARY)
             for tag in boundary_node_tags:
@@ -216,7 +229,7 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
                     self._get_poisson_voltage_equation_index(tag))
                 A[voltage_equation_index, :] = 0
                 A[voltage_equation_index, voltage_unknown_index] = 1
-                b[voltage_equation_index] = self.get_dc_voltage(entity_tag)
+                b[voltage_equation_index] = self.get_dc_voltage(conductor_tag)
 
         # Solve for the voltage and the electric field.
         x = scipy.sparse.linalg.spsolve(A.tocsr(), b)

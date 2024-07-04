@@ -90,6 +90,7 @@ class MeshGenerator(GmshInterface, ABC):
         gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
         gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+        gmsh.option.setNumber("Mesh.SaveAll", 1)
         gmsh.model.occ.synchronize()
         gmsh.model.mesh.generate(self.dimension())
 

@@ -39,6 +39,7 @@ py_library(
         ":neighbor_lookup",
         "//mesh:gmsh_interface",
         "//model:capacitor",
+        "//model:material",
         "//proto:capacitor_py_proto",
         requirement("numpy"),
         requirement("scipy"),

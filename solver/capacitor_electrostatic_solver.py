@@ -8,6 +8,7 @@ from proto.capacitor_pb2 import CapacitorEntity
 
 from mesh.gmsh_interface import GmshNodeType
 from model.capacitor import Capacitor
+from model.material import MATERIAL_TO_PROPERTIES, MaterialProperties
 from solver.constants import VACUUM_PERMITTIVITY
 from solver.electrostatic_solver import ElectrostaticSolver2D
 from solver.neighbor_lookup import NeighborLookup
@@ -27,6 +28,28 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
     def __init__(self, mesh_file: str, dc_voltage: float = 1) -> None:
         super().__init__(mesh_file)
         Capacitor.__init__(self, dc_voltage)
+
+    def _validate(self) -> None:
+        """Validates the mesh.
+
+        Raises:
+            ValueError: If the mesh is invalid and cannot be solved.
+        """
+        # Validate the materials of the capacitor plates and the dielectric.
+        for conductor_entity_tag in [
+                CapacitorEntity.GROUND_PLATE,
+                CapacitorEntity.VDD_PLATE,
+        ]:
+            if not MaterialProperties.is_conductor(
+                    self.get_material_for_entity(dim=self.dimension(),
+                                                 tag=conductor_entity_tag)):
+                raise ValueError(
+                    f"Entity {conductor_entity_tag} is not a conductor.")
+        if not MaterialProperties.is_insulator(
+                self.get_material_for_entity(dim=self.dimension(),
+                                             tag=CapacitorEntity.DIELECTRIC)):
+            raise ValueError(
+                f"Entity {CapacitorEntity.DIELECTRIC} is not an insulator.")
 
     def _solve(self) -> None:
         """Implementation for solving for the voltage, the electric field, the
@@ -142,7 +165,10 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
               electric_field_y_unknown_index] = -num_adjacent_triangles
 
         # Fill in the voltage and electric field equations for the nodes within
-        # the capacitor plates.
+        # the conductors.
+        # At steady state, the voltage is constant throughout the insulator,
+        # and the electric field is zero throughout, even with a non-zero
+        # resistivity.
         for entity_tag in [
                 CapacitorEntity.GROUND_PLATE,
                 CapacitorEntity.VDD_PLATE,
@@ -266,7 +292,10 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
         electric_flux /= total_line_length
 
         # Calculate the surface charge and the capacitance.
-        Q = electric_flux * VACUUM_PERMITTIVITY
+        material = self.get_material_for_entity(dim=self.dimension(),
+                                                tag=CapacitorEntity.DIELECTRIC)
+        material_properties = MATERIAL_TO_PROPERTIES[material]
+        Q = electric_flux * VACUUM_PERMITTIVITY * material_properties.relative_permittivity
         C = Q / self.dc_voltage
         return C
 

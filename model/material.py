@@ -18,6 +18,24 @@ class MaterialProperties:
         """Returns the conductivity."""
         return 1 / self.resistivity
 
+    @staticmethod
+    def is_conductor(material: Material) -> bool:
+        """Returns whether the given material is a conductor."""
+        return material in [
+            Material.CONDUCTOR,
+            Material.COPPER,
+            Material.GOLD,
+        ]
+
+    @staticmethod
+    def is_insulator(material: Material) -> bool:
+        """Returns whether the given material is an insulator."""
+        return material in [
+            Material.INSULATOR,
+            Material.AIR,
+            Material.SILICON_DIOXIDE,
+        ]
+
 
 # Map from the material to its properties.
 MATERIAL_TO_PROPERTIES = {

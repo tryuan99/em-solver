@@ -20,6 +20,9 @@ class ElectromagneticSolver(GmshInterface):
         # Open the mesh file.
         gmsh.open(mesh_file)
 
+        # Validate the mesh.
+        self._validate()
+
         # Initialize the voltage, electric field, and magnetic field vectors.
         num_nodes = len(np.unique(self.get_nodes(dim=self.dimension())))
         self.voltage = np.zeros(num_nodes)
@@ -91,6 +94,14 @@ class ElectromagneticSolver(GmshInterface):
             return
         self._solve()
         self.solved = True
+
+    def _validate(self) -> None:
+        """Validates the mesh.
+
+        Raises:
+            ValueError: If the mesh is invalid and cannot be solved.
+        """
+        return
 
     @abstractmethod
     def _solve(self) -> None:

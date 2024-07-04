@@ -1,12 +1,12 @@
-"""The capacitor model defines constants for a capacitor model."""
+"""The capacitor model defines constants for a capacitor model with three
+plates.
+"""
 
-from abc import ABC, abstractmethod
-
-from proto.capacitor_pb2 import CapacitorEntity
+from proto.capacitor_three_plates_pb2 import CapacitorThreePlatesEntity
 
 
-class Capacitor(ABC):
-    """Interface for a capacitor.
+class CapacitorThreePlates:
+    """Interface for a capacitor with three plates.
 
     Attributes:
         dc_voltage: DC voltage applied to the capacitor plates.
@@ -24,12 +24,8 @@ class Capacitor(ABC):
         Raises:
             ValueError: If the tag does not belong to the structure.
         """
-        if tag == CapacitorEntity.GROUND_PLATE:
+        if tag == CapacitorThreePlatesEntity.GROUND_PLATE or tag == CapacitorThreePlatesEntity.MIDDLE_PLATE:
             return 0
-        if tag == CapacitorEntity.VDD_PLATE:
+        if tag == CapacitorThreePlatesEntity.VDD_PLATE:
             return self.dc_voltage
         raise ValueError("Invalid capacitor entity tag.")
-
-    @abstractmethod
-    def calculate_capacitance(self) -> float:
-        """Calculates the capacitance."""

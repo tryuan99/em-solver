@@ -2,7 +2,10 @@ package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "capacitor_mesh_configs",
-    srcs = ["capacitor_mesh_config_default.pbtxt"],
+    srcs = [
+        "capacitor_mesh_config_default.pbtxt",
+        "capacitor_mesh_config_three_plates.pbtxt",
+    ],
 )
 
 filegroup(

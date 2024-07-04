@@ -14,6 +14,16 @@ py_proto_library(
 )
 
 proto_library(
+    name = "capacitor_three_plates_proto",
+    srcs = ["capacitor_three_plates.proto"],
+)
+
+py_proto_library(
+    name = "capacitor_three_plates_py_proto",
+    deps = [":capacitor_three_plates_proto"],
+)
+
+proto_library(
     name = "material_proto",
     srcs = ["material.proto"],
 )

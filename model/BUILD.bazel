@@ -9,6 +9,12 @@ py_library(
 )
 
 py_library(
+    name = "capacitor_three_plates",
+    srcs = ["capacitor_three_plates.py"],
+    deps = ["//proto:capacitor_three_plates_py_proto"],
+)
+
+py_library(
     name = "material",
     srcs = ["material.py"],
     deps = [

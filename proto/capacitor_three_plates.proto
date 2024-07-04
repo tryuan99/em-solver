@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+// Capacitor three plates entity.
+enum CapacitorThreePlatesEntity {
+    INVALID = 0;
+    GROUND_PLATE = 1;
+    MIDDLE_PLATE = 2;
+    VDD_PLATE = 3;
+    DIELECTRIC = 4;
+}

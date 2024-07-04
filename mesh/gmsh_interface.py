@@ -174,3 +174,43 @@ class GmshInterface(ABC):
         element_tags, node_tags = gmsh.model.mesh.getElementsByType(
             GmshElementType.FOUR_NODE_TETRAHEDRON, tag=tag)
         return element_tags, np.reshape(node_tags, (-1, 4))
+
+    @staticmethod
+    def get_physical_groups(dim: int = -1) -> list[tuple[int, int]]:
+        """Returns the list of physical groups in the mesh.
+
+        Args:
+            dim: Dimension of the physical groups.
+
+        Returns:
+            A 2-tuple consisting of the dimensions and the tags of the physical
+            groups.
+        """
+        return gmsh.model.getPhysicalGroups(dim=dim)
+
+    @staticmethod
+    def get_entities_for_physical_group(dim: int, tag: int) -> list[int]:
+        """Returns the list of entities making up the physical group.
+
+        Args:
+            dim: Dimension of the physical group.
+            tag: Tag of the physical group.
+
+        Returns:
+            A list of tags corresponding to the entities making up the physical
+            group.
+        """
+        return gmsh.model.getEntitiesForPhysicalGroup(dim=dim, tag=tag)
+
+    @staticmethod
+    def get_physical_groups_for_entity(dim: int, tag: int) -> list[int]:
+        """Returns the list of physical groups to which the entity belongs.
+
+        Args:
+            dim: Dimension of the entity.
+            tag: Tag of the entity.
+
+        Returns:
+            A list of tags corresponding to the physical groups.
+        """
+        return gmsh.model.getPhysicalGroupsForEntity(dim=dim, tag=tag)

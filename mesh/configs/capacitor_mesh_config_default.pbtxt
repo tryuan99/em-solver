@@ -1,0 +1,12 @@
+entity_configs {
+  tag: 1
+  material: COPPER
+}
+entity_configs {
+  tag: 2
+  material: COPPER
+}
+entity_configs {
+  tag: 3
+  material: AIR
+}

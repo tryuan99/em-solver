@@ -6,16 +6,17 @@ from abc import ABC
 
 import gmsh
 import numpy as np
+from proto.capacitor_pb2 import CapacitorEntity
+from proto.mesh_config_pb2 import MeshConfig
 
 from mesh.mesh_generator import MeshGenerator, MeshGenerator2D, MeshGenerator3D
-from model.capacitor import CapacitorEntityTag
 
 
 class CapacitorMeshGenerator(MeshGenerator):
     """Interface for a capacitor mesh generator."""
 
-    def __init__(self, input_file: str) -> None:
-        super().__init__(input_file)
+    def __init__(self, input_file: str, mesh_config: MeshConfig) -> None:
+        super().__init__(input_file, mesh_config)
 
         # Validate the model.
         self._validate_model()
@@ -30,10 +31,10 @@ class CapacitorMeshGenerator(MeshGenerator):
         if len(entities) != 3:
             raise ValueError("Invalid number of entities.")
 
-        # Check that tag 3 corresponds to the bounding box.
+        # Check the tag of the dielectric in the bounding box.
         (x_min, y_min, z_min, x_max, y_max,
-         z_max) = gmsh.model.occ.getBoundingBox(
-             dim=self.dimension(), tag=CapacitorEntityTag.DIELECTRIC_TAG)
+         z_max) = gmsh.model.occ.getBoundingBox(dim=self.dimension(),
+                                                tag=CapacitorEntity.DIELECTRIC)
         min_coordinates = np.array([x_min, y_min, z_min])
         max_coordinates = np.array([x_max, y_max, z_max])
         (bounding_box_min_coordinates,
@@ -42,8 +43,8 @@ class CapacitorMeshGenerator(MeshGenerator):
                            bounding_box_min_coordinates) or not np.allclose(
                                max_coordinates, bounding_box_max_coordinates):
             raise ValueError(
-                f"Tag {CapacitorEntityTag.BOUNDING_BOX_TAG} does not "
-                f"correspond to the bounding box.")
+                f"Tag {CapacitorEntity.DIELECTRIC} does not correspond to the "
+                f"dielectric in the bounding box.")
 
 
 class CapacitorMeshGenerator2D(CapacitorMeshGenerator, MeshGenerator2D):

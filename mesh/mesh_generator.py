@@ -1,19 +1,13 @@
 """The mesh generator class generates a mesh for a 2D or 3D structure."""
 
 from abc import ABC, abstractmethod
-from enum import IntEnum
 
 import gmsh
 import numpy as np
-from absl import flags
+from proto.material_pb2 import Material
+from proto.mesh_config_pb2 import EntityConfig, MeshConfig, MeshGeneratorConfig
 
 from mesh.gmsh_interface import GmshInterface
-from mesh.mesh_generator_config import (MESH_GENERATOR_COARSE_CONFIG,
-                                        MESH_GENERATOR_FINE_CONFIG)
-
-FLAGS = flags.FLAGS
-
-flags.DEFINE_boolean("fine", False, "If true, mesh with a finer resolution.")
 
 # Mesh bounding box factor.
 MESH_BOUNDING_BOX_FACTOR = 2
@@ -23,18 +17,18 @@ MESH_BOUNDING_BOX_FACTOR = 2
 MESH_DISTANCE_NUM_SAMPLING_POINTS = 10000
 
 
-class MeshGenerator(GmshInterface):
+class MeshGenerator(GmshInterface, ABC):
     """Interface for a mesh generator.
 
     Args:
         dimension: Dimension of the structure and the generated mesh.
     """
 
-    def __init__(self, input_file: str) -> None:
+    def __init__(self, input_file: str, mesh_config: MeshConfig) -> None:
         super().__init__()
 
         # Generate the mesh.
-        self._generate_mesh(input_file)
+        self._generate_mesh(input_file, mesh_config)
 
     @classmethod
     @abstractmethod
@@ -59,11 +53,12 @@ class MeshGenerator(GmshInterface):
         """
         return gmsh.model.getEntities(dim=self.dimension())
 
-    def _generate_mesh(self, input_file: str) -> None:
+    def _generate_mesh(self, input_file: str, mesh_config: MeshConfig) -> None:
         """Generates a mesh.
 
         Args:
             input_file: Input file.
+            mesh_config: Mesh configuration.
         """
         # Open the input file.
         gmsh.open(input_file)
@@ -78,22 +73,24 @@ class MeshGenerator(GmshInterface):
         bounding_box_tag = self._add_bounding_box(min_coordinates, dimensions)
 
         # Remove the structure from the bounding box.
-        dielectric, _ = gmsh.model.occ.cut(
-            [(self.dimension(), bounding_box_tag)],
-            entities,
-            removeObject=True,
-            removeTool=False)
+        gmsh.model.occ.cut([(self.dimension(), bounding_box_tag)],
+                           entities,
+                           removeObject=True,
+                           removeTool=False)
+        gmsh.model.occ.synchronize()
+
+        # Define physical groups for the entities.
+        self._add_physical_groups(mesh_config.entity_configs)
 
         # Add a mesh field as a function of the distance to the structure.
-        gmsh.model.occ.synchronize()
-        self._add_mesh_field(entities, dimensions)
+        self._add_mesh_field(mesh_config.generator_config, entities, dimensions)
 
         # Generate a mesh.
-        gmsh.model.occ.synchronize()
         gmsh.option.setNumber("Mesh.MeshSizeFactor", 1)
         gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
         gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+        gmsh.model.occ.synchronize()
         gmsh.model.mesh.generate(self.dimension())
 
     def _add_bounding_box(
@@ -134,11 +131,35 @@ class MeshGenerator(GmshInterface):
             The tag of the bounding box.
         """
 
-    def _add_mesh_field(self, entities: list[tuple[int, int]],
-                        dimensions: int) -> None:
+    def _add_physical_groups(self, entity_configs: list[EntityConfig]) -> None:
+        """Adds physical groups to define the entity properties.
+
+        Args:
+            entity_configs: Entity configurations.
+        """
+        entities = self.get_entities()
+        entity_tags = [entity[1] for entity in entities]
+
+        # Group entities of the same material into the same physical group.
+        entity_tags_by_material = {}
+        for entity_config in entity_configs:
+            if entity_config.tag in entity_tags:
+                entity_tags_by_material.setdefault(entity_config.material,
+                                                   []).append(entity_config.tag)
+
+        # Define a physical group for each material.
+        for material, entity_tags in entity_tags_by_material.items():
+            gmsh.model.addPhysicalGroup(dim=self.dimension(),
+                                        tags=entity_tags,
+                                        name=Material.Name(material))
+
+    def _add_mesh_field(self, mesh_generator_config: MeshGeneratorConfig,
+                        entities: list[tuple[int,
+                                             int]], dimensions: int) -> None:
         """Adds a mesh field as a function of the distance to the structure.
 
         Args:
+            mesh_generator_config: Mesh generator configuration.
             entities: Structure entities.
             dimensions: The (x, y, z) dimensions of the structure.
         """
@@ -165,18 +186,19 @@ class MeshGenerator(GmshInterface):
         # Add a threshold field.
         min_dimension = np.min(dimensions[:self.dimension()])
         threshold = gmsh.model.mesh.field.add("Threshold")
-        mesh_config = MESH_GENERATOR_FINE_CONFIG if FLAGS.fine else MESH_GENERATOR_COARSE_CONFIG
         gmsh.model.mesh.field.setNumber(threshold, "IField", distance)
         gmsh.model.mesh.field.setNumber(
-            threshold, "LcMin", mesh_config.lc_min_factor * min_dimension)
+            threshold, "LcMin",
+            mesh_generator_config.lc_min_factor * min_dimension)
         gmsh.model.mesh.field.setNumber(
-            threshold, "LcMax", mesh_config.lc_max_factor * min_dimension)
+            threshold, "LcMax",
+            mesh_generator_config.lc_max_factor * min_dimension)
         gmsh.model.mesh.field.setNumber(
             threshold, "DistMin",
-            mesh_config.distance_min_factor * min_dimension)
+            mesh_generator_config.distance_min_factor * min_dimension)
         gmsh.model.mesh.field.setNumber(
             threshold, "DistMax",
-            mesh_config.distance_max_factor * min_dimension)
+            mesh_generator_config.distance_max_factor * min_dimension)
         gmsh.model.mesh.field.setAsBackgroundMesh(threshold)
 
 

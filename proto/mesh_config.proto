@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "proto/material.proto";
+
+// Mesh generator configuration.
+message MeshGeneratorConfig {
+  // Minimum element size factor.
+  float lc_min_factor = 1;
+
+  // Maximum element size factor.
+  float lc_max_factor = 2;
+
+  // Distance up to which the element size is minimal.
+  float distance_min_factor = 3;
+
+  // Distance after which the element size is maximal.
+  float distance_max_factor = 4;
+}
+
+// Entity configuration.
+message EntityConfig {
+    // Entity tag.
+    uint32 tag = 1;
+
+    // Entity material.
+    Material material = 2;
+}
+
+// Mesh configuration.
+message MeshConfig {
+  // Generator configuration.
+  MeshGeneratorConfig generator_config = 1;
+
+  // Entity configurations.
+  repeated EntityConfig entity_configs = 2;
+}

@@ -1,0 +1,6 @@
+generator_config {
+  lc_min_factor: 0.01
+  lc_max_factor: 0.1
+  distance_min_factor: 0.5
+  distance_max_factor: 5
+}

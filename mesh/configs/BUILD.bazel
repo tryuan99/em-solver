@@ -1,0 +1,14 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "capacitor_mesh_configs",
+    srcs = ["capacitor_mesh_config_default.pbtxt"],
+)
+
+filegroup(
+    name = "mesh_generator_configs",
+    srcs = [
+        "mesh_generator_config_default.pbtxt",
+        "mesh_generator_config_fine.pbtxt",
+    ],
+)

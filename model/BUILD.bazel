@@ -1,6 +1,18 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
 package(default_visibility = ["//visibility:public"])
 
 py_library(
     name = "capacitor",
     srcs = ["capacitor.py"],
+    deps = ["//proto:capacitor_py_proto"],
+)
+
+py_library(
+    name = "material",
+    srcs = ["material.py"],
+    deps = [
+        "//proto:material_py_proto",
+        requirement("numpy"),
+    ],
 )

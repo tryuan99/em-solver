@@ -8,7 +8,8 @@ py_library(
     srcs = ["capacitor_mesh_generator.py"],
     deps = [
         ":mesh_generator",
-        "//model:capacitor",
+        "//proto:capacitor_py_proto",
+        "//proto:mesh_config_py_proto",
         requirement("gmsh"),
         requirement("numpy"),
     ],
@@ -17,10 +18,16 @@ py_library(
 py_binary(
     name = "capacitor_mesh_generator_2d_main",
     srcs = ["capacitor_mesh_generator_2d_main.py"],
-    data = ["//cad/capacitor:capacitor_2d_models"],
+    data = [
+        "//cad/capacitor:capacitor_2d_models",
+        "//mesh/configs:capacitor_mesh_configs",
+        "//mesh/configs:mesh_generator_configs",
+    ],
     deps = [
         ":capacitor_mesh_generator",
+        "//proto:mesh_config_py_proto",
         requirement("absl-py"),
+        requirement("protobuf"),
     ],
 )
 
@@ -35,10 +42,16 @@ pkg_tar(
 py_binary(
     name = "capacitor_mesh_generator_3d_main",
     srcs = ["capacitor_mesh_generator_3d_main.py"],
-    data = ["//cad/capacitor:capacitor_3d_models"],
+    data = [
+        "//cad/capacitor:capacitor_3d_models",
+        "//mesh/configs:capacitor_mesh_configs",
+        "//mesh/configs:mesh_generator_configs",
+    ],
     deps = [
         ":capacitor_mesh_generator",
+        "//proto:mesh_config_py_proto",
         requirement("absl-py"),
+        requirement("protobuf"),
     ],
 )
 
@@ -64,13 +77,9 @@ py_library(
     srcs = ["mesh_generator.py"],
     deps = [
         ":gmsh_interface",
-        ":mesh_generator_config",
+        "//proto:material_py_proto",
+        "//proto:mesh_config_py_proto",
         requirement("gmsh"),
         requirement("numpy"),
     ],
-)
-
-py_library(
-    name = "mesh_generator_config",
-    srcs = ["mesh_generator_config.py"],
 )

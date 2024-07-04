@@ -4,9 +4,10 @@ a capacitor.
 
 import numpy as np
 import scipy.sparse
+from proto.capacitor_pb2 import CapacitorEntity
 
 from mesh.gmsh_interface import GmshNodeType
-from model.capacitor import Capacitor, CapacitorEntityTag
+from model.capacitor import Capacitor
 from solver.constants import VACUUM_PERMITTIVITY
 from solver.electrostatic_solver import ElectrostaticSolver2D
 from solver.neighbor_lookup import NeighborLookup
@@ -40,16 +41,15 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
         A = scipy.sparse.lil_matrix((self.num_unknowns, self.num_unknowns),
                                     dtype=np.float64)
         b = np.zeros(self.num_unknowns)
-        equation_index = 0
 
         # Fill in Poisson's equations and the electric field equations for the
         # nodes within the dielectric, including the boundary nodes.
         _, dielectric_triangle_node_tags = self.get_faces(
-            tag=CapacitorEntityTag.DIELECTRIC_TAG)
+            tag=CapacitorEntity.DIELECTRIC)
         dielectric_triangle_neighbors = NeighborLookup(
             dielectric_triangle_node_tags)
-        dielectric_node_tags = self.get_nodes(
-            tag=CapacitorEntityTag.DIELECTRIC_TAG, dim=self.dimension())
+        dielectric_node_tags = self.get_nodes(tag=CapacitorEntity.DIELECTRIC,
+                                              dim=self.dimension())
         for tag in dielectric_node_tags:
             x, y = node_tag_to_coordinates[tag]
             poisson_equation_index = (
@@ -144,8 +144,8 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
         # Fill in the voltage and electric field equations for the nodes within
         # the capacitor plates.
         for entity_tag in [
-                CapacitorEntityTag.GROUND_PLATE_TAG,
-                CapacitorEntityTag.VDD_PLATE_TAG
+                CapacitorEntity.GROUND_PLATE,
+                CapacitorEntity.VDD_PLATE,
         ]:
             # Set the voltage boundary conditions and electric fields within
             # the capacitor plates.
@@ -202,13 +202,13 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
     def calculate_capacitance(self) -> float:
         """Calculates the capacitance."""
         ground_plate_boundary_node_tags = self.get_nodes(
-            tag=CapacitorEntityTag.GROUND_PLATE_TAG,
+            tag=CapacitorEntity.GROUND_PLATE,
             dim=self.dimension(),
             node_type=GmshNodeType.BOUNDARY)
 
         # Find the center of all the boundary nodes.
         node_tags, node_coordinates = self.get_node_coordinates(
-            tag=CapacitorEntityTag.GROUND_PLATE_TAG,
+            tag=CapacitorEntity.GROUND_PLATE,
             dim=self.dimension(),
             coordinates_dim=self.dimension())
         is_boundary_node_tag = np.isin(node_tags,
@@ -223,8 +223,8 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D, Capacitor):
                                       axis=0)
 
         # Find all lines along the boundary of the ground plate.
-        _, line_tags = self.get_adjacencies(
-            dim=self.dimension(), tag=CapacitorEntityTag.GROUND_PLATE_TAG)
+        _, line_tags = self.get_adjacencies(dim=self.dimension(),
+                                            tag=CapacitorEntity.GROUND_PLATE)
         line_node_tags = [self.get_lines(tag)[1] for tag in line_tags]
         boundary_line_node_tags = np.vstack(line_node_tags)
 

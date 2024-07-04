@@ -1,0 +1,35 @@
+load("@com_google_protobuf//bazel:py_proto_library.bzl", "py_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+proto_library(
+    name = "capacitor_proto",
+    srcs = ["capacitor.proto"],
+)
+
+py_proto_library(
+    name = "capacitor_py_proto",
+    deps = [":capacitor_proto"],
+)
+
+proto_library(
+    name = "material_proto",
+    srcs = ["material.proto"],
+)
+
+py_proto_library(
+    name = "material_py_proto",
+    deps = [":material_proto"],
+)
+
+proto_library(
+    name = "mesh_config_proto",
+    srcs = ["mesh_config.proto"],
+    deps = [":material_proto"],
+)
+
+py_proto_library(
+    name = "mesh_config_py_proto",
+    deps = [":mesh_config_proto"],
+)

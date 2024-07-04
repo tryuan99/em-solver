@@ -6,6 +6,7 @@ from typing import Any
 
 import gmsh
 import numpy as np
+from proto.material_pb2 import Material
 
 from mesh.gmsh_interface import GmshInterface
 
@@ -58,6 +59,29 @@ class ElectromagneticSolver(GmshInterface):
         return (self.num_voltage_unknowns + self.num_electric_field_unknowns +
                 self.num_magnetic_vector_potential_unknowns +
                 self.num_magnetic_field_unknowns)
+
+    def get_material_for_entity(self, dim: int, tag: int) -> Material:
+        """Returns the material of the entity.
+
+        Args:
+            dim: Dimension of the entity.
+            tag: Tag of the entity.
+
+        Returns:
+            The material of the entity.
+
+        Raises:
+            ValueError: If the entity belongs to multiple physical groups.
+        """
+        physical_group_tags = self.get_physical_groups_for_entity(dim, tag)
+        if len(physical_group_tags) > 1:
+            raise ValueError(f"Entity {tag} of dimension {dim} belongs to "
+                             f"multiple physical groups.")
+
+        physical_group_tag = physical_group_tags[0]
+        physical_group_name = gmsh.model.getPhysicalName(dim=dim,
+                                                         tag=physical_group_tag)
+        return Material.Value(physical_group_name)
 
     def solve(self) -> None:
         """Solves for the voltage, the electric field, the magnetic vector

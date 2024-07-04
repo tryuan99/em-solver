@@ -24,6 +24,7 @@ py_library(
     srcs = ["electromagnetic_solver.py"],
     deps = [
         "//mesh:gmsh_interface",
+        "//proto:material_py_proto",
         requirement("gmsh"),
         requirement("numpy"),
     ],
@@ -38,6 +39,7 @@ py_library(
         ":neighbor_lookup",
         "//mesh:gmsh_interface",
         "//model:capacitor",
+        "//proto:capacitor_py_proto",
         requirement("numpy"),
         requirement("scipy"),
     ],

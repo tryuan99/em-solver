@@ -3,12 +3,7 @@
 from abc import abstractmethod
 from enum import IntEnum
 
-
-class CapacitorEntityTag(IntEnum):
-    """Capacitor entity tag enumeration."""
-    GROUND_PLATE_TAG = 1
-    VDD_PLATE_TAG = 2
-    DIELECTRIC_TAG = 3
+from proto.capacitor_pb2 import CapacitorEntity
 
 
 class Capacitor:
@@ -30,9 +25,9 @@ class Capacitor:
         Raises:
             ValueError: If the tag does not belong to the capacitor structure.
         """
-        if tag == CapacitorEntityTag.GROUND_PLATE_TAG:
+        if tag == CapacitorEntity.GROUND_PLATE:
             return 0
-        if tag == CapacitorEntityTag.VDD_PLATE_TAG:
+        if tag == CapacitorEntity.VDD_PLATE:
             return self.dc_voltage
         raise ValueError("Invalid capacitor entity tag.")
 

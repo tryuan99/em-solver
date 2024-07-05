@@ -28,13 +28,11 @@ class CapacitorThreePlatesElectrostaticSolver2D(ElectrostaticSolver2D):
                 CapacitorThreePlatesEntity.VDD_PLATE,
         ]:
             if not MaterialProperties.is_conductor(
-                    self.get_material_for_entity(dim=self.dimension(),
-                                                 tag=conductor_entity_tag)):
+                    self.get_material_for_entity(tag=conductor_entity_tag)):
                 raise ValueError(
                     f"Entity {conductor_entity_tag} is not a conductor.")
         if not MaterialProperties.is_insulator(
                 self.get_material_for_entity(
-                    dim=self.dimension(),
                     tag=CapacitorThreePlatesEntity.DIELECTRIC)):
             raise ValueError(
                 f"Entity {CapacitorThreePlatesEntity.DIELECTRIC} is not an insulator."

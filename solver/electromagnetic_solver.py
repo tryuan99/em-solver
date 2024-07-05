@@ -65,24 +65,23 @@ class ElectromagneticSolver(GmshInterface):
                 self.num_magnetic_vector_potential_unknowns +
                 self.num_magnetic_field_unknowns)
 
-    def get_material_for_physical_group(self, dim: int, tag: int) -> Material:
+    def get_material_for_physical_group(self, tag: int) -> Material:
         """Returns the material of the physical group.
 
         Args:
-            dim: Dimension of the physical group.
             tag: Tag of the physical group.
 
         Returns:
             The material of the physical group.
         """
-        physical_group_name = gmsh.model.getPhysicalName(dim=dim, tag=tag)
+        physical_group_name = gmsh.model.getPhysicalName(dim=self.dimension(),
+                                                         tag=tag)
         return Material.Value(physical_group_name)
 
-    def get_material_for_entity(self, dim: int, tag: int) -> Material:
+    def get_material_for_entity(self, tag: int) -> Material:
         """Returns the material of the entity.
 
         Args:
-            dim: Dimension of the entity.
             tag: Tag of the entity.
 
         Returns:
@@ -91,14 +90,14 @@ class ElectromagneticSolver(GmshInterface):
         Raises:
             ValueError: If the entity belongs to multiple physical groups.
         """
-        physical_group_tags = self.get_physical_groups_for_entity(dim, tag)
+        physical_group_tags = self.get_physical_groups_for_entity(
+            dim=self.dimension(), tag=tag)
         if len(physical_group_tags) > 1:
-            raise ValueError(f"Entity {tag} of dimension {dim} belongs to "
-                             f"multiple physical groups.")
+            raise ValueError(f"Entity {tag} belongs to multiple physical "
+                             f"groups.")
 
         physical_group_tag = physical_group_tags[0]
-        return self.get_material_for_physical_group(dim=dim,
-                                                    tag=physical_group_tag)
+        return self.get_material_for_physical_group(tag=physical_group_tag)
 
     def solve(self) -> None:
         """Solves for the voltage, the electric field, the magnetic vector

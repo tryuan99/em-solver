@@ -30,13 +30,11 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):
                 CapacitorEntity.VDD_PLATE,
         ]:
             if not MaterialProperties.is_conductor(
-                    self.get_material_for_entity(dim=self.dimension(),
-                                                 tag=conductor_entity_tag)):
+                    self.get_material_for_entity(tag=conductor_entity_tag)):
                 raise ValueError(
                     f"Entity {conductor_entity_tag} is not a conductor.")
         if not MaterialProperties.is_insulator(
-                self.get_material_for_entity(dim=self.dimension(),
-                                             tag=CapacitorEntity.DIELECTRIC)):
+                self.get_material_for_entity(tag=CapacitorEntity.DIELECTRIC)):
             raise ValueError(
                 f"Entity {CapacitorEntity.DIELECTRIC} is not an insulator.")
 
@@ -66,7 +64,7 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):
         # Find all lines along the boundary of the ground plate.
         _, line_tags = self.get_adjacencies(dim=self.dimension(),
                                             tag=CapacitorEntity.GROUND_PLATE)
-        line_node_tags = [self.get_lines(tag)[1] for tag in line_tags]
+        line_node_tags = [self.get_lines(tag=tag)[1] for tag in line_tags]
         boundary_line_node_tags = np.vstack(line_node_tags)
 
         # Iterate over all lines along the boundary of the ground plate to find
@@ -107,8 +105,7 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):
         electric_flux /= total_line_length
 
         # Calculate the surface charge and the capacitance.
-        material = self.get_material_for_entity(dim=self.dimension(),
-                                                tag=CapacitorEntity.DIELECTRIC)
+        material = self.get_material_for_entity(tag=CapacitorEntity.DIELECTRIC)
         material_properties = MATERIAL_TO_PROPERTIES[material]
         Q = electric_flux * VACUUM_PERMITTIVITY * material_properties.relative_permittivity
         C = Q / self.dc_voltage

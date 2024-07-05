@@ -129,11 +129,11 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
         physical_groups = self.get_physical_groups(dim=self.dimension())
         conductor_entity_tags = []
         insulator_entity_tags = []
-        for physical_group_dimension, physical_group_tag in physical_groups:
+        for _, physical_group_tag in physical_groups:
             material = self.get_material_for_physical_group(
-                physical_group_dimension, physical_group_tag)
+                tag=physical_group_tag)
             entities = self.get_entities_for_physical_group(
-                physical_group_dimension, physical_group_tag)
+                dim=self.dimension(), tag=physical_group_tag)
             if MaterialProperties.is_conductor(material):
                 conductor_entity_tags.extend(entities)
             elif MaterialProperties.is_insulator(material):

@@ -29,16 +29,14 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    flags.DEFINE_string("input_file",
-                        "cad/capacitor/capacitor_three_plates_2d.geo",
+    flags.DEFINE_string("input_file", "cad/capacitor/capacitor_simple_2d.geo",
                         "Input file.")
     flags.DEFINE_string("mesh_generator_config",
                         "mesh/configs/mesh_generator_config_default.pbtxt",
                         "Mesh generator configuration file.")
-    flags.DEFINE_string(
-        "entity_config",
-        "mesh/configs/capacitor_mesh_config_three_plates.pbtxt",
-        "Entity configuration file.")
+    flags.DEFINE_string("entity_config",
+                        "mesh/configs/capacitor_mesh_config_default.pbtxt",
+                        "Entity configuration file.")
     flags.DEFINE_string("mesh_output", None, "Mesh output file.")
     flags.DEFINE_bool("launch", True, "If true, launch the GUI.")
 

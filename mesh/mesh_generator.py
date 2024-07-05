@@ -30,6 +30,9 @@ class MeshGenerator(GmshInterface, ABC):
         # Generate the mesh.
         self._generate_mesh(input_file, mesh_config)
 
+        # Validate the mesh.
+        self._validate_mesh()
+
     @classmethod
     @abstractmethod
     def dimension(cls) -> int:
@@ -92,7 +95,36 @@ class MeshGenerator(GmshInterface, ABC):
         gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
         gmsh.option.setNumber("Mesh.SaveAll", 1)
         gmsh.model.occ.synchronize()
-        gmsh.model.mesh.generate(self.dimension())
+        gmsh.model.mesh.generate(dim=self.dimension())
+
+    def _validate_mesh(self) -> None:
+        """Validates the mesh.
+
+        Raises:
+            ValueError: If the mesh is invalid.
+        """
+        # Validate that the entity tags are consecutive starting from 1.
+        entities = self.get_entities()
+        entity_tags = [entity[1] for entity in entities]
+        max_entity_tag = max(entity_tags)
+        if max_entity_tag != len(entities):
+            raise ValueError("Entity tags are not consecutive.")
+
+        # Check that the bounding box bounds all other entities. The maximum
+        # entity tag belongs to the bounding box.
+        (x_min, y_min, z_min, x_max, y_max,
+         z_max) = gmsh.model.occ.getBoundingBox(dim=self.dimension(),
+                                                tag=max_entity_tag)
+        min_coordinates = np.array([x_min, y_min, z_min])
+        max_coordinates = np.array([x_max, y_max, z_max])
+        (bounding_box_min_coordinates,
+         bounding_box_max_coordinates) = self.get_bounding_box()
+        if not np.allclose(min_coordinates,
+                           bounding_box_min_coordinates) or not np.allclose(
+                               max_coordinates, bounding_box_max_coordinates):
+            raise ValueError(
+                f"Entity {max_entity_tag} does not correspond to the bounding "
+                f"box.")
 
     def _add_bounding_box(
             self,

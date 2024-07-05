@@ -7,6 +7,7 @@ from typing import Any
 import gmsh
 import numpy as np
 from proto.material_pb2 import Material
+from proto.solver_config_pb2 import SolverConfig
 
 from mesh.gmsh_interface import GmshInterface
 
@@ -14,8 +15,9 @@ from mesh.gmsh_interface import GmshInterface
 class ElectromagneticSolver(GmshInterface):
     """Interface for an electromagnetic solver."""
 
-    def __init__(self, mesh_file: str) -> None:
+    def __init__(self, mesh_file: str, solver_config: SolverConfig) -> None:
         super().__init__()
+        self.config = solver_config
 
         # Open the mesh file.
         gmsh.open(mesh_file)

@@ -4,20 +4,19 @@ a capacitor.
 
 import numpy as np
 from proto.capacitor_pb2 import CapacitorEntity
+from proto.solver_config_pb2 import SolverConfig
 
 from mesh.gmsh_interface import GmshNodeType
-from model.capacitor import Capacitor
 from model.material import MATERIAL_TO_PROPERTIES, MaterialProperties
 from solver.constants import VACUUM_PERMITTIVITY
 from solver.electrostatic_solver import ElectrostaticSolver2D
 
 
-class CapacitorElectrostaticSolver2D(Capacitor, ElectrostaticSolver2D):
+class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):
     """2D capacitor electrostatic solver."""
 
-    def __init__(self, mesh_file: str, dc_voltage: float = 1) -> None:
-        Capacitor.__init__(self, dc_voltage)
-        ElectrostaticSolver2D.__init__(self, mesh_file)
+    def __init__(self, mesh_file: str, solver_config: SolverConfig) -> None:
+        super().__init__(mesh_file, solver_config)
 
     def _validate_mesh(self) -> None:
         """Validates the mesh.

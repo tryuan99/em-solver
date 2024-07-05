@@ -1,11 +1,10 @@
 import google.protobuf
 from absl import app, flags
-
-FLAGS = flags.FLAGS
-
 from proto.mesh_config_pb2 import MeshConfig
 
 from mesh.mesh_generator import MeshGenerator2D
+
+FLAGS = flags.FLAGS
 
 
 def main(argv):

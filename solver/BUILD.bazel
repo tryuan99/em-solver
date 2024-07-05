@@ -12,14 +12,15 @@ py_library(
     srcs = ["electrostatic_solver.py"],
     deps = [
         ":electromagnetic_solver",
+        ":neighbor_lookup",
         "//mesh:gmsh_interface",
         "//model:material",
+        "//proto:solver_config_py_proto",
         "//visualization:color_maps",
         requirement("matplotlib"),
         requirement("numpy"),
         requirement("SciencePlots"),
         requirement("scipy"),
-        ":neighbor_lookup",
     ],
 )
 
@@ -29,6 +30,7 @@ py_library(
     deps = [
         "//mesh:gmsh_interface",
         "//proto:material_py_proto",
+        "//proto:solver_config_py_proto",
         requirement("gmsh"),
         requirement("numpy"),
     ],
@@ -41,9 +43,9 @@ py_library(
         ":constants",
         ":electrostatic_solver",
         "//mesh:gmsh_interface",
-        "//model:capacitor",
         "//model:material",
         "//proto:capacitor_py_proto",
+        "//proto:solver_config_py_proto",
         requirement("numpy"),
     ],
 )
@@ -51,9 +53,12 @@ py_library(
 py_binary(
     name = "capacitor_electrostatic_solver_main",
     srcs = ["capacitor_electrostatic_solver_main.py"],
+    data = ["//solver/configs:capacitor_solver_configs"],
     deps = [
         ":capacitor_electrostatic_solver",
+        "//proto:solver_config_py_proto",
         requirement("absl-py"),
+        requirement("protobuf"),
     ],
 )
 
@@ -62,18 +67,21 @@ py_library(
     srcs = ["capacitor_three_plates_electrostatic_solver.py"],
     deps = [
         ":electrostatic_solver",
-        "//model:capacitor_three_plates",
         "//model:material",
         "//proto:capacitor_three_plates_py_proto",
+        "//proto:solver_config_py_proto",
     ],
 )
 
 py_binary(
     name = "capacitor_three_plates_electrostatic_solver_main",
     srcs = ["capacitor_three_plates_electrostatic_solver_main.py"],
+    data = ["//solver/configs:capacitor_solver_configs_three_plates"],
     deps = [
         ":capacitor_three_plates_electrostatic_solver",
+        "//proto:solver_config_py_proto",
         requirement("absl-py"),
+        requirement("protobuf"),
     ],
 )
 

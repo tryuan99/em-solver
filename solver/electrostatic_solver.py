@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scienceplots
 import scipy.sparse
+from proto.solver_config_pb2 import SolverConfig
 
 from mesh.gmsh_interface import GmshNodeType
 from model.material import MaterialProperties
@@ -17,21 +18,13 @@ from visualization.color_maps import COLOR_MAPS
 class ElectrostaticSolver(ElectromagneticSolver):
     """Interface for an electrostatic solver."""
 
+    def __init__(self, mesh_file: str, solver_config: SolverConfig) -> None:
+        super().__init__(mesh_file, solver_config)
+
     @property
     def num_unknowns(self) -> int:
         """Returns the number of unknowns."""
         return self.num_voltage_unknowns + self.num_electric_field_unknowns
-
-    @abstractmethod
-    def get_dc_voltage(self, tag: int) -> float:
-        """Returns the DC voltage for the tag.
-
-        Args:
-            tag: Tag of the entity.
-
-        Raises:
-            ValueError: If the tag does not belong to the structure.
-        """
 
     @abstractmethod
     def plot_voltage(self) -> None:
@@ -40,6 +33,20 @@ class ElectrostaticSolver(ElectromagneticSolver):
     @abstractmethod
     def plot_electric_field(self) -> None:
         """Plots the electric field."""
+
+    def _get_dc_voltage(self, tag: int) -> float:
+        """Returns the DC voltage for the tag.
+
+        Args:
+            tag: Tag of the entity.
+
+        Raises:
+            ValueError: If the tag cannot be found.
+        """
+        for entity_config in self.config.entity_configs:
+            if entity_config.tag == tag:
+                return entity_config.dc_voltage
+        raise ValueError(f"Entity {tag} cannot be found.")
 
 
 class ElectrostaticSolver2D(ElectrostaticSolver):
@@ -260,7 +267,7 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                 voltage_equation_index = (
                     self._get_poisson_voltage_equation_index(tag))
                 A[voltage_equation_index, voltage_unknown_index] = 1
-                b[voltage_equation_index] = self.get_dc_voltage(conductor_tag)
+                b[voltage_equation_index] = self._get_dc_voltage(conductor_tag)
 
                 # Electric field in the x-direction.
                 electric_field_x_equation_index = (
@@ -287,7 +294,7 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                     self._get_poisson_voltage_equation_index(tag))
                 A[voltage_equation_index, :] = 0
                 A[voltage_equation_index, voltage_unknown_index] = 1
-                b[voltage_equation_index] = self.get_dc_voltage(conductor_tag)
+                b[voltage_equation_index] = self._get_dc_voltage(conductor_tag)
 
         # Solve for the voltage and the electric field.
         x = scipy.sparse.linalg.spsolve(A.tocsr(), b)

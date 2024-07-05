@@ -43,3 +43,13 @@ py_proto_library(
     name = "mesh_config_py_proto",
     deps = [":mesh_config_proto"],
 )
+
+proto_library(
+    name = "solver_config_proto",
+    srcs = ["solver_config.proto"],
+)
+
+py_proto_library(
+    name = "solver_config_py_proto",
+    deps = [":solver_config_proto"],
+)

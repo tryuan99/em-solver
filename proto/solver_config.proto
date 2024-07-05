@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+// Entity configuration.
+message EntityConfig {
+    // Entity tag.
+    uint32 tag = 1;
+
+    // DC voltage.
+    float dc_voltage = 2;
+}
+
+// Solver configuration.
+message SolverConfig {
+  // Entity configurations.
+  repeated EntityConfig entity_configs = 1;
+}

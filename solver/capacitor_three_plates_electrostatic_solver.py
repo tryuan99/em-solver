@@ -3,19 +3,17 @@ field around a capacitor with three plates.
 """
 
 from proto.capacitor_three_plates_pb2 import CapacitorThreePlatesEntity
+from proto.solver_config_pb2 import SolverConfig
 
-from model.capacitor_three_plates import CapacitorThreePlates
 from model.material import MATERIAL_TO_PROPERTIES, MaterialProperties
 from solver.electrostatic_solver import ElectrostaticSolver2D
 
 
-class CapacitorThreePlatesElectrostaticSolver2D(CapacitorThreePlates,
-                                                ElectrostaticSolver2D):
+class CapacitorThreePlatesElectrostaticSolver2D(ElectrostaticSolver2D):
     """2D capacitor electrostatic solver with three plates."""
 
-    def __init__(self, mesh_file: str, dc_voltage: float = 1) -> None:
-        CapacitorThreePlates.__init__(self, dc_voltage)
-        ElectrostaticSolver2D.__init__(self, mesh_file)
+    def __init__(self, mesh_file: str, solver_config: SolverConfig) -> None:
+        super().__init__(mesh_file, solver_config)
 
     def _validate_mesh(self) -> None:
         """Validates the mesh.

@@ -79,7 +79,7 @@ class MeshGenerator(GmshInterface, ABC):
                            removeTool=False)
         gmsh.model.occ.synchronize()
 
-        # Define physical groups for the entities.
+        # Define physical groups to define the material.
         self._add_physical_groups(mesh_config.entity_configs)
 
         # Add a mesh field as a function of the distance to the structure.
@@ -133,7 +133,7 @@ class MeshGenerator(GmshInterface, ABC):
         """
 
     def _add_physical_groups(self, entity_configs: list[EntityConfig]) -> None:
-        """Adds physical groups to define the entity properties.
+        """Adds physical groups to define the entity material.
 
         Args:
             entity_configs: Entity configurations.

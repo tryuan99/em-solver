@@ -1,0 +1,11 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "capacitor_solver_configs",
+    srcs = ["capacitor_solver_config_default.pbtxt"],
+)
+
+filegroup(
+    name = "capacitor_solver_configs_three_plates",
+    srcs = ["capacitor_solver_config_three_plates.pbtxt"],
+)

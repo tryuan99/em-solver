@@ -1,0 +1,8 @@
+entity_configs {
+  tag: 1
+  dc_voltage: 0
+}
+entity_configs {
+  tag: 2
+  dc_voltage: 1
+}

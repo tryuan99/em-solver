@@ -1,0 +1,69 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "electrostatic_solver",
+    srcs = ["electrostatic_solver.py"],
+    deps = [
+        "//mesh:gmsh_interface",
+        "//model:material",
+        "//proto:solver_config_py_proto",
+        "//solver:electromagnetic_solver",
+        "//solver:neighbor_lookup",
+        "//visualization:color_maps",
+        requirement("matplotlib"),
+        requirement("numpy"),
+        requirement("SciencePlots"),
+        requirement("scipy"),
+    ],
+)
+
+py_library(
+    name = "capacitor_electrostatic_solver",
+    srcs = ["capacitor_electrostatic_solver.py"],
+    deps = [
+        ":electrostatic_solver",
+        "//mesh:gmsh_interface",
+        "//model:material",
+        "//proto:capacitor_py_proto",
+        "//proto:solver_config_py_proto",
+        "//solver:constants",
+        requirement("numpy"),
+    ],
+)
+
+py_binary(
+    name = "capacitor_electrostatic_solver_main",
+    srcs = ["capacitor_electrostatic_solver_main.py"],
+    data = ["//solver/configs:capacitor_solver_configs"],
+    deps = [
+        ":capacitor_electrostatic_solver",
+        "//proto:solver_config_py_proto",
+        requirement("absl-py"),
+        requirement("protobuf"),
+    ],
+)
+
+py_library(
+    name = "capacitor_three_plates_electrostatic_solver",
+    srcs = ["capacitor_three_plates_electrostatic_solver.py"],
+    deps = [
+        ":electrostatic_solver",
+        "//model:material",
+        "//proto:capacitor_three_plates_py_proto",
+        "//proto:solver_config_py_proto",
+    ],
+)
+
+py_binary(
+    name = "capacitor_three_plates_electrostatic_solver_main",
+    srcs = ["capacitor_three_plates_electrostatic_solver_main.py"],
+    data = ["//solver/configs:capacitor_solver_configs_three_plates"],
+    deps = [
+        ":capacitor_three_plates_electrostatic_solver",
+        "//proto:solver_config_py_proto",
+        requirement("absl-py"),
+        requirement("protobuf"),
+    ],
+)

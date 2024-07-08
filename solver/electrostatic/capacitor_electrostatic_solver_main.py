@@ -2,7 +2,7 @@ import google.protobuf
 from absl import app, flags, logging
 from proto.solver_config_pb2 import SolverConfig
 
-from solver.capacitor_electrostatic_solver import \
+from solver.electrostatic.capacitor_electrostatic_solver import \
     CapacitorElectrostaticSolver2D
 
 FLAGS = flags.FLAGS

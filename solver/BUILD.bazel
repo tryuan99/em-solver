@@ -8,23 +8,6 @@ py_library(
 )
 
 py_library(
-    name = "electrostatic_solver",
-    srcs = ["electrostatic_solver.py"],
-    deps = [
-        ":electromagnetic_solver",
-        ":neighbor_lookup",
-        "//mesh:gmsh_interface",
-        "//model:material",
-        "//proto:solver_config_py_proto",
-        "//visualization:color_maps",
-        requirement("matplotlib"),
-        requirement("numpy"),
-        requirement("SciencePlots"),
-        requirement("scipy"),
-    ],
-)
-
-py_library(
     name = "electromagnetic_solver",
     srcs = ["electromagnetic_solver.py"],
     deps = [
@@ -33,55 +16,6 @@ py_library(
         "//proto:solver_config_py_proto",
         requirement("gmsh"),
         requirement("numpy"),
-    ],
-)
-
-py_library(
-    name = "capacitor_electrostatic_solver",
-    srcs = ["capacitor_electrostatic_solver.py"],
-    deps = [
-        ":constants",
-        ":electrostatic_solver",
-        "//mesh:gmsh_interface",
-        "//model:material",
-        "//proto:capacitor_py_proto",
-        "//proto:solver_config_py_proto",
-        requirement("numpy"),
-    ],
-)
-
-py_binary(
-    name = "capacitor_electrostatic_solver_main",
-    srcs = ["capacitor_electrostatic_solver_main.py"],
-    data = ["//solver/configs:capacitor_solver_configs"],
-    deps = [
-        ":capacitor_electrostatic_solver",
-        "//proto:solver_config_py_proto",
-        requirement("absl-py"),
-        requirement("protobuf"),
-    ],
-)
-
-py_library(
-    name = "capacitor_three_plates_electrostatic_solver",
-    srcs = ["capacitor_three_plates_electrostatic_solver.py"],
-    deps = [
-        ":electrostatic_solver",
-        "//model:material",
-        "//proto:capacitor_three_plates_py_proto",
-        "//proto:solver_config_py_proto",
-    ],
-)
-
-py_binary(
-    name = "capacitor_three_plates_electrostatic_solver_main",
-    srcs = ["capacitor_three_plates_electrostatic_solver_main.py"],
-    data = ["//solver/configs:capacitor_solver_configs_three_plates"],
-    deps = [
-        ":capacitor_three_plates_electrostatic_solver",
-        "//proto:solver_config_py_proto",
-        requirement("absl-py"),
-        requirement("protobuf"),
     ],
 )
 

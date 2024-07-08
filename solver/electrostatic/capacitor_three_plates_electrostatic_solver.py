@@ -6,7 +6,7 @@ from proto.capacitor_three_plates_pb2 import CapacitorThreePlatesEntity
 from proto.solver_config_pb2 import SolverConfig
 
 from model.material import MATERIAL_TO_PROPERTIES, MaterialProperties
-from solver.electrostatic_solver import ElectrostaticSolver2D
+from solver.electrostatic.electrostatic_solver import ElectrostaticSolver2D
 
 
 class CapacitorThreePlatesElectrostaticSolver2D(ElectrostaticSolver2D):

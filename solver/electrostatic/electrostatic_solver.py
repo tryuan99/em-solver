@@ -1,4 +1,6 @@
-"""The electrostatic solver solves for the voltage and the electric field only."""
+"""The electrostatic solver solves for the electric potential and the electric
+field only.
+"""
 
 from abc import abstractmethod
 
@@ -24,11 +26,11 @@ class ElectrostaticSolver(ElectromagneticSolver):
     @property
     def num_unknowns(self) -> int:
         """Returns the number of unknowns."""
-        return self.num_voltage_unknowns + self.num_electric_field_unknowns
+        return self.num_electric_potential_unknowns + self.num_electric_field_unknowns
 
     @abstractmethod
-    def plot_voltage(self) -> None:
-        """Plots the voltage."""
+    def plot_electric_potential(self) -> None:
+        """Plots the electric potential."""
 
     @abstractmethod
     def plot_electric_field(self) -> None:
@@ -57,13 +59,13 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
         """Returns the dimension of the structure."""
         return 2
 
-    def plot_voltage(self) -> None:
-        """Plots the voltage."""
+    def plot_electric_potential(self) -> None:
+        """Plots the electric potential."""
         node_tags, node_coordinates = self.get_node_coordinates(
             dim=self.dimension())
         X = node_coordinates[:, 0]
         Y = node_coordinates[:, 1]
-        voltage = self.voltage[self._get_index_from_tag(node_tags)]
+        potential = self.electric_potential[self._get_index_from_tag(node_tags)]
 
         plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(
@@ -73,11 +75,11 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
         surf = ax.plot_trisurf(
             X,
             Y,
-            voltage,
+            potential,
             cmap=COLOR_MAPS["parula"],
             antialiased=False,
         )
-        ax.set_title("Voltage")
+        ax.set_title("Electric potential")
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.view_init(45, -45)
@@ -110,12 +112,12 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
         plt.show()
 
     def _solve(self) -> None:
-        """Implementation for solving for the voltage, the electric field, the
-        magnetic vector potential, and the magnetic field.
+        """Implementation for solving for the electric potential, the electric
+        field, the magnetic vector potential, and the magnetic flux density.
 
         In the matrix-vector equation, the first unknowns correspond to the
-        nodes' voltages, and the remaining unknowns correspond to the nodes'
-        electric fields.
+        nodes' electric potentials, and the remaining unknowns correspond to
+        the nodes' electric fields.
         Similarly, the first equations correspond to Poisson's equation and any
         voltage boundary conditions, and the remaining equations correspond to
         the electric field equations for each node in the x and y-directions.
@@ -155,12 +157,13 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
             for tag in insulator_node_tags:
                 x, y = node_tag_to_coordinates[tag]
                 poisson_equation_index = (
-                    self._get_poisson_voltage_equation_index(tag))
+                    self._get_poisson_electric_potential_equation_index(tag))
                 electric_field_x_equation_index = (
                     self._get_electric_field_x_equation_index(tag))
                 electric_field_y_equation_index = (
                     self._get_electric_field_y_equation_index(tag))
-                voltage_unknown_index = self._get_voltage_unknown_index(tag)
+                electric_potential_unknown_index = self._get_electric_potential_unknown_index(
+                    tag)
                 electric_field_x_unknown_index = (
                     self._get_electric_field_x_unknown_index(tag))
                 electric_field_y_unknown_index = (
@@ -175,10 +178,12 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                         tag_neighbor1]
                     x_neighbor2, y_neighbor2 = node_tag_to_coordinates[
                         tag_neighbor2]
-                    voltage_unknown_index_neighbor1 = (
-                        self._get_voltage_unknown_index(tag_neighbor1))
-                    voltage_unknown_index_neighbor2 = (
-                        self._get_voltage_unknown_index(tag_neighbor2))
+                    electric_potential_unknown_index_neighbor1 = (
+                        self._get_electric_potential_unknown_index(
+                            tag_neighbor1))
+                    electric_potential_unknown_index_neighbor2 = (
+                        self._get_electric_potential_unknown_index(
+                            tag_neighbor2))
                     electric_field_x_unknown_index_neighbor1 = (
                         self._get_electric_field_x_unknown_index(tag_neighbor1))
                     electric_field_y_unknown_index_neighbor1 = (
@@ -214,29 +219,29 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                       electric_field_y_unknown_index] += (
                           (x_neighbor2 - x_neighbor1) / denominator)
 
-                    # Add the coefficients of the voltages for the electric
-                    # field equation in the x-direction.
+                    # Add the coefficients of the electric potentials for the
+                    # electric field equation in the x-direction.
                     A[electric_field_x_equation_index,
-                      voltage_unknown_index_neighbor1] += ((y_neighbor2 - y) /
-                                                           denominator)
+                      electric_potential_unknown_index_neighbor1] += (
+                          (y_neighbor2 - y) / denominator)
                     A[electric_field_x_equation_index,
-                      voltage_unknown_index_neighbor2] += ((y - y_neighbor1) /
-                                                           denominator)
+                      electric_potential_unknown_index_neighbor2] += (
+                          (y - y_neighbor1) / denominator)
                     A[electric_field_x_equation_index,
-                      voltage_unknown_index] += ((y_neighbor1 - y_neighbor2) /
-                                                 denominator)
+                      electric_potential_unknown_index] += (
+                          (y_neighbor1 - y_neighbor2) / denominator)
 
-                    # Add the coefficients of the voltages for the electric
-                    # field equation in the y-direction.
+                    # Add the coefficients of the electric potentials for the
+                    # electric field equation in the y-direction.
                     A[electric_field_y_equation_index,
-                      voltage_unknown_index_neighbor1] += ((x - x_neighbor2) /
-                                                           denominator)
+                      electric_potential_unknown_index_neighbor1] += (
+                          (x - x_neighbor2) / denominator)
                     A[electric_field_y_equation_index,
-                      voltage_unknown_index_neighbor2] += ((x_neighbor1 - x) /
-                                                           denominator)
+                      electric_potential_unknown_index_neighbor2] += (
+                          (x_neighbor1 - x) / denominator)
                     A[electric_field_y_equation_index,
-                      voltage_unknown_index] += ((x_neighbor2 - x_neighbor1) /
-                                                 denominator)
+                      electric_potential_unknown_index] += (
+                          (x_neighbor2 - x_neighbor1) / denominator)
 
                 # Set the coefficient for the electric fields for the
                 # electric field equations.
@@ -245,11 +250,11 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                 A[electric_field_y_equation_index,
                   electric_field_y_unknown_index] = -num_adjacent_triangles
 
-        # Fill in the voltage and electric field equations for the nodes within
-        # the conductors.
-        # At steady state, the voltage is constant throughout the insulator,
-        # and the electric field is zero throughout, even with a non-zero
-        # resistivity.
+        # Fill in the electric potential and electric field equations for the
+        # nodes within the conductors.
+        # At steady state, the electric potential is constant throughout the
+        # insulator, and the electric field is zero throughout, even with a
+        # non-zero resistivity.
         for conductor_tag in conductor_entity_tags:
             # Set the voltage boundary conditions and electric fields within
             # the capacitor plates.
@@ -257,17 +262,20 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                                                 dim=self.dimension(),
                                                 node_type=GmshNodeType.INTERNAL)
             for tag in internal_node_tags:
-                voltage_unknown_index = self._get_voltage_unknown_index(tag)
+                electric_potential_unknown_index = self._get_electric_potential_unknown_index(
+                    tag)
                 electric_field_x_unknown_index = (
                     self._get_electric_field_x_unknown_index(tag))
                 electric_field_y_unknown_index = (
                     self._get_electric_field_y_unknown_index(tag))
 
                 # Voltage boundary conditions.
-                voltage_equation_index = (
-                    self._get_poisson_voltage_equation_index(tag))
-                A[voltage_equation_index, voltage_unknown_index] = 1
-                b[voltage_equation_index] = self._get_dc_voltage(conductor_tag)
+                electric_potential_equation_index = (
+                    self._get_poisson_electric_potential_equation_index(tag))
+                A[electric_potential_equation_index,
+                  electric_potential_unknown_index] = 1
+                b[electric_potential_equation_index] = self._get_dc_voltage(
+                    conductor_tag)
 
                 # Electric field in the x-direction.
                 electric_field_x_equation_index = (
@@ -287,24 +295,28 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                                                 dim=self.dimension(),
                                                 node_type=GmshNodeType.BOUNDARY)
             for tag in boundary_node_tags:
-                voltage_unknown_index = self._get_voltage_unknown_index(tag)
+                electric_potential_unknown_index = self._get_electric_potential_unknown_index(
+                    tag)
 
                 # Voltage boundary conditions.
-                voltage_equation_index = (
-                    self._get_poisson_voltage_equation_index(tag))
-                A[voltage_equation_index, :] = 0
-                A[voltage_equation_index, voltage_unknown_index] = 1
-                b[voltage_equation_index] = self._get_dc_voltage(conductor_tag)
+                electric_potential_equation_index = (
+                    self._get_poisson_electric_potential_equation_index(tag))
+                A[electric_potential_equation_index, :] = 0
+                A[electric_potential_equation_index,
+                  electric_potential_unknown_index] = 1
+                b[electric_potential_equation_index] = self._get_dc_voltage(
+                    conductor_tag)
 
-        # Solve for the voltage and the electric field.
+        # Solve for the electric field and the electric field.
         x = scipy.sparse.linalg.spsolve(A.tocsr(), b)
-        self.voltage = x[:self.num_voltage_unknowns]
+        self.electric_potential = x[:self.num_electric_potential_unknowns]
         self.electric_field = np.reshape(
-            x[self.num_voltage_unknowns:self.num_voltage_unknowns +
+            x[self.num_electric_potential_unknowns:self.
+              num_electric_potential_unknowns +
               self.num_electric_field_unknowns], (-1, self.dimension()))
 
-    def _get_voltage_unknown_index(self, tag: int) -> int:
-        """Returns the unknown index corresponding to the node's voltage."""
+    def _get_electric_potential_unknown_index(self, tag: int) -> int:
+        """Returns the unknown index corresponding to the node's electric potential."""
         return self._get_index_from_tag(tag)
 
     def _get_electric_field_x_unknown_index(self, tag: int) -> int:
@@ -312,16 +324,16 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
         in the x-direction.
         """
         return self.dimension() * self._get_index_from_tag(
-            tag) + self.num_voltage_unknowns
+            tag) + self.num_electric_potential_unknowns
 
     def _get_electric_field_y_unknown_index(self, tag: int) -> int:
         """Returns the unknown index corresponding to the node's electric field
         in the y-direction.
         """
         return self.dimension() * self._get_index_from_tag(
-            tag) + 1 + self.num_voltage_unknowns
+            tag) + 1 + self.num_electric_potential_unknowns
 
-    def _get_poisson_voltage_equation_index(self, tag: int) -> int:
+    def _get_poisson_electric_potential_equation_index(self, tag: int) -> int:
         """Returns the equation index corresponding to Poisson's equation or
         any voltage boundary condition.
         """
@@ -332,14 +344,14 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
         in the x-direction.
         """
         return self.dimension() * self._get_index_from_tag(
-            tag) + self.num_voltage_unknowns
+            tag) + self.num_electric_potential_unknowns
 
     def _get_electric_field_y_equation_index(self, tag: int) -> int:
         """Returns the equation index corresponding to the node's electric field
         in the y-direction.
         """
         return self.dimension() * self._get_index_from_tag(
-            tag) + 1 + self.num_voltage_unknowns
+            tag) + 1 + self.num_electric_potential_unknowns
 
 
 class ElectrostaticSolver3D(ElectrostaticSolver):

@@ -20,7 +20,7 @@ def main(argv):
     capacitor_solver = CapacitorElectrostaticSolver2D(FLAGS.mesh_file,
                                                       solver_config)
     capacitor_solver.solve()
-    capacitor_solver.plot_voltage()
+    capacitor_solver.plot_electric_potential()
     capacitor_solver.plot_electric_field()
     capacitance = capacitor_solver.calculate_capacitance()
     logging.info("Capacitance = %g", capacitance)

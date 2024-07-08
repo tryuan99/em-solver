@@ -1,5 +1,6 @@
-"""The electromagnetic solver solves for the voltage, the electric field, the
-magnetic vector potential, and the magnetic field."""
+"""The electromagnetic solver solves for the electric potential, the electric
+field, the magnetic vector potential, and the magnetic flux density.
+"""
 
 from abc import abstractmethod
 from typing import Any
@@ -25,12 +26,13 @@ class ElectromagneticSolver(GmshInterface):
         # Validate the mesh.
         self._validate_mesh()
 
-        # Initialize the voltage, electric field, and magnetic field vectors.
+        # Initialize the electric potential, electric field, magnetic vector
+        # potential, and magnetic flux density vectors.
         num_nodes = len(np.unique(self.get_nodes(dim=self.dimension())))
-        self.voltage = np.zeros(num_nodes)
+        self.electric_potential = np.zeros(num_nodes)
         self.electric_field = np.zeros((num_nodes, self.dimension()))
         self.magnetic_vector_potential = np.zeros((num_nodes, self.dimension()))
-        self.magnetic_field = np.zeros((num_nodes, self.dimension()))
+        self.magnetic_flux_density = np.zeros((num_nodes, self.dimension()))
         self.solved = False
 
     @classmethod
@@ -39,9 +41,9 @@ class ElectromagneticSolver(GmshInterface):
         """Returns the dimension of the structure."""
 
     @property
-    def num_voltage_unknowns(self) -> int:
-        """Returns the number of voltage unknowns."""
-        return self.voltage.size
+    def num_electric_potential_unknowns(self) -> int:
+        """Returns the number of electric potential unknowns."""
+        return self.electric_potential.size
 
     @property
     def num_electric_field_unknowns(self) -> int:
@@ -54,16 +56,17 @@ class ElectromagneticSolver(GmshInterface):
         return self.magnetic_vector_potential.size
 
     @property
-    def num_magnetic_field_unknowns(self) -> int:
-        """Returns the number of magnetic field unknowns."""
-        return self.magnetic_field.size
+    def num_magnetic_flux_density_unknowns(self) -> int:
+        """Returns the number of magnetic flux density unknowns."""
+        return self.magnetic_flux_density.size
 
     @property
     def num_unknowns(self) -> int:
         """Returns the number of unknowns."""
-        return (self.num_voltage_unknowns + self.num_electric_field_unknowns +
+        return (self.num_electric_potential_unknowns +
+                self.num_electric_field_unknowns +
                 self.num_magnetic_vector_potential_unknowns +
-                self.num_magnetic_field_unknowns)
+                self.num_magnetic_flux_density_unknowns)
 
     def get_material_for_physical_group(self, tag: int) -> Material:
         """Returns the material of the physical group.
@@ -100,8 +103,8 @@ class ElectromagneticSolver(GmshInterface):
         return self.get_material_for_physical_group(tag=physical_group_tag)
 
     def solve(self) -> None:
-        """Solves for the voltage, the electric field, the magnetic vector
-        potential, and the magnetic field.
+        """Solves for the electric potential, the electric field, the magnetic
+        vector potential, and the magnetic flux density.
         """
         if self.solved:
             return
@@ -118,8 +121,8 @@ class ElectromagneticSolver(GmshInterface):
 
     @abstractmethod
     def _solve(self) -> None:
-        """Implementation for solving for the voltage, the electric field, the
-        magnetic vector potential, and the magnetic field.
+        """Implementation for solving for the electric potential, the electric
+        field, the magnetic vector potential, and the magnetic flux density.
         """
 
     @staticmethod

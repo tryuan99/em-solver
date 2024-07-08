@@ -179,9 +179,9 @@ class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
                 # Set the coefficient for the electric fields for the
                 # electric field equations.
                 A[electric_field_x_equation_index,
-                  electric_field_x_unknown_index] = -num_adjacent_triangles
+                  electric_field_x_unknown_index] = num_adjacent_triangles
                 A[electric_field_y_equation_index,
-                  electric_field_y_unknown_index] = -num_adjacent_triangles
+                  electric_field_y_unknown_index] = num_adjacent_triangles
 
         # Fill in the electric potential and electric field equations for the
         # nodes within the conductors.

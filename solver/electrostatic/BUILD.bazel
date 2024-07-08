@@ -11,10 +11,7 @@ py_library(
         "//proto:solver_config_py_proto",
         "//solver:electromagnetic_solver",
         "//solver:neighbor_lookup",
-        "//visualization:color_maps",
-        requirement("matplotlib"),
         requirement("numpy"),
-        requirement("SciencePlots"),
         requirement("scipy"),
     ],
 )

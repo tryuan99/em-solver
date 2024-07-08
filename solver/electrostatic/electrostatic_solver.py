@@ -2,19 +2,16 @@
 field only.
 """
 
-from abc import abstractmethod
-
-import matplotlib.pyplot as plt
 import numpy as np
-import scienceplots
 import scipy.sparse
 from proto.solver_config_pb2 import SolverConfig
 
 from mesh.gmsh_interface import GmshNodeType
 from model.material import MaterialProperties
-from solver.electromagnetic_solver import ElectromagneticSolver
+from solver.electromagnetic_solver import (ElectromagneticSolver,
+                                           ElectromagneticSolver2D,
+                                           ElectromagneticSolver3D)
 from solver.neighbor_lookup import NeighborLookup
-from visualization.color_maps import COLOR_MAPS
 
 
 class ElectrostaticSolver(ElectromagneticSolver):
@@ -26,15 +23,8 @@ class ElectrostaticSolver(ElectromagneticSolver):
     @property
     def num_unknowns(self) -> int:
         """Returns the number of unknowns."""
-        return self.num_electric_potential_unknowns + self.num_electric_field_unknowns
-
-    @abstractmethod
-    def plot_electric_potential(self) -> None:
-        """Plots the electric potential."""
-
-    @abstractmethod
-    def plot_electric_field(self) -> None:
-        """Plots the electric field."""
+        return (self.num_electric_potential_unknowns +
+                self.num_electric_field_unknowns)
 
     def _get_dc_voltage(self, tag: int) -> float:
         """Returns the DC voltage for the tag.
@@ -51,65 +41,8 @@ class ElectrostaticSolver(ElectromagneticSolver):
         raise ValueError(f"Entity {tag} cannot be found.")
 
 
-class ElectrostaticSolver2D(ElectrostaticSolver):
+class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
     """Interface for a 2D electrostatic solver."""
-
-    @classmethod
-    def dimension(cls) -> int:
-        """Returns the dimension of the structure."""
-        return 2
-
-    def plot_electric_potential(self) -> None:
-        """Plots the electric potential."""
-        node_tags, node_coordinates = self.get_node_coordinates(
-            dim=self.dimension())
-        X = node_coordinates[:, 0]
-        Y = node_coordinates[:, 1]
-        potential = self.electric_potential[self._get_index_from_tag(node_tags)]
-
-        plt.style.use(["science", "grid"])
-        fig, ax = plt.subplots(
-            figsize=(12, 8),
-            subplot_kw={"projection": "3d"},
-        )
-        surf = ax.plot_trisurf(
-            X,
-            Y,
-            potential,
-            cmap=COLOR_MAPS["parula"],
-            antialiased=False,
-        )
-        ax.set_title("Electric potential")
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.view_init(45, -45)
-        plt.colorbar(surf)
-        plt.show()
-
-    def plot_electric_field(self) -> None:
-        """Plots the electric field."""
-        node_tags, node_coordinates = self.get_node_coordinates(
-            dim=self.dimension())
-        X = node_coordinates[:, 0]
-        Y = node_coordinates[:, 1]
-        electric_field = self.electric_field[self._get_index_from_tag(
-            node_tags)]
-        electric_field_x = electric_field[:, 0]
-        electric_field_y = electric_field[:, 1]
-
-        plt.style.use(["science", "grid"])
-        fig, ax = plt.subplots(figsize=(12, 8))
-        ax.quiver(
-            X,
-            Y,
-            electric_field_x,
-            electric_field_y,
-            np.linalg.norm(electric_field, axis=1),
-            angles="xy",
-            pivot="middle",
-            cmap=COLOR_MAPS["parula"],
-        )
-        plt.show()
 
     def _solve(self) -> None:
         """Implementation for solving for the electric potential, the electric
@@ -162,8 +95,8 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                     self._get_electric_field_x_equation_index(tag))
                 electric_field_y_equation_index = (
                     self._get_electric_field_y_equation_index(tag))
-                electric_potential_unknown_index = self._get_electric_potential_unknown_index(
-                    tag)
+                electric_potential_unknown_index = (
+                    self._get_electric_potential_unknown_index(tag))
                 electric_field_x_unknown_index = (
                     self._get_electric_field_x_unknown_index(tag))
                 electric_field_y_unknown_index = (
@@ -262,8 +195,8 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                                                 dim=self.dimension(),
                                                 node_type=GmshNodeType.INTERNAL)
             for tag in internal_node_tags:
-                electric_potential_unknown_index = self._get_electric_potential_unknown_index(
-                    tag)
+                electric_potential_unknown_index = (
+                    self._get_electric_potential_unknown_index(tag))
                 electric_field_x_unknown_index = (
                     self._get_electric_field_x_unknown_index(tag))
                 electric_field_y_unknown_index = (
@@ -295,8 +228,8 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
                                                 dim=self.dimension(),
                                                 node_type=GmshNodeType.BOUNDARY)
             for tag in boundary_node_tags:
-                electric_potential_unknown_index = self._get_electric_potential_unknown_index(
-                    tag)
+                electric_potential_unknown_index = (
+                    self._get_electric_potential_unknown_index(tag))
 
                 # Voltage boundary conditions.
                 electric_potential_equation_index = (
@@ -316,7 +249,9 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
               self.num_electric_field_unknowns], (-1, self.dimension()))
 
     def _get_electric_potential_unknown_index(self, tag: int) -> int:
-        """Returns the unknown index corresponding to the node's electric potential."""
+        """Returns the unknown index corresponding to the node's electric
+        potential.
+        """
         return self._get_index_from_tag(tag)
 
     def _get_electric_field_x_unknown_index(self, tag: int) -> int:
@@ -354,10 +289,7 @@ class ElectrostaticSolver2D(ElectrostaticSolver):
             tag) + 1 + self.num_electric_potential_unknowns
 
 
-class ElectrostaticSolver3D(ElectrostaticSolver):
+class ElectrostaticSolver3D(ElectrostaticSolver, ElectromagneticSolver3D):
     """Interface for a 3D electrostatic solver."""
 
-    @classmethod
-    def dimension(cls) -> int:
-        """Returns the dimension of the structure."""
-        return 3
+    pass

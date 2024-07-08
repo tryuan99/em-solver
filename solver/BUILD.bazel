@@ -14,8 +14,11 @@ py_library(
         "//mesh:gmsh_interface",
         "//proto:material_py_proto",
         "//proto:solver_config_py_proto",
+        "//visualization:color_maps",
         requirement("gmsh"),
+        requirement("matplotlib"),
         requirement("numpy"),
+        requirement("SciencePlots"),
     ],
 )
 

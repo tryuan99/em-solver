@@ -2,18 +2,21 @@
 field, the magnetic vector potential, and the magnetic flux density.
 """
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any
 
 import gmsh
+import matplotlib.pyplot as plt
 import numpy as np
+import scienceplots
 from proto.material_pb2 import Material
 from proto.solver_config_pb2 import SolverConfig
 
 from mesh.gmsh_interface import GmshInterface
+from visualization.color_maps import COLOR_MAPS
 
 
-class ElectromagneticSolver(GmshInterface):
+class ElectromagneticSolver(GmshInterface, ABC):
     """Interface for an electromagnetic solver."""
 
     def __init__(self, mesh_file: str, solver_config: SolverConfig) -> None:
@@ -111,6 +114,14 @@ class ElectromagneticSolver(GmshInterface):
         self._solve()
         self.solved = True
 
+    @abstractmethod
+    def plot_electric_potential(self) -> None:
+        """Plots the electric potential."""
+
+    @abstractmethod
+    def plot_electric_field(self) -> None:
+        """Plots the electric field."""
+
     def _validate_mesh(self) -> None:
         """Validates the mesh.
 
@@ -142,3 +153,73 @@ class ElectromagneticSolver(GmshInterface):
             index: Node index.
         """
         return np.int64(index + 1)
+
+
+class ElectromagneticSolver2D(ElectromagneticSolver):
+    """Interface for a 2D electromagnetic solver."""
+
+    @classmethod
+    def dimension(cls) -> int:
+        """Returns the dimension of the structure."""
+        return 2
+
+    def plot_electric_potential(self) -> None:
+        """Plots the electric potential."""
+        node_tags, node_coordinates = self.get_node_coordinates(
+            dim=self.dimension())
+        X = node_coordinates[:, 0]
+        Y = node_coordinates[:, 1]
+        potential = self.electric_potential[self._get_index_from_tag(node_tags)]
+
+        plt.style.use(["science", "grid"])
+        fig, ax = plt.subplots(
+            figsize=(12, 8),
+            subplot_kw={"projection": "3d"},
+        )
+        surf = ax.plot_trisurf(
+            X,
+            Y,
+            potential,
+            cmap=COLOR_MAPS["parula"],
+            antialiased=False,
+        )
+        ax.set_title("Electric potential")
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.view_init(45, -45)
+        plt.colorbar(surf)
+        plt.show()
+
+    def plot_electric_field(self) -> None:
+        """Plots the electric field."""
+        node_tags, node_coordinates = self.get_node_coordinates(
+            dim=self.dimension())
+        X = node_coordinates[:, 0]
+        Y = node_coordinates[:, 1]
+        electric_field = self.electric_field[self._get_index_from_tag(
+            node_tags)]
+        electric_field_x = electric_field[:, 0]
+        electric_field_y = electric_field[:, 1]
+
+        plt.style.use(["science", "grid"])
+        fig, ax = plt.subplots(figsize=(12, 8))
+        ax.quiver(
+            X,
+            Y,
+            electric_field_x,
+            electric_field_y,
+            np.linalg.norm(electric_field, axis=1),
+            angles="xy",
+            pivot="middle",
+            cmap=COLOR_MAPS["parula"],
+        )
+        plt.show()
+
+
+class ElectromagneticSolver3D(ElectromagneticSolver):
+    """Interface for a 3D electromagnetic solver."""
+
+    @classmethod
+    def dimension(cls) -> int:
+        """Returns the dimension of the structure."""
+        return 3

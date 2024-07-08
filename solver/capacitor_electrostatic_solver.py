@@ -108,5 +108,5 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):
         material = self.get_material_for_entity(tag=CapacitorEntity.DIELECTRIC)
         material_properties = MATERIAL_TO_PROPERTIES[material]
         Q = electric_flux * VACUUM_PERMITTIVITY * material_properties.relative_permittivity
-        C = Q / self.dc_voltage
+        C = Q / self._get_dc_voltage(CapacitorEntity.VDD_PLATE)
         return C

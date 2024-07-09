@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+// Complex number.
+message ComplexNumber {
+  // Real component.
+  float real = 1;
+
+  // Imaginary component.
+  float imaginary = 2;
+}

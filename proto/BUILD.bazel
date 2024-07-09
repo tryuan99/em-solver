@@ -24,6 +24,11 @@ py_proto_library(
 )
 
 proto_library(
+    name = "complex_number_proto",
+    srcs = ["complex_number.proto"],
+)
+
+proto_library(
     name = "material_proto",
     srcs = ["material.proto"],
 )
@@ -47,6 +52,7 @@ py_proto_library(
 proto_library(
     name = "solver_config_proto",
     srcs = ["solver_config.proto"],
+    deps = [":complex_number_proto"],
 )
 
 py_proto_library(

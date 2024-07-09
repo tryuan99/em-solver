@@ -1,0 +1,41 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "electrodynamic_solver",
+    srcs = ["electrodynamic_solver.py"],
+    deps = [
+        "//mesh:gmsh_interface",
+        "//model:material",
+        "//proto:solver_config_py_proto",
+        "//solver:constants",
+        "//solver:electromagnetic_solver",
+        "//solver:neighbor_lookup",
+        requirement("numpy"),
+        requirement("scipy"),
+    ],
+)
+
+py_library(
+    name = "capacitor_electrodynamic_solver",
+    srcs = ["capacitor_electrodynamic_solver.py"],
+    deps = [
+        ":electrodynamic_solver",
+        "//model:material",
+        "//proto:capacitor_py_proto",
+        "//proto:solver_config_py_proto",
+    ],
+)
+
+py_binary(
+    name = "capacitor_electrodynamic_solver_main",
+    srcs = ["capacitor_electrodynamic_solver_main.py"],
+    data = ["//solver/configs:capacitor_solver_configs"],
+    deps = [
+        ":capacitor_electrodynamic_solver",
+        "//proto:solver_config_py_proto",
+        requirement("absl-py"),
+        requirement("protobuf"),
+    ],
+)

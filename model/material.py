@@ -10,8 +10,9 @@ class MaterialProperties:
     """Material property."""
 
     def __init__(self, relative_permittivity: float,
-                 resistivity: float) -> None:
+                 relative_permeability: float, resistivity: float) -> None:
         self.relative_permittivity = relative_permittivity
+        self.relative_permeability = relative_permeability
         self.resistivity = resistivity
 
     def conductivity(self) -> float:
@@ -43,11 +44,13 @@ MATERIAL_TO_PROPERTIES = {
     Material.INSULATOR:
         MaterialProperties(
             relative_permittivity=1,
+            relative_permeability=1,
             resistivity=np.inf,
         ),
     Material.CONDUCTOR:
         MaterialProperties(
             relative_permittivity=np.inf,
+            relative_permeability=1,
             resistivity=0,
         ),
 
@@ -55,11 +58,13 @@ MATERIAL_TO_PROPERTIES = {
     Material.AIR:
         MaterialProperties(
             relative_permittivity=1.0006,
+            relative_permeability=1,
             resistivity=1e13,
         ),
     Material.SILICON_DIOXIDE:
         MaterialProperties(
             relative_permittivity=3.9,
+            relative_permeability=1,
             resistivity=1e15,
         ),
 
@@ -67,11 +72,13 @@ MATERIAL_TO_PROPERTIES = {
     Material.COPPER:
         MaterialProperties(
             relative_permittivity=np.inf,
+            relative_permeability=1,
             resistivity=1.68e-8,
         ),
     Material.GOLD:
         MaterialProperties(
             relative_permittivity=np.inf,
+            relative_permeability=1,
             resistivity=2.44e-8,
         ),
 }

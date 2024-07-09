@@ -184,17 +184,19 @@ class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
                   electric_field_y_unknown_index] = num_adjacent_triangles
 
         # Fill in the electric potential and electric field equations for the
-        # nodes within the conductors.
+        # nodes within the conductors, revising the equations for the boundary
+        # nodes.
         # At steady state, the electric potential is constant throughout the
         # insulator, and the electric field is zero throughout, even with a
         # non-zero resistivity.
         for conductor_tag in conductor_entity_tags:
             # Set the voltage boundary conditions and electric fields within
             # the capacitor plates.
-            internal_node_tags = self.get_nodes(tag=conductor_tag,
-                                                dim=self.dimension(),
-                                                node_type=GmshNodeType.INTERNAL)
-            for tag in internal_node_tags:
+            conductor_internal_node_tags = self.get_nodes(
+                tag=conductor_tag,
+                dim=self.dimension(),
+                node_type=GmshNodeType.INTERNAL)
+            for tag in conductor_internal_node_tags:
                 electric_potential_unknown_index = (
                     self._get_electric_potential_unknown_index(tag))
                 electric_field_x_unknown_index = (
@@ -202,21 +204,21 @@ class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
                 electric_field_y_unknown_index = (
                     self._get_electric_field_y_unknown_index(tag))
 
-                # Voltage boundary conditions.
+                # Set the voltage boundary conditions.
                 electric_potential_equation_index = (
                     self._get_poisson_electric_potential_equation_index(tag))
                 A[electric_potential_equation_index,
                   electric_potential_unknown_index] = 1
-                b[electric_potential_equation_index] = self._get_dc_voltage(
-                    conductor_tag)
+                b[electric_potential_equation_index] = (
+                    self._get_dc_voltage(conductor_tag))
 
-                # Electric field in the x-direction.
+                # Set the electric field boundary conditions in the x-direction.
                 electric_field_x_equation_index = (
                     self._get_electric_field_x_equation_index(tag))
                 A[electric_field_x_equation_index,
                   electric_field_x_unknown_index] = 1
 
-                # Electric field in the y-direction.
+                # Set the electric field boundary conditions in the y-direction.
                 electric_field_y_equation_index = (
                     self._get_electric_field_y_equation_index(tag))
                 A[electric_field_y_equation_index,
@@ -224,23 +226,24 @@ class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
 
             # Set the voltage boundary conditions for the boundary nodes at the
             # capacitor plates.
-            boundary_node_tags = self.get_nodes(tag=conductor_tag,
-                                                dim=self.dimension(),
-                                                node_type=GmshNodeType.BOUNDARY)
-            for tag in boundary_node_tags:
+            conductor_boundary_node_tags = self.get_nodes(
+                tag=conductor_tag,
+                dim=self.dimension(),
+                node_type=GmshNodeType.BOUNDARY)
+            for tag in conductor_boundary_node_tags:
                 electric_potential_unknown_index = (
                     self._get_electric_potential_unknown_index(tag))
 
-                # Voltage boundary conditions.
+                # Set the voltage boundary conditions.
                 electric_potential_equation_index = (
                     self._get_poisson_electric_potential_equation_index(tag))
                 A[electric_potential_equation_index, :] = 0
                 A[electric_potential_equation_index,
                   electric_potential_unknown_index] = 1
-                b[electric_potential_equation_index] = self._get_dc_voltage(
-                    conductor_tag)
+                b[electric_potential_equation_index] = (
+                    self._get_dc_voltage(conductor_tag))
 
-        # Solve for the electric field and the electric field.
+        # Solve for the electric potential and the electric field.
         x = scipy.sparse.linalg.spsolve(A.tocsr(), b)
         self.electric_potential = x[:self.num_electric_potential_unknowns]
         self.electric_field = np.reshape(

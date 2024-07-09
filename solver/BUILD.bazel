@@ -5,6 +5,7 @@ package(default_visibility = ["//visibility:public"])
 py_library(
     name = "constants",
     srcs = ["constants.py"],
+    deps = [requirement("numpy")],
 )
 
 py_library(

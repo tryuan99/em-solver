@@ -34,8 +34,8 @@ class ElectromagneticSolver(GmshInterface, ABC):
         num_nodes = len(np.unique(self.get_nodes(dim=self.dimension())))
         self.electric_potential = np.zeros(num_nodes)
         self.electric_field = np.zeros((num_nodes, self.dimension()))
-        self.magnetic_vector_potential = np.zeros((num_nodes, self.dimension()))
-        self.magnetic_flux_density = np.zeros((num_nodes, self.dimension()))
+        self.magnetic_vector_potential = np.zeros((num_nodes, 3))
+        self.magnetic_flux_density = np.zeros((num_nodes, 3))
         self.solved = False
 
     @classmethod
@@ -121,6 +121,14 @@ class ElectromagneticSolver(GmshInterface, ABC):
     @abstractmethod
     def plot_electric_field(self) -> None:
         """Plots the electric field."""
+
+    @abstractmethod
+    def plot_magnetic_vector_potential(self) -> None:
+        """Plots the magnetic vector potential."""
+
+    @abstractmethod
+    def plot_magnetic_flux_density(self) -> None:
+        """Plots the magnetic flux density."""
 
     def _validate_mesh(self) -> None:
         """Validates the mesh.
@@ -213,6 +221,66 @@ class ElectromagneticSolver2D(ElectromagneticSolver):
             pivot="middle",
             cmap=COLOR_MAPS["parula"],
         )
+        plt.show()
+
+    def plot_magnetic_vector_potential(self) -> None:
+        """Plots the magnetic vector potential."""
+        node_tags, node_coordinates = self.get_node_coordinates(
+            dim=self.dimension())
+        X = node_coordinates[:, 0]
+        Y = node_coordinates[:, 1]
+        magnetic_vector_potential = self.magnetic_vector_potential[
+            self._get_index_from_tag(node_tags)]
+        magnetic_vector_potential_x = magnetic_vector_potential[:, 0]
+        magnetic_vector_potential_y = magnetic_vector_potential[:, 1]
+        magnetic_vector_potential_z = magnetic_vector_potential[:, 2]
+
+        plt.style.use(["science", "grid"])
+        fig, ax = plt.subplots(
+            figsize=(12, 8),
+            subplot_kw={"projection": "3d"},
+        )
+        ax.quiver(
+            X,
+            Y,
+            0,
+            magnetic_vector_potential_x,
+            magnetic_vector_potential_y,
+            magnetic_vector_potential_z,
+            pivot="middle",
+            cmap=COLOR_MAPS["parula"],
+        )
+        ax.view_init(90, -90)
+        plt.show()
+
+    def plot_magnetic_flux_density(self) -> None:
+        """Plots the magnetic flux density."""
+        node_tags, node_coordinates = self.get_node_coordinates(
+            dim=self.dimension())
+        X = node_coordinates[:, 0]
+        Y = node_coordinates[:, 1]
+        magnetic_flux_density = self.magnetic_flux_density[
+            self._get_index_from_tag(node_tags)]
+        magnetic_flux_density_x = magnetic_flux_density[:, 0]
+        magnetic_flux_density_y = magnetic_flux_density[:, 1]
+        magnetic_flux_density_z = magnetic_flux_density[:, 2]
+
+        plt.style.use(["science", "grid"])
+        fig, ax = plt.subplots(
+            figsize=(12, 8),
+            subplot_kw={"projection": "3d"},
+        )
+        ax.quiver(
+            X,
+            Y,
+            0,
+            magnetic_flux_density_x,
+            magnetic_flux_density_y,
+            magnetic_flux_density_z,
+            pivot="middle",
+            cmap=COLOR_MAPS["parula"],
+        )
+        ax.view_init(90, -90)
         plt.show()
 
 

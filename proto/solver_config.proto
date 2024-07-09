@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "proto/complex_number.proto";
+
 // Entity configuration.
 message EntityConfig {
     // Entity tag.
@@ -7,10 +9,16 @@ message EntityConfig {
 
     // DC voltage.
     float dc_voltage = 2;
+
+    // AC phasor voltage.
+    ComplexNumber ac_phasor = 3;
 }
 
 // Solver configuration.
 message SolverConfig {
   // Entity configurations.
   repeated EntityConfig entity_configs = 1;
+
+  // Frequency in Hz.
+  float frequency = 2;
 }

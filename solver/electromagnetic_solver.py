@@ -6,14 +6,11 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import gmsh
-import matplotlib.pyplot as plt
 import numpy as np
-import scienceplots
 from proto.material_pb2 import Material
 from proto.solver_config_pb2 import SolverConfig
 
 from mesh.gmsh_interface import GmshInterface
-from visualization.color_maps import COLOR_MAPS
 
 
 class ElectromagneticSolver(GmshInterface, ABC):
@@ -31,11 +28,11 @@ class ElectromagneticSolver(GmshInterface, ABC):
 
         # Initialize the electric potential, electric field, magnetic vector
         # potential, and magnetic flux density vectors.
-        num_nodes = len(np.unique(self.get_nodes(dim=self.dimension())))
-        self.electric_potential = np.zeros(num_nodes)
-        self.electric_field = np.zeros((num_nodes, self.dimension()))
-        self.magnetic_vector_potential = np.zeros((num_nodes, 3))
-        self.magnetic_flux_density = np.zeros((num_nodes, 3))
+        self.num_nodes = len(np.unique(self.get_nodes(dim=self.dimension())))
+        self.electric_potential = np.zeros(self.num_nodes)
+        self.electric_field = np.zeros((self.num_nodes, self.dimension()))
+        self.magnetic_vector_potential = np.zeros((self.num_nodes, 3))
+        self.magnetic_flux_density = np.zeros((self.num_nodes, 3))
         self.solved = False
 
     @classmethod
@@ -114,21 +111,39 @@ class ElectromagneticSolver(GmshInterface, ABC):
         self._solve()
         self.solved = True
 
-    @abstractmethod
-    def plot_electric_potential(self) -> None:
-        """Plots the electric potential."""
+    def write_solution(self, csv_file: str) -> None:
+        """Writes the solution to a CSV file.
 
-    @abstractmethod
-    def plot_electric_field(self) -> None:
-        """Plots the electric field."""
+        The columns are in the following order:
+         - Tag
+         - Electric potential
+         - Electric field (x, y, z)
+         - Magnetic vector potential (x, y, z)
+         - Magnetic flux density (x, y, z)
+        """
+        with open(csv_file, "w") as output:
+            output.write(
+                f"Tag,Electric potential,"
+                f"Electric field x,Electric field y,Electric field z,"
+                f"Magnetic vector potential x,Magnetic vector potential y,Magnetic vector potential z,"
+                f"Magnetic flux density x,Magnetic flux density y,Magnetic flux density z\n"
+            )
 
-    @abstractmethod
-    def plot_magnetic_vector_potential(self) -> None:
-        """Plots the magnetic vector potential."""
-
-    @abstractmethod
-    def plot_magnetic_flux_density(self) -> None:
-        """Plots the magnetic flux density."""
+            for i in range(self.num_nodes):
+                output.write(f"{self._get_tag_from_index(i)},")
+                output.write(f"{self.electric_potential[i]},")
+                output.write(
+                    f"{self.electric_field[i, 0]},"
+                    f"{self.electric_field[i, 1]},"
+                    f"{self.electric_field[i, 2] if self.dimension() > 2 else 0},"
+                )
+                output.write(f"{self.magnetic_vector_potential[i, 0]},"
+                             f"{self.magnetic_vector_potential[i, 1]},"
+                             f"{self.magnetic_vector_potential[i, 2]},")
+                output.write(f"{self.magnetic_flux_density[i, 0]},"
+                             f"{self.magnetic_flux_density[i, 1]},"
+                             f"{self.magnetic_flux_density[i, 2]}")
+                output.write("\n")
 
     def _validate_mesh(self) -> None:
         """Validates the mesh.
@@ -170,118 +185,6 @@ class ElectromagneticSolver2D(ElectromagneticSolver):
     def dimension(cls) -> int:
         """Returns the dimension of the structure."""
         return 2
-
-    def plot_electric_potential(self) -> None:
-        """Plots the electric potential."""
-        node_tags, node_coordinates = self.get_node_coordinates(
-            dim=self.dimension())
-        X = node_coordinates[:, 0]
-        Y = node_coordinates[:, 1]
-        potential = self.electric_potential[self._get_index_from_tag(node_tags)]
-
-        plt.style.use(["science", "grid"])
-        fig, ax = plt.subplots(
-            figsize=(12, 8),
-            subplot_kw={"projection": "3d"},
-        )
-        surf = ax.plot_trisurf(
-            X,
-            Y,
-            potential,
-            cmap=COLOR_MAPS["parula"],
-            antialiased=False,
-        )
-        ax.set_title("Electric potential")
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.view_init(45, -45)
-        plt.colorbar(surf)
-        plt.show()
-
-    def plot_electric_field(self) -> None:
-        """Plots the electric field."""
-        node_tags, node_coordinates = self.get_node_coordinates(
-            dim=self.dimension())
-        X = node_coordinates[:, 0]
-        Y = node_coordinates[:, 1]
-        electric_field = self.electric_field[self._get_index_from_tag(
-            node_tags)]
-        electric_field_x = electric_field[:, 0]
-        electric_field_y = electric_field[:, 1]
-
-        plt.style.use(["science", "grid"])
-        fig, ax = plt.subplots(figsize=(12, 8))
-        ax.quiver(
-            X,
-            Y,
-            electric_field_x,
-            electric_field_y,
-            np.linalg.norm(electric_field, axis=1),
-            angles="xy",
-            pivot="middle",
-            cmap=COLOR_MAPS["parula"],
-        )
-        plt.show()
-
-    def plot_magnetic_vector_potential(self) -> None:
-        """Plots the magnetic vector potential."""
-        node_tags, node_coordinates = self.get_node_coordinates(
-            dim=self.dimension())
-        X = node_coordinates[:, 0]
-        Y = node_coordinates[:, 1]
-        magnetic_vector_potential = self.magnetic_vector_potential[
-            self._get_index_from_tag(node_tags)]
-        magnetic_vector_potential_x = magnetic_vector_potential[:, 0]
-        magnetic_vector_potential_y = magnetic_vector_potential[:, 1]
-        magnetic_vector_potential_z = magnetic_vector_potential[:, 2]
-
-        plt.style.use(["science", "grid"])
-        fig, ax = plt.subplots(
-            figsize=(12, 8),
-            subplot_kw={"projection": "3d"},
-        )
-        ax.quiver(
-            X,
-            Y,
-            0,
-            magnetic_vector_potential_x,
-            magnetic_vector_potential_y,
-            magnetic_vector_potential_z,
-            pivot="middle",
-            cmap=COLOR_MAPS["parula"],
-        )
-        ax.view_init(90, -90)
-        plt.show()
-
-    def plot_magnetic_flux_density(self) -> None:
-        """Plots the magnetic flux density."""
-        node_tags, node_coordinates = self.get_node_coordinates(
-            dim=self.dimension())
-        X = node_coordinates[:, 0]
-        Y = node_coordinates[:, 1]
-        magnetic_flux_density = self.magnetic_flux_density[
-            self._get_index_from_tag(node_tags)]
-        magnetic_flux_density_x = magnetic_flux_density[:, 0]
-        magnetic_flux_density_y = magnetic_flux_density[:, 1]
-        magnetic_flux_density_z = magnetic_flux_density[:, 2]
-
-        plt.style.use(["science", "grid"])
-        fig, ax = plt.subplots(
-            figsize=(12, 8),
-            subplot_kw={"projection": "3d"},
-        )
-        ax.quiver(
-            X,
-            Y,
-            0,
-            magnetic_flux_density_x,
-            magnetic_flux_density_y,
-            magnetic_flux_density_z,
-            pivot="middle",
-            cmap=COLOR_MAPS["parula"],
-        )
-        ax.view_init(90, -90)
-        plt.show()
 
 
 class ElectromagneticSolver3D(ElectromagneticSolver):

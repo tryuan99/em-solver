@@ -31,12 +31,13 @@ py_library(
 )
 
 py_binary(
-    name = "capacitor_electrostatic_solver_main",
-    srcs = ["capacitor_electrostatic_solver_main.py"],
+    name = "capacitor_electrostatic_solver_2d_main",
+    srcs = ["capacitor_electrostatic_solver_2d_main.py"],
     data = ["//solver/configs:capacitor_solver_configs"],
     deps = [
         ":capacitor_electrostatic_solver",
         "//proto:solver_config_py_proto",
+        "//visualization:electromagnetic_field_plotter",
         requirement("absl-py"),
         requirement("protobuf"),
     ],
@@ -54,12 +55,13 @@ py_library(
 )
 
 py_binary(
-    name = "capacitor_three_plates_electrostatic_solver_main",
-    srcs = ["capacitor_three_plates_electrostatic_solver_main.py"],
+    name = "capacitor_three_plates_electrostatic_solver_2d_main",
+    srcs = ["capacitor_three_plates_electrostatic_solver_2d_main.py"],
     data = ["//solver/configs:capacitor_solver_configs_three_plates"],
     deps = [
         ":capacitor_three_plates_electrostatic_solver",
         "//proto:solver_config_py_proto",
+        "//visualization:electromagnetic_field_plotter",
         requirement("absl-py"),
         requirement("protobuf"),
     ],

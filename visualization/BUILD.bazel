@@ -7,3 +7,26 @@ py_library(
     srcs = ["color_maps.py"],
     deps = [requirement("matplotlib")],
 )
+
+py_library(
+    name = "electromagnetic_field_plotter",
+    srcs = ["electromagnetic_field_plotter.py"],
+    deps = [
+        "//mesh:gmsh_interface",
+        "//visualization:color_maps",
+        requirement("gmsh"),
+        requirement("matplotlib"),
+        requirement("numpy"),
+        requirement("pandas"),
+        requirement("SciencePlots"),
+    ],
+)
+
+py_binary(
+    name = "electromagnetic_field_plotter_2d_main",
+    srcs = ["electromagnetic_field_plotter_2d_main.py"],
+    deps = [
+        ":electromagnetic_field_plotter",
+        requirement("absl-py"),
+    ],
+)

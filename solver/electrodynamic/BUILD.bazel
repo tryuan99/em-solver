@@ -9,7 +9,6 @@ py_library(
         "//mesh:gmsh_interface",
         "//model:material",
         "//proto:solver_config_py_proto",
-        "//solver:constants",
         "//solver:electromagnetic_solver",
         "//solver:neighbor_lookup",
         requirement("numpy"),

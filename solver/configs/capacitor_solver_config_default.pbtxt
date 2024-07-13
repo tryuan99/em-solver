@@ -14,4 +14,4 @@ entity_configs {
     imaginary: 0
   }
 }
-frequency: 5e9
+frequency: 1e3

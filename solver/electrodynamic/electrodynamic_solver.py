@@ -8,7 +8,6 @@ from proto.solver_config_pb2 import SolverConfig
 
 from mesh.gmsh_interface import GmshNodeType
 from model.material import MATERIAL_TO_PROPERTIES, MaterialProperties
-from solver.constants import VACUUM_PERMEABILITY, VACUUM_PERMITTIVITY
 from solver.electromagnetic_solver import (ElectromagneticSolver,
                                            ElectromagneticSolver2D,
                                            ElectromagneticSolver3D)
@@ -127,15 +126,13 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 gauss_law_magnetism_x_equation_index = (
                     self._get_gauss_law_magnetism_x_equation_index(tag))
                 gauss_law_magnetism_y_equation_index = (
-                    self._get_gauss_law_magnetism_x_equation_index(tag))
+                    self._get_gauss_law_magnetism_y_equation_index(tag))
                 gauss_law_magnetism_z_equation_index = (
-                    self._get_gauss_law_magnetism_x_equation_index(tag))
+                    self._get_gauss_law_magnetism_z_equation_index(tag))
                 ampere_law_x_equation_index = (
                     self._get_ampere_law_x_equation_index(tag))
                 ampere_law_y_equation_index = (
                     self._get_ampere_law_y_equation_index(tag))
-                ampere_law_z_equation_index = (
-                    self._get_ampere_law_z_equation_index(tag))
 
                 # Unknown indices.
                 electric_potential_unknown_index = (
@@ -148,8 +145,6 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     self._get_magnetic_vector_potential_x_unknown_index(tag))
                 magnetic_vector_potential_y_unknown_index = (
                     self._get_magnetic_vector_potential_y_unknown_index(tag))
-                magnetic_vector_potential_z_unknown_index = (
-                    self._get_magnetic_vector_potential_z_unknown_index(tag))
                 magnetic_flux_density_x_unknown_index = (
                     self._get_magnetic_flux_density_x_unknown_index(tag))
                 magnetic_flux_density_y_unknown_index = (
@@ -174,10 +169,10 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                             tag_neighbor2))
                     electric_field_x_unknown_index_neighbor1 = (
                         self._get_electric_field_x_unknown_index(tag_neighbor1))
-                    electric_field_y_unknown_index_neighbor1 = (
-                        self._get_electric_field_y_unknown_index(tag_neighbor1))
                     electric_field_x_unknown_index_neighbor2 = (
                         self._get_electric_field_x_unknown_index(tag_neighbor2))
+                    electric_field_y_unknown_index_neighbor1 = (
+                        self._get_electric_field_y_unknown_index(tag_neighbor1))
                     electric_field_y_unknown_index_neighbor2 = (
                         self._get_electric_field_y_unknown_index(tag_neighbor2))
                     magnetic_vector_potential_x_unknown_index_neighbor1 = (
@@ -185,37 +180,19 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                             tag_neighbor1))
                     magnetic_vector_potential_x_unknown_index_neighbor2 = (
                         self._get_magnetic_vector_potential_x_unknown_index(
-                            tag_neighbor1))
+                            tag_neighbor2))
                     magnetic_vector_potential_y_unknown_index_neighbor1 = (
                         self._get_magnetic_vector_potential_y_unknown_index(
                             tag_neighbor1))
                     magnetic_vector_potential_y_unknown_index_neighbor2 = (
                         self._get_magnetic_vector_potential_y_unknown_index(
-                            tag_neighbor1))
-                    magnetic_vector_potential_z_unknown_index_neighbor1 = (
-                        self._get_magnetic_vector_potential_z_unknown_index(
-                            tag_neighbor1))
-                    magnetic_vector_potential_z_unknown_index_neighbor2 = (
-                        self._get_magnetic_vector_potential_z_unknown_index(
-                            tag_neighbor1))
-                    magnetic_flux_density_x_unknown_index_neighbor1 = (
-                        self._get_magnetic_flux_density_x_unknown_index(
-                            tag_neighbor1))
-                    magnetic_flux_density_x_unknown_index_neighbor2 = (
-                        self._get_magnetic_flux_density_x_unknown_index(
-                            tag_neighbor1))
-                    magnetic_flux_density_y_unknown_index_neighbor1 = (
-                        self._get_magnetic_flux_density_y_unknown_index(
-                            tag_neighbor1))
-                    magnetic_flux_density_y_unknown_index_neighbor2 = (
-                        self._get_magnetic_flux_density_y_unknown_index(
-                            tag_neighbor1))
+                            tag_neighbor2))
                     magnetic_flux_density_z_unknown_index_neighbor1 = (
                         self._get_magnetic_flux_density_z_unknown_index(
                             tag_neighbor1))
                     magnetic_flux_density_z_unknown_index_neighbor2 = (
                         self._get_magnetic_flux_density_z_unknown_index(
-                            tag_neighbor1))
+                            tag_neighbor2))
 
                     # Calculate the denominator.
                     denominator = (x_neighbor1 * y_neighbor2 - x_neighbor1 * y -
@@ -268,28 +245,185 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                           (x_neighbor2 - x_neighbor1) / denominator)
 
                     # Add the coefficients for the equation corresponding to
-                    # Gauss's law for magnetism in the x-direction.
-                    A[gauss_law_magnetism_x_equation_index,
-                      magnetic_vector_potential_z_unknown_index_neighbor1] += (
+                    # Gauss's law for magnetism in the z-direction.
+                    A[gauss_law_magnetism_z_equation_index,
+                      magnetic_vector_potential_x_unknown_index_neighbor1] += (
+                          (x - x_neighbor2) / denominator)
+                    A[gauss_law_magnetism_z_equation_index,
+                      magnetic_vector_potential_y_unknown_index_neighbor1] += (
+                          -(y_neighbor2 - y) / denominator)
+                    A[gauss_law_magnetism_z_equation_index,
+                      magnetic_vector_potential_x_unknown_index_neighbor2] += (
+                          (x_neighbor1 - x) / denominator)
+                    A[gauss_law_magnetism_z_equation_index,
+                      magnetic_vector_potential_y_unknown_index_neighbor2] += (
+                          -(y - y_neighbor1) / denominator)
+                    A[gauss_law_magnetism_z_equation_index,
+                      magnetic_vector_potential_x_unknown_index] += (
+                          (x_neighbor2 - x_neighbor1) / denominator)
+                    A[gauss_law_magnetism_z_equation_index,
+                      magnetic_vector_potential_y_unknown_index] += (
+                          -(y_neighbor1 - y_neighbor2) / denominator)
+
+                    # Add the coefficients for the equation corresponding to
+                    # Ampere's law in the x-direction.
+                    A[ampere_law_x_equation_index,
+                      magnetic_flux_density_z_unknown_index_neighbor1] += (
                           -(x - x_neighbor2) / denominator)
-                    A[gauss_law_magnetism_x_equation_index,
-                      magnetic_vector_potential_z_unknown_index_neighbor2] += (
+                    A[ampere_law_x_equation_index,
+                      magnetic_flux_density_z_unknown_index_neighbor2] += (
                           -(x_neighbor1 - x) / denominator)
-                    A[gauss_law_magnetism_x_equation_index,
-                      magnetic_vector_potential_z_unknown_index] += (
+                    A[ampere_law_x_equation_index,
+                      magnetic_flux_density_z_unknown_index] += (
                           -(x_neighbor2 - x_neighbor1) / denominator)
 
                     # Add the coefficients for the equation corresponding to
-                    # Gauss's law for magnetism in the y-direction.
-                    A[gauss_law_magnetism_y_equation_index,
-                      magnetic_vector_potential_z_unknown_index_neighbor1] += (
+                    # Ampere's law in the y-direction.
+                    A[ampere_law_y_equation_index,
+                      magnetic_flux_density_z_unknown_index_neighbor1] += (
                           (y_neighbor2 - y) / denominator)
-                    A[gauss_law_magnetism_y_equation_index,
-                      magnetic_vector_potential_z_unknown_index_neighbor2] += (
+                    A[ampere_law_y_equation_index,
+                      magnetic_flux_density_z_unknown_index_neighbor2] += (
                           (y - y_neighbor1) / denominator)
-                    A[gauss_law_magnetism_y_equation_index,
-                      magnetic_vector_potential_z_unknown_index] += (
+                    A[ampere_law_y_equation_index,
+                      magnetic_flux_density_z_unknown_index] += (
                           (y_neighbor1 - y_neighbor2) / denominator)
+
+                # Set the coefficients for the electric fields and magnetic
+                # vector potentials for the equations corresponding to
+                # Faraday's law.
+                A[faraday_law_x_equation_index,
+                  electric_field_x_unknown_index] = num_adjacent_triangles
+                A[faraday_law_x_equation_index,
+                  magnetic_vector_potential_x_unknown_index] = (
+                      1j * omega * num_adjacent_triangles)
+                A[faraday_law_y_equation_index,
+                  electric_field_y_unknown_index] = num_adjacent_triangles
+                A[faraday_law_y_equation_index,
+                  magnetic_vector_potential_y_unknown_index] = (
+                      1j * omega * num_adjacent_triangles)
+
+                # Set the coefficients for the magnetic flux densities for the
+                # equations corresponding to Gauss's law for magnetism.
+                A[gauss_law_magnetism_x_equation_index,
+                  magnetic_flux_density_x_unknown_index] = 1
+                A[gauss_law_magnetism_y_equation_index,
+                  magnetic_flux_density_y_unknown_index] = 1
+                A[gauss_law_magnetism_z_equation_index,
+                  magnetic_flux_density_z_unknown_index] = num_adjacent_triangles
+
+                # Set the coefficients for the electric fields for the
+                # equations corresponding to Ampere's law.
+                A[ampere_law_x_equation_index,
+                  electric_field_x_unknown_index] = (
+                      insulator_properties.permeability(self.config.frequency) *
+                      insulator_properties.conductivity(self.config.frequency) +
+                      1j * omega *
+                      insulator_properties.permeability(self.config.frequency) *
+                      insulator_properties.permittivity(self.config.frequency) *
+                      num_adjacent_triangles)
+                A[ampere_law_y_equation_index,
+                  electric_field_y_unknown_index] = (
+                      insulator_properties.permeability(self.config.frequency) *
+                      insulator_properties.conductivity(self.config.frequency) +
+                      1j * omega *
+                      insulator_properties.permeability(self.config.frequency) *
+                      insulator_properties.permittivity(self.config.frequency) *
+                      num_adjacent_triangles)
+
+        # Fill in the equations for the nodes within the conductors, revising
+        # the equations for the boundary nodes.
+        for conductor_tag in conductor_entity_tags:
+            conductor_properties = MATERIAL_TO_PROPERTIES[
+                self.get_material_for_entity(conductor_tag)]
+            _, conductor_triangle_node_tags = self.get_faces(tag=conductor_tag)
+            conductor_triangle_neighbors = NeighborLookup(
+                conductor_triangle_node_tags)
+
+            # Fill in the equations for the nodes within the conductors.
+            conductor_internal_node_tags = self.get_nodes(
+                tag=conductor_tag,
+                dim=self.dimension(),
+                node_type=GmshNodeType.INTERNAL)
+            for tag in conductor_internal_node_tags:
+                x, y = node_tag_to_coordinates[tag]
+                num_adjacent_triangles = (
+                    conductor_triangle_neighbors.get_num_adjacent_entities(tag))
+
+                # Equation indices.
+                gauss_law_electric_potential_equation_index = (
+                    self._get_gauss_law_electric_potential_equation_index(tag))
+                faraday_law_x_equation_index = (
+                    self._get_faraday_law_x_equation_index(tag))
+                faraday_law_y_equation_index = (
+                    self._get_faraday_law_y_equation_index(tag))
+                gauss_law_magnetism_x_equation_index = (
+                    self._get_gauss_law_magnetism_x_equation_index(tag))
+                gauss_law_magnetism_y_equation_index = (
+                    self._get_gauss_law_magnetism_y_equation_index(tag))
+                gauss_law_magnetism_z_equation_index = (
+                    self._get_gauss_law_magnetism_z_equation_index(tag))
+                ampere_law_x_equation_index = (
+                    self._get_ampere_law_x_equation_index(tag))
+                ampere_law_y_equation_index = (
+                    self._get_ampere_law_y_equation_index(tag))
+
+                # Unknown indices.
+                electric_potential_unknown_index = (
+                    self._get_electric_potential_unknown_index(tag))
+                electric_field_x_unknown_index = (
+                    self._get_electric_field_x_unknown_index(tag))
+                electric_field_y_unknown_index = (
+                    self._get_electric_field_y_unknown_index(tag))
+                magnetic_vector_potential_x_unknown_index = (
+                    self._get_magnetic_vector_potential_x_unknown_index(tag))
+                magnetic_vector_potential_y_unknown_index = (
+                    self._get_magnetic_vector_potential_y_unknown_index(tag))
+                magnetic_flux_density_x_unknown_index = (
+                    self._get_magnetic_flux_density_x_unknown_index(tag))
+                magnetic_flux_density_y_unknown_index = (
+                    self._get_magnetic_flux_density_y_unknown_index(tag))
+                magnetic_flux_density_z_unknown_index = (
+                    self._get_magnetic_flux_density_z_unknown_index(tag))
+
+                # Set the voltage boundary conditions.
+                A[gauss_law_electric_potential_equation_index,
+                  electric_potential_unknown_index] = 1
+                b[gauss_law_electric_potential_equation_index] = (
+                    self._get_ac_phasor(conductor_tag))
+
+                # Iterate over all adjacent triangles.
+                for (tag_neighbor1, tag_neighbor2
+                    ) in conductor_triangle_neighbors.get_neighbors(tag):
+                    x_neighbor1, y_neighbor1 = node_tag_to_coordinates[
+                        tag_neighbor1]
+                    x_neighbor2, y_neighbor2 = node_tag_to_coordinates[
+                        tag_neighbor2]
+
+                    # Unknown indices for both neighbors.
+                    magnetic_vector_potential_x_unknown_index_neighbor1 = (
+                        self._get_magnetic_vector_potential_x_unknown_index(
+                            tag_neighbor1))
+                    magnetic_vector_potential_x_unknown_index_neighbor2 = (
+                        self._get_magnetic_vector_potential_x_unknown_index(
+                            tag_neighbor2))
+                    magnetic_vector_potential_y_unknown_index_neighbor1 = (
+                        self._get_magnetic_vector_potential_y_unknown_index(
+                            tag_neighbor1))
+                    magnetic_vector_potential_y_unknown_index_neighbor2 = (
+                        self._get_magnetic_vector_potential_y_unknown_index(
+                            tag_neighbor2))
+                    magnetic_flux_density_z_unknown_index_neighbor1 = (
+                        self._get_magnetic_flux_density_z_unknown_index(
+                            tag_neighbor1))
+                    magnetic_flux_density_z_unknown_index_neighbor2 = (
+                        self._get_magnetic_flux_density_z_unknown_index(
+                            tag_neighbor2))
+
+                    # Calculate the denominator.
+                    denominator = (x_neighbor1 * y_neighbor2 - x_neighbor1 * y -
+                                   x_neighbor2 * y_neighbor1 + x_neighbor2 * y +
+                                   x * y_neighbor1 - x * y_neighbor2)
 
                     # Add the coefficients for the equation corresponding to
                     # Gauss's law for magnetism in the z-direction.
@@ -336,37 +470,12 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                       magnetic_flux_density_z_unknown_index] += (
                           (y_neighbor1 - y_neighbor2) / denominator)
 
-                    # Add the coefficients for the equation corresponding to
-                    # Ampere's law in the z-direction.
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_x_unknown_index_neighbor1] += (
-                          (x - x_neighbor2) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_y_unknown_index_neighbor1] += (
-                          -(y_neighbor2 - y) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_x_unknown_index_neighbor2] += (
-                          (x_neighbor1 - x) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_y_unknown_index_neighbor2] += (
-                          -(y - y_neighbor1) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_x_unknown_index] += (
-                          (x_neighbor2 - x_neighbor1) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_y_unknown_index] += (
-                          -(y_neighbor1 - y_neighbor2) / denominator)
-
                 # Set the coefficients for the electric fields and magnetic
                 # vector potentials for the equations corresponding to
                 # Faraday's law.
                 A[faraday_law_x_equation_index,
-                  electric_field_x_unknown_index] = num_adjacent_triangles
-                A[faraday_law_x_equation_index,
                   magnetic_vector_potential_x_unknown_index] = (
                       1j * omega * num_adjacent_triangles)
-                A[faraday_law_y_equation_index,
-                  electric_field_y_unknown_index] = num_adjacent_triangles
                 A[faraday_law_y_equation_index,
                   magnetic_vector_potential_y_unknown_index] = (
                       1j * omega * num_adjacent_triangles)
@@ -374,9 +483,9 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 # Set the coefficients for the magnetic flux densities for the
                 # equations corresponding to Gauss's law for magnetism.
                 A[gauss_law_magnetism_x_equation_index,
-                  magnetic_flux_density_x_unknown_index] = num_adjacent_triangles
+                  magnetic_flux_density_x_unknown_index] = 1
                 A[gauss_law_magnetism_y_equation_index,
-                  magnetic_flux_density_y_unknown_index] = num_adjacent_triangles
+                  magnetic_flux_density_y_unknown_index] = 1
                 A[gauss_law_magnetism_z_equation_index,
                   magnetic_flux_density_z_unknown_index] = num_adjacent_triangles
 
@@ -384,211 +493,20 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 # equations corresponding to Ampere's law.
                 A[ampere_law_x_equation_index,
                   electric_field_x_unknown_index] = (
-                      1j * omega * insulator_properties.relative_permeability *
-                      VACUUM_PERMEABILITY *
-                      insulator_properties.relative_permittivity *
-                      VACUUM_PERMITTIVITY * num_adjacent_triangles)
+                      conductor_properties.permeability(self.config.frequency) *
+                      conductor_properties.conductivity(self.config.frequency) +
+                      1j * omega *
+                      conductor_properties.permeability(self.config.frequency) *
+                      conductor_properties.permittivity(self.config.frequency) *
+                      num_adjacent_triangles)
                 A[ampere_law_y_equation_index,
                   electric_field_y_unknown_index] = (
-                      1j * omega * insulator_properties.relative_permeability *
-                      VACUUM_PERMEABILITY *
-                      insulator_properties.relative_permittivity *
-                      VACUUM_PERMITTIVITY * num_adjacent_triangles)
-
-        # Fill in the equations for the nodes within the conductors, revising
-        # the equations for the boundary nodes.
-        for conductor_tag in conductor_entity_tags:
-            _, conductor_triangle_node_tags = self.get_faces(tag=conductor_tag)
-            conductor_triangle_neighbors = NeighborLookup(
-                conductor_triangle_node_tags)
-
-            # Fill in the equations for the nodes within the conductors.
-            conductor_internal_node_tags = self.get_nodes(
-                tag=conductor_tag,
-                dim=self.dimension(),
-                node_type=GmshNodeType.INTERNAL)
-            for tag in conductor_internal_node_tags:
-                x, y = node_tag_to_coordinates[tag]
-                num_adjacent_triangles = (
-                    conductor_triangle_neighbors.get_num_adjacent_entities(tag))
-
-                # Equation indices.
-                gauss_law_electric_potential_equation_index = (
-                    self._get_gauss_law_electric_potential_equation_index(tag))
-                faraday_law_x_equation_index = (
-                    self._get_faraday_law_x_equation_index(tag))
-                faraday_law_y_equation_index = (
-                    self._get_faraday_law_y_equation_index(tag))
-                gauss_law_magnetism_x_equation_index = (
-                    self._get_gauss_law_magnetism_x_equation_index(tag))
-                gauss_law_magnetism_y_equation_index = (
-                    self._get_gauss_law_magnetism_x_equation_index(tag))
-                gauss_law_magnetism_z_equation_index = (
-                    self._get_gauss_law_magnetism_x_equation_index(tag))
-                ampere_law_x_equation_index = (
-                    self._get_ampere_law_x_equation_index(tag))
-                ampere_law_y_equation_index = (
-                    self._get_ampere_law_y_equation_index(tag))
-                ampere_law_z_equation_index = (
-                    self._get_ampere_law_z_equation_index(tag))
-
-                # Unknown indices.
-                electric_potential_unknown_index = (
-                    self._get_electric_potential_unknown_index(tag))
-                electric_field_x_unknown_index = (
-                    self._get_electric_field_x_unknown_index(tag))
-                electric_field_y_unknown_index = (
-                    self._get_electric_field_y_unknown_index(tag))
-                magnetic_vector_potential_x_unknown_index = (
-                    self._get_magnetic_vector_potential_x_unknown_index(tag))
-                magnetic_vector_potential_y_unknown_index = (
-                    self._get_magnetic_vector_potential_y_unknown_index(tag))
-                magnetic_vector_potential_z_unknown_index = (
-                    self._get_magnetic_vector_potential_z_unknown_index(tag))
-                magnetic_flux_density_x_unknown_index = (
-                    self._get_magnetic_flux_density_x_unknown_index(tag))
-                magnetic_flux_density_y_unknown_index = (
-                    self._get_magnetic_flux_density_y_unknown_index(tag))
-                magnetic_flux_density_z_unknown_index = (
-                    self._get_magnetic_flux_density_z_unknown_index(tag))
-
-                # Set the voltage boundary conditions.
-                A[gauss_law_electric_potential_equation_index,
-                  electric_potential_unknown_index] = 1
-                b[gauss_law_electric_potential_equation_index] = (
-                    self._get_ac_phasor(conductor_tag))
-
-                # Set the electric field boundary conditions.
-                A[faraday_law_x_equation_index,
-                  electric_field_x_unknown_index] = 1
-                A[faraday_law_y_equation_index,
-                  electric_field_y_unknown_index] = 1
-
-                # Set the magnetic vector potential boundary conditions.
-                A[ampere_law_x_equation_index,
-                  magnetic_vector_potential_x_unknown_index] = 1
-                A[ampere_law_y_equation_index,
-                  magnetic_vector_potential_y_unknown_index] = 1
-
-                # Iterate over all adjacent triangles.
-                for (tag_neighbor1, tag_neighbor2
-                    ) in insulator_triangle_neighbors.get_neighbors(tag):
-                    x_neighbor1, y_neighbor1 = node_tag_to_coordinates[
-                        tag_neighbor1]
-                    x_neighbor2, y_neighbor2 = node_tag_to_coordinates[
-                        tag_neighbor2]
-
-                    # Unknown indices for both neighbors.
-                    magnetic_vector_potential_x_unknown_index_neighbor1 = (
-                        self._get_magnetic_vector_potential_x_unknown_index(
-                            tag_neighbor1))
-                    magnetic_vector_potential_x_unknown_index_neighbor2 = (
-                        self._get_magnetic_vector_potential_x_unknown_index(
-                            tag_neighbor1))
-                    magnetic_vector_potential_y_unknown_index_neighbor1 = (
-                        self._get_magnetic_vector_potential_y_unknown_index(
-                            tag_neighbor1))
-                    magnetic_vector_potential_y_unknown_index_neighbor2 = (
-                        self._get_magnetic_vector_potential_y_unknown_index(
-                            tag_neighbor1))
-                    magnetic_vector_potential_z_unknown_index_neighbor1 = (
-                        self._get_magnetic_vector_potential_z_unknown_index(
-                            tag_neighbor1))
-                    magnetic_vector_potential_z_unknown_index_neighbor2 = (
-                        self._get_magnetic_vector_potential_z_unknown_index(
-                            tag_neighbor1))
-                    magnetic_flux_density_x_unknown_index_neighbor1 = (
-                        self._get_magnetic_flux_density_x_unknown_index(
-                            tag_neighbor1))
-                    magnetic_flux_density_x_unknown_index_neighbor2 = (
-                        self._get_magnetic_flux_density_x_unknown_index(
-                            tag_neighbor1))
-                    magnetic_flux_density_y_unknown_index_neighbor1 = (
-                        self._get_magnetic_flux_density_y_unknown_index(
-                            tag_neighbor1))
-                    magnetic_flux_density_y_unknown_index_neighbor2 = (
-                        self._get_magnetic_flux_density_y_unknown_index(
-                            tag_neighbor1))
-
-                    # Calculate the denominator.
-                    denominator = (x_neighbor1 * y_neighbor2 - x_neighbor1 * y -
-                                   x_neighbor2 * y_neighbor1 + x_neighbor2 * y +
-                                   x * y_neighbor1 - x * y_neighbor2)
-
-                    # Add the coefficients for the equation corresponding to
-                    # Gauss's law for magnetism in the x-direction.
-                    A[gauss_law_magnetism_x_equation_index,
-                      magnetic_vector_potential_z_unknown_index_neighbor1] += (
-                          -(x - x_neighbor2) / denominator)
-                    A[gauss_law_magnetism_x_equation_index,
-                      magnetic_vector_potential_z_unknown_index_neighbor2] += (
-                          -(x_neighbor1 - x) / denominator)
-                    A[gauss_law_magnetism_x_equation_index,
-                      magnetic_vector_potential_z_unknown_index] += (
-                          -(x_neighbor2 - x_neighbor1) / denominator)
-
-                    # Add the coefficients for the equation corresponding to
-                    # Gauss's law for magnetism in the y-direction.
-                    A[gauss_law_magnetism_y_equation_index,
-                      magnetic_vector_potential_z_unknown_index_neighbor1] += (
-                          (y_neighbor2 - y) / denominator)
-                    A[gauss_law_magnetism_y_equation_index,
-                      magnetic_vector_potential_z_unknown_index_neighbor2] += (
-                          (y - y_neighbor1) / denominator)
-                    A[gauss_law_magnetism_y_equation_index,
-                      magnetic_vector_potential_z_unknown_index] += (
-                          (y_neighbor1 - y_neighbor2) / denominator)
-
-                    # Add the coefficients for the equation corresponding to
-                    # Gauss's law for magnetism in the z-direction.
-                    A[gauss_law_magnetism_z_equation_index,
-                      magnetic_vector_potential_x_unknown_index_neighbor1] += (
-                          (x - x_neighbor2) / denominator)
-                    A[gauss_law_magnetism_z_equation_index,
-                      magnetic_vector_potential_y_unknown_index_neighbor1] += (
-                          -(y_neighbor2 - y) / denominator)
-                    A[gauss_law_magnetism_z_equation_index,
-                      magnetic_vector_potential_x_unknown_index_neighbor2] += (
-                          (x_neighbor1 - x) / denominator)
-                    A[gauss_law_magnetism_z_equation_index,
-                      magnetic_vector_potential_y_unknown_index_neighbor2] += (
-                          -(y - y_neighbor1) / denominator)
-                    A[gauss_law_magnetism_z_equation_index,
-                      magnetic_vector_potential_x_unknown_index] += (
-                          (x_neighbor2 - x_neighbor1) / denominator)
-                    A[gauss_law_magnetism_z_equation_index,
-                      magnetic_vector_potential_y_unknown_index] += (
-                          -(y_neighbor1 - y_neighbor2) / denominator)
-
-                    # Add the coefficients for the equation corresponding to
-                    # Ampere's law in the z-direction.
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_x_unknown_index_neighbor1] += (
-                          (x - x_neighbor2) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_y_unknown_index_neighbor1] += (
-                          -(y_neighbor2 - y) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_x_unknown_index_neighbor2] += (
-                          (x_neighbor1 - x) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_y_unknown_index_neighbor2] += (
-                          -(y - y_neighbor1) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_x_unknown_index] += (
-                          (x_neighbor2 - x_neighbor1) / denominator)
-                    A[ampere_law_z_equation_index,
-                      magnetic_flux_density_y_unknown_index] += (
-                          -(y_neighbor1 - y_neighbor2) / denominator)
-
-                # Set the coefficients for the magnetic flux densities for the
-                # equations corresponding to Gauss's law for magnetism.
-                A[gauss_law_magnetism_x_equation_index,
-                  magnetic_flux_density_x_unknown_index] = num_adjacent_triangles
-                A[gauss_law_magnetism_y_equation_index,
-                  magnetic_flux_density_y_unknown_index] = num_adjacent_triangles
-                A[gauss_law_magnetism_z_equation_index,
-                  magnetic_flux_density_z_unknown_index] = num_adjacent_triangles
+                      conductor_properties.permeability(self.config.frequency) *
+                      conductor_properties.conductivity(self.config.frequency) +
+                      1j * omega *
+                      conductor_properties.permeability(self.config.frequency) *
+                      conductor_properties.permittivity(self.config.frequency) *
+                      num_adjacent_triangles)
 
             # Set the voltage and magnetic vector potential boundary conditions
             # for the boundary nodes at the capacitor plates.
@@ -600,18 +518,10 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 # Equation indices.
                 gauss_law_electric_potential_equation_index = (
                     self._get_gauss_law_electric_potential_equation_index(tag))
-                ampere_law_x_equation_index = (
-                    self._get_ampere_law_x_equation_index(tag))
-                ampere_law_y_equation_index = (
-                    self._get_ampere_law_y_equation_index(tag))
 
                 # Unknown indices.
                 electric_potential_unknown_index = (
                     self._get_electric_potential_unknown_index(tag))
-                magnetic_vector_potential_x_unknown_index = (
-                    self._get_magnetic_vector_potential_x_unknown_index(tag))
-                magnetic_vector_potential_y_unknown_index = (
-                    self._get_magnetic_vector_potential_y_unknown_index(tag))
 
                 # Set the voltage boundary conditions.
                 A[gauss_law_electric_potential_equation_index, :] = 0
@@ -619,14 +529,6 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                   electric_potential_unknown_index] = 1
                 b[gauss_law_electric_potential_equation_index] = (
                     self._get_ac_phasor(conductor_tag))
-
-                # Set the magnetic vector potential boundary conditions.
-                A[ampere_law_x_equation_index, :] = 0
-                A[ampere_law_y_equation_index, :] = 0
-                A[ampere_law_x_equation_index,
-                  magnetic_vector_potential_x_unknown_index] = 1
-                A[ampere_law_y_equation_index,
-                  magnetic_vector_potential_y_unknown_index] = 1
 
         # Solve for the electric potential, the electric field, the magnetic
         # vector potential, and the magnetic flux density.
@@ -649,7 +551,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
               num_electric_potential_unknowns +
               self.num_electric_field_unknowns +
               self.num_magnetic_vector_potential_unknowns +
-              self.num_magnetic_flux_density_unknowns], (-1, self.dimension()))
+              self.num_magnetic_flux_density_unknowns], (-1, 3))
 
     def _get_electric_potential_unknown_index(self, tag: int) -> int:
         """Returns the unknown index corresponding to the node's electric
@@ -675,7 +577,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
         """Returns the unknown index corresponding to the node's magnetic
          vector potential in the x-direction.
         """
-        return (3 * self._get_index_from_tag(tag) +
+        return (self.dimension() * self._get_index_from_tag(tag) +
                 self.num_electric_potential_unknowns +
                 self.num_electric_field_unknowns)
 
@@ -683,15 +585,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
         """Returns the unknown index corresponding to the node's magnetic
          vector potential in the y-direction.
         """
-        return (3 * self._get_index_from_tag(tag) + 1 +
-                self.num_electric_potential_unknowns +
-                self.num_electric_field_unknowns)
-
-    def _get_magnetic_vector_potential_z_unknown_index(self, tag: int) -> int:
-        """Returns the unknown index corresponding to the node's magnetic
-         vector potential in the z-direction.
-        """
-        return (3 * self._get_index_from_tag(tag) + 2 +
+        return (self.dimension() * self._get_index_from_tag(tag) + 1 +
                 self.num_electric_potential_unknowns +
                 self.num_electric_field_unknowns)
 
@@ -770,28 +664,19 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
         """Returns the equation index corresponding to Ampere's law in the
         x-direction.
         """
-        return (3 * self._get_index_from_tag(tag) +
+        return (self.dimension() * self._get_index_from_tag(tag) +
                 self.num_electric_potential_unknowns +
                 self.num_electric_field_unknowns +
-                self.num_magnetic_vector_potential_unknowns)
+                self.num_magnetic_flux_density_unknowns)
 
     def _get_ampere_law_y_equation_index(self, tag: int) -> int:
         """Returns the equation index corresponding to Ampere's law in the
         y-direction.
         """
-        return (3 * self._get_index_from_tag(tag) + 1 +
+        return (self.dimension() * self._get_index_from_tag(tag) + 1 +
                 self.num_electric_potential_unknowns +
                 self.num_electric_field_unknowns +
-                self.num_magnetic_vector_potential_unknowns)
-
-    def _get_ampere_law_z_equation_index(self, tag: int) -> int:
-        """Returns the equation index corresponding to Ampere's law in the
-        z-direction.
-        """
-        return (3 * self._get_index_from_tag(tag) + 2 +
-                self.num_electric_potential_unknowns +
-                self.num_electric_field_unknowns +
-                self.num_magnetic_vector_potential_unknowns)
+                self.num_magnetic_flux_density_unknowns)
 
 
 class ElectrodynamicSolver3D(ElectrodynamicSolver, ElectromagneticSolver3D):

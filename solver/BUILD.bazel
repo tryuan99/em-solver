@@ -3,12 +3,6 @@ load("@pip_deps//:requirements.bzl", "requirement")
 package(default_visibility = ["//visibility:public"])
 
 py_library(
-    name = "constants",
-    srcs = ["constants.py"],
-    deps = [requirement("numpy")],
-)
-
-py_library(
     name = "electromagnetic_solver",
     srcs = ["electromagnetic_solver.py"],
     deps = [

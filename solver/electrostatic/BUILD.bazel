@@ -22,10 +22,10 @@ py_library(
     deps = [
         ":electrostatic_solver",
         "//mesh:gmsh_interface",
+        "//model:constants",
         "//model:material",
         "//proto:capacitor_py_proto",
         "//proto:solver_config_py_proto",
-        "//solver:constants",
         requirement("numpy"),
     ],
 )

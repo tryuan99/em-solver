@@ -39,6 +39,17 @@ class ElectromagneticFieldPlotter(GmshInterface, ABC):
             self.magnetic_flux_density_z_column,
         ) = self.electromagnetic_fields.columns
 
+        # Pandas cannot read complex numbers from a CSV file, so identify all
+        # columns with an object data type and convert their values into
+        # complex numbers.
+        converters = {}
+        for column, dtype in self.electromagnetic_fields.dtypes.items():
+            if dtype == object:
+                converters[column] = np.complex128
+        self.electromagnetic_fields = pd.read_csv(csv_file,
+                                                  comment="#",
+                                                  converters=converters)
+
         # Get the coordinates of the nodes in the order specified in the CSV file.
         self.node_coordinates = self._get_node_coordinates(
             self.electromagnetic_fields[self.node_tag_column])
@@ -133,8 +144,8 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         ax.quiver(
             X,
             Y,
-            electric_field_x,
-            electric_field_y,
+            np.real(electric_field_x),
+            np.real(electric_field_y),
             np.sqrt(np.abs(electric_field_x)**2 + np.abs(electric_field_y)**2),
             angles="xy",
             pivot="middle",

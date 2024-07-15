@@ -107,6 +107,6 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):
         # Calculate the surface charge and the capacitance.
         material = self.get_material_for_entity(tag=CapacitorEntity.DIELECTRIC)
         material_properties = MATERIAL_TO_PROPERTIES[material]
-        Q = electric_flux * VACUUM_PERMITTIVITY * material_properties.relative_permittivity
+        Q = electric_flux * material_properties.permittivity()
         C = Q / self._get_dc_voltage(CapacitorEntity.VDD_PLATE)
         return C

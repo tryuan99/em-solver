@@ -1,4 +1,5 @@
 load("@pip_deps//:requirements.bzl", "requirement")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -38,4 +39,12 @@ py_binary(
         requirement("absl-py"),
         requirement("protobuf"),
     ],
+)
+
+pkg_tar(
+    name = "capacitor_electrodynamic_solver_2d_main_tar_pkg",
+    srcs = [":capacitor_electrodynamic_solver_2d_main"],
+    extension = ".tar.gz",
+    include_runfiles = True,
+    strip_prefix = "/solver/electrodynamic/",
 )

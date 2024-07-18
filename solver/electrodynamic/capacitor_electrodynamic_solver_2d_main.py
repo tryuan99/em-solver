@@ -1,5 +1,5 @@
 import google.protobuf
-from absl import app, flags, logging
+from absl import app, flags
 from proto.solver_config_pb2 import SolverConfig
 
 from solver.electrodynamic.capacitor_electrodynamic_solver import \

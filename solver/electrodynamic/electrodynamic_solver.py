@@ -266,43 +266,25 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                           -(y_neighbor1 - y_neighbor2) / denominator)
 
                     # Add the coefficients for the equation corresponding to
-                    # the Coulomb gauge.
+                    # Ampere's law in the x-direction.
                     A[ampere_law_x_equation_index,
-                      magnetic_vector_potential_x_unknown_index_neighbor1] += (
-                          (y_neighbor2 - y) / denominator)
-                    A[ampere_law_x_equation_index,
-                      magnetic_vector_potential_y_unknown_index_neighbor1] += (
-                          (x - x_neighbor2) / denominator)
-                    A[ampere_law_x_equation_index,
-                      magnetic_vector_potential_x_unknown_index_neighbor2] += (
-                          (y - y_neighbor1) / denominator)
-                    A[ampere_law_x_equation_index,
-                      magnetic_vector_potential_y_unknown_index_neighbor2] += (
-                          (x_neighbor1 - x) / denominator)
-                    A[ampere_law_x_equation_index,
-                      magnetic_vector_potential_x_unknown_index] += (
-                          (y_neighbor1 - y_neighbor2) / denominator)
-                    A[ampere_law_x_equation_index,
-                      magnetic_vector_potential_y_unknown_index] += (
-                          (x_neighbor2 - x_neighbor1) / denominator)
-
-                    # Add the coefficients for the equation corresponding to
-                    # Ampere's law.
-                    A[ampere_law_y_equation_index,
                       magnetic_flux_density_z_unknown_index_neighbor1] += (
                           -(x - x_neighbor2) / denominator)
+                    A[ampere_law_x_equation_index,
+                      magnetic_flux_density_z_unknown_index_neighbor2] += (
+                          -(x_neighbor1 - x) / denominator)
+                    A[ampere_law_x_equation_index,
+                      magnetic_flux_density_z_unknown_index] += (
+                          -(x_neighbor2 - x_neighbor1) / denominator)
+
+                    # Add the coefficients for the equation corresponding to
+                    # Ampere's law in the y-direction.
                     A[ampere_law_y_equation_index,
                       magnetic_flux_density_z_unknown_index_neighbor1] += (
                           (y_neighbor2 - y) / denominator)
                     A[ampere_law_y_equation_index,
                       magnetic_flux_density_z_unknown_index_neighbor2] += (
-                          -(x_neighbor1 - x) / denominator)
-                    A[ampere_law_y_equation_index,
-                      magnetic_flux_density_z_unknown_index_neighbor2] += (
                           (y - y_neighbor1) / denominator)
-                    A[ampere_law_y_equation_index,
-                      magnetic_flux_density_z_unknown_index] += (
-                          -(x_neighbor2 - x_neighbor1) / denominator)
                     A[ampere_law_y_equation_index,
                       magnetic_flux_density_z_unknown_index] += (
                           (y_neighbor1 - y_neighbor2) / denominator)
@@ -332,19 +314,19 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
 
                 # Set the coefficients for the electric fields for the
                 # equations corresponding to Ampere's law.
-                A[ampere_law_y_equation_index,
+                A[ampere_law_x_equation_index,
                   electric_field_x_unknown_index] = (
                       insulator_properties.permeability(self.config.frequency) *
-                      insulator_properties.conductivity(self.config.frequency) +
-                      1j * omega *
+                      insulator_properties.conductivity(self.config.frequency) *
+                      num_adjacent_triangles + 1j * omega *
                       insulator_properties.permeability(self.config.frequency) *
                       insulator_properties.permittivity(self.config.frequency) *
                       num_adjacent_triangles)
                 A[ampere_law_y_equation_index,
                   electric_field_y_unknown_index] = (
                       insulator_properties.permeability(self.config.frequency) *
-                      insulator_properties.conductivity(self.config.frequency) +
-                      1j * omega *
+                      insulator_properties.conductivity(self.config.frequency) *
+                      num_adjacent_triangles + 1j * omega *
                       insulator_properties.permeability(self.config.frequency) *
                       insulator_properties.permittivity(self.config.frequency) *
                       num_adjacent_triangles)
@@ -514,16 +496,16 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 A[ampere_law_x_equation_index,
                   electric_field_x_unknown_index] = (
                       conductor_properties.permeability(self.config.frequency) *
-                      conductor_properties.conductivity(self.config.frequency) +
-                      1j * omega *
+                      conductor_properties.conductivity(self.config.frequency) *
+                      num_adjacent_triangles + 1j * omega *
                       conductor_properties.permeability(self.config.frequency) *
                       conductor_properties.permittivity(self.config.frequency) *
                       num_adjacent_triangles)
                 A[ampere_law_y_equation_index,
                   electric_field_y_unknown_index] = (
                       conductor_properties.permeability(self.config.frequency) *
-                      conductor_properties.conductivity(self.config.frequency) +
-                      1j * omega *
+                      conductor_properties.conductivity(self.config.frequency) *
+                      num_adjacent_triangles + 1j * omega *
                       conductor_properties.permeability(self.config.frequency) *
                       conductor_properties.permittivity(self.config.frequency) *
                       num_adjacent_triangles)

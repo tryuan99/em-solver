@@ -300,8 +300,8 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     A[ampere_law_y_equation_index,
                       magnetic_flux_density_z_unknown_index_neighbor2] += (
                           (y - y_neighbor1) / denominator)
-                    A[ampere_law_x_equation_index,
-                      ampere_law_y_equation_index] += (
+                    A[ampere_law_y_equation_index,
+                      magnetic_flux_density_z_unknown_index] += (
                           -(x_neighbor2 - x_neighbor1) / denominator)
                     A[ampere_law_y_equation_index,
                       magnetic_flux_density_z_unknown_index] += (
@@ -492,11 +492,13 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 # vector potentials for the equations corresponding to
                 # Faraday's law.
                 A[faraday_law_x_equation_index,
-                  magnetic_vector_potential_x_unknown_index] = (
-                      1j * omega * num_adjacent_triangles)
+                  electric_field_x_unknown_index] = 1
+                A[faraday_law_x_equation_index,
+                  magnetic_vector_potential_x_unknown_index] = 1j * omega
                 A[faraday_law_y_equation_index,
-                  magnetic_vector_potential_y_unknown_index] = (
-                      1j * omega * num_adjacent_triangles)
+                  electric_field_y_unknown_index] = 1
+                A[faraday_law_y_equation_index,
+                  magnetic_vector_potential_y_unknown_index] = 1j * omega
 
                 # Set the coefficients for the magnetic flux densities for the
                 # equations corresponding to Gauss's law for magnetism.

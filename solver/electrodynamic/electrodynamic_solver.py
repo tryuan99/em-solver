@@ -43,20 +43,6 @@ class ElectrodynamicSolver(ElectromagneticSolver):
                         1j * entity_config.ac_phasor.imaginary)
         raise ValueError(f"Entity {tag} cannot be found.")
 
-    def _get_dc_voltage(self, tag: int) -> float:
-        """Returns the DC voltage for the tag.
-
-        Args:
-            tag: Tag of the entity.
-
-        Raises:
-            ValueError: If the tag cannot be found.
-        """
-        for entity_config in self.config.entity_configs:
-            if entity_config.tag == tag:
-                return entity_config.dc_voltage
-        raise ValueError(f"Entity {tag} cannot be found.")
-
 
 class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
     """Interface for a 2D electrodynamic solver."""
@@ -123,10 +109,6 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     self._get_faraday_law_x_equation_index(tag))
                 faraday_law_y_equation_index = (
                     self._get_faraday_law_y_equation_index(tag))
-                gauss_law_magnetism_x_equation_index = (
-                    self._get_gauss_law_magnetism_x_equation_index(tag))
-                gauss_law_magnetism_y_equation_index = (
-                    self._get_gauss_law_magnetism_y_equation_index(tag))
                 gauss_law_magnetism_z_equation_index = (
                     self._get_gauss_law_magnetism_z_equation_index(tag))
                 ampere_law_x_equation_index = (
@@ -145,10 +127,6 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     self._get_magnetic_vector_potential_x_unknown_index(tag))
                 magnetic_vector_potential_y_unknown_index = (
                     self._get_magnetic_vector_potential_y_unknown_index(tag))
-                magnetic_flux_density_x_unknown_index = (
-                    self._get_magnetic_flux_density_x_unknown_index(tag))
-                magnetic_flux_density_y_unknown_index = (
-                    self._get_magnetic_flux_density_y_unknown_index(tag))
                 magnetic_flux_density_z_unknown_index = (
                     self._get_magnetic_flux_density_z_unknown_index(tag))
 
@@ -167,14 +145,6 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     electric_potential_unknown_index_neighbor2 = (
                         self._get_electric_potential_unknown_index(
                             tag_neighbor2))
-                    electric_field_x_unknown_index_neighbor1 = (
-                        self._get_electric_field_x_unknown_index(tag_neighbor1))
-                    electric_field_x_unknown_index_neighbor2 = (
-                        self._get_electric_field_x_unknown_index(tag_neighbor2))
-                    electric_field_y_unknown_index_neighbor1 = (
-                        self._get_electric_field_y_unknown_index(tag_neighbor1))
-                    electric_field_y_unknown_index_neighbor2 = (
-                        self._get_electric_field_y_unknown_index(tag_neighbor2))
                     magnetic_vector_potential_x_unknown_index_neighbor1 = (
                         self._get_magnetic_vector_potential_x_unknown_index(
                             tag_neighbor1))
@@ -304,11 +274,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                       1j * omega * num_adjacent_triangles)
 
                 # Set the coefficients for the magnetic flux densities for the
-                # equations corresponding to Gauss's law for magnetism.
-                A[gauss_law_magnetism_x_equation_index,
-                  magnetic_flux_density_x_unknown_index] = 1
-                A[gauss_law_magnetism_y_equation_index,
-                  magnetic_flux_density_y_unknown_index] = 1
+                # equation corresponding to Gauss's law for magnetism.
                 A[gauss_law_magnetism_z_equation_index,
                   magnetic_flux_density_z_unknown_index] = num_adjacent_triangles
 
@@ -357,10 +323,6 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     self._get_faraday_law_x_equation_index(tag))
                 faraday_law_y_equation_index = (
                     self._get_faraday_law_y_equation_index(tag))
-                gauss_law_magnetism_x_equation_index = (
-                    self._get_gauss_law_magnetism_x_equation_index(tag))
-                gauss_law_magnetism_y_equation_index = (
-                    self._get_gauss_law_magnetism_y_equation_index(tag))
                 gauss_law_magnetism_z_equation_index = (
                     self._get_gauss_law_magnetism_z_equation_index(tag))
                 ampere_law_x_equation_index = (
@@ -379,10 +341,6 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     self._get_magnetic_vector_potential_x_unknown_index(tag))
                 magnetic_vector_potential_y_unknown_index = (
                     self._get_magnetic_vector_potential_y_unknown_index(tag))
-                magnetic_flux_density_x_unknown_index = (
-                    self._get_magnetic_flux_density_x_unknown_index(tag))
-                magnetic_flux_density_y_unknown_index = (
-                    self._get_magnetic_flux_density_y_unknown_index(tag))
                 magnetic_flux_density_z_unknown_index = (
                     self._get_magnetic_flux_density_z_unknown_index(tag))
 
@@ -483,11 +441,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                   magnetic_vector_potential_y_unknown_index] = 1j * omega
 
                 # Set the coefficients for the magnetic flux densities for the
-                # equations corresponding to Gauss's law for magnetism.
-                A[gauss_law_magnetism_x_equation_index,
-                  magnetic_flux_density_x_unknown_index] = 1
-                A[gauss_law_magnetism_y_equation_index,
-                  magnetic_flux_density_y_unknown_index] = 1
+                # equation corresponding to Gauss's law for magnetism.
                 A[gauss_law_magnetism_z_equation_index,
                   magnetic_flux_density_z_unknown_index] = num_adjacent_triangles
 
@@ -554,7 +508,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                    self.num_electric_potential_unknowns +
                    self.num_electric_field_unknowns +
                    self.num_magnetic_vector_potential_unknowns +
-                   self.num_magnetic_flux_density_unknowns)], (-1, 3))
+                   self.num_magnetic_flux_density_unknowns)], (-1, 1))
 
     def _get_electric_potential_unknown_index(self, tag: int) -> int:
         """Returns the unknown index corresponding to the node's electric
@@ -592,29 +546,11 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 self.num_electric_potential_unknowns +
                 self.num_electric_field_unknowns)
 
-    def _get_magnetic_flux_density_x_unknown_index(self, tag: int) -> int:
-        """Returns the unknown index corresponding to the node's magnetic flux
-        density in the x-direction.
-        """
-        return (3 * self._get_index_from_tag(tag) +
-                self.num_electric_potential_unknowns +
-                self.num_electric_field_unknowns +
-                self.num_magnetic_vector_potential_unknowns)
-
-    def _get_magnetic_flux_density_y_unknown_index(self, tag: int) -> int:
-        """Returns the unknown index corresponding to the node's magnetic flux
-        density in the y-direction.
-        """
-        return (3 * self._get_index_from_tag(tag) + 1 +
-                self.num_electric_potential_unknowns +
-                self.num_electric_field_unknowns +
-                self.num_magnetic_vector_potential_unknowns)
-
     def _get_magnetic_flux_density_z_unknown_index(self, tag: int) -> int:
         """Returns the unknown index corresponding to the node's magnetic flux
         density in the z-direction.
         """
-        return (3 * self._get_index_from_tag(tag) + 2 +
+        return (self._get_index_from_tag(tag) +
                 self.num_electric_potential_unknowns +
                 self.num_electric_field_unknowns +
                 self.num_magnetic_vector_potential_unknowns)
@@ -639,27 +575,11 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
         return (self.dimension() * self._get_index_from_tag(tag) + 1 +
                 self.num_electric_potential_unknowns)
 
-    def _get_gauss_law_magnetism_x_equation_index(self, tag: int) -> int:
-        """Returns the equation index corresponding to Gauss's law for
-        magnetism in the x-direction.
-        """
-        return (3 * self._get_index_from_tag(tag) +
-                self.num_electric_potential_unknowns +
-                self.num_electric_field_unknowns)
-
-    def _get_gauss_law_magnetism_y_equation_index(self, tag: int) -> int:
-        """Returns the equation index corresponding to Gauss's law for
-        magnetism in the y-direction.
-        """
-        return (3 * self._get_index_from_tag(tag) + 1 +
-                self.num_electric_potential_unknowns +
-                self.num_electric_field_unknowns)
-
     def _get_gauss_law_magnetism_z_equation_index(self, tag: int) -> int:
         """Returns the equation index corresponding to Gauss's law for
         magnetism in the z-direction.
         """
-        return (3 * self._get_index_from_tag(tag) + 2 +
+        return (self._get_index_from_tag(tag) +
                 self.num_electric_potential_unknowns +
                 self.num_electric_field_unknowns)
 

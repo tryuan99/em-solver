@@ -33,7 +33,8 @@ class ElectromagneticSolver(GmshInterface, ABC):
         self.electric_field = np.zeros((self.num_nodes, self.dimension()))
         self.magnetic_vector_potential = np.zeros(
             (self.num_nodes, self.dimension()))
-        self.magnetic_flux_density = np.zeros((self.num_nodes, 3))
+        self.magnetic_flux_density = np.zeros(
+            (self.num_nodes, 3 if self.dimension() == 3 else 1))
         self.solved = False
 
     @classmethod
@@ -143,9 +144,11 @@ class ElectromagneticSolver(GmshInterface, ABC):
                     f"{self.magnetic_vector_potential[i, 1]},"
                     f"{self.magnetic_vector_potential[i, 2] if self.dimension() > 2 else 0},"
                 )
-                output.write(f"{self.magnetic_flux_density[i, 0]},"
-                             f"{self.magnetic_flux_density[i, 1]},"
-                             f"{self.magnetic_flux_density[i, 2]}")
+                output.write(
+                    f"{self.magnetic_flux_density[i, 0] if self.dimension() > 2 else 0},"
+                    f"{self.magnetic_flux_density[i, 1] if self.dimension() > 2 else 0},"
+                    f"{self.magnetic_flux_density[i, 2] if self.dimension() > 2 else self.magnetic_flux_density[i, 0]}"
+                )
                 output.write("\n")
 
     def _validate_mesh(self) -> None:

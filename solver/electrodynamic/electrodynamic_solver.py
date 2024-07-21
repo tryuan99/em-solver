@@ -202,22 +202,22 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     # Add the coefficients for the equation corresponding to
                     # Gauss's law.
                     A[gauss_law_electric_potential_equation_index,
-                      electric_field_x_unknown_index_neighbor1] += (
+                      magnetic_vector_potential_x_unknown_index_neighbor1] += (
                           (y_neighbor2 - y) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      electric_field_y_unknown_index_neighbor1] += (
+                      magnetic_vector_potential_y_unknown_index_neighbor1] += (
                           (x - x_neighbor2) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      electric_field_x_unknown_index_neighbor2] += (
+                      magnetic_vector_potential_x_unknown_index_neighbor2] += (
                           (y - y_neighbor1) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      electric_field_y_unknown_index_neighbor2] += (
+                      magnetic_vector_potential_y_unknown_index_neighbor2] += (
                           (x_neighbor1 - x) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      electric_field_x_unknown_index] += (
+                      magnetic_vector_potential_x_unknown_index] += (
                           (y_neighbor1 - y_neighbor2) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      electric_field_y_unknown_index] += (
+                      magnetic_vector_potential_y_unknown_index] += (
                           (x_neighbor2 - x_neighbor1) / denominator)
 
                     # Add the coefficients for the equation corresponding to
@@ -537,23 +537,24 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
         x = scipy.sparse.linalg.spsolve(A.tocsr(), b)
         self.electric_potential = x[:self.num_electric_potential_unknowns]
         self.electric_field = np.reshape(
-            x[self.num_electric_potential_unknowns:self.
-              num_electric_potential_unknowns +
-              self.num_electric_field_unknowns], (-1, self.dimension()))
+            x[self.num_electric_potential_unknowns:(
+                self.num_electric_potential_unknowns +
+                self.num_electric_field_unknowns)], (-1, self.dimension()))
         self.magnetic_vector_potential = np.reshape(
-            x[self.num_electric_potential_unknowns + self.
-              num_electric_field_unknowns:self.num_electric_potential_unknowns +
-              self.num_electric_field_unknowns +
-              self.num_magnetic_vector_potential_unknowns],
+            x[(self.num_electric_potential_unknowns +
+               self.num_electric_field_unknowns):(
+                   self.num_electric_potential_unknowns +
+                   self.num_electric_field_unknowns +
+                   self.num_magnetic_vector_potential_unknowns)],
             (-1, self.dimension()))
         self.magnetic_flux_density = np.reshape(
-            x[self.num_electric_potential_unknowns +
-              self.num_electric_field_unknowns +
-              self.num_magnetic_vector_potential_unknowns:self.
-              num_electric_potential_unknowns +
-              self.num_electric_field_unknowns +
-              self.num_magnetic_vector_potential_unknowns +
-              self.num_magnetic_flux_density_unknowns], (-1, 3))
+            x[(self.num_electric_potential_unknowns +
+               self.num_electric_field_unknowns +
+               self.num_magnetic_vector_potential_unknowns):(
+                   self.num_electric_potential_unknowns +
+                   self.num_electric_field_unknowns +
+                   self.num_magnetic_vector_potential_unknowns +
+                   self.num_magnetic_flux_density_unknowns)], (-1, 3))
 
     def _get_electric_potential_unknown_index(self, tag: int) -> int:
         """Returns the unknown index corresponding to the node's electric

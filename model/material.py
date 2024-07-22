@@ -24,9 +24,6 @@ class MaterialProperties:
         Args:
             frequency: Frequency in Hz.
         """
-        if self.is_conductor(self._material):
-            omega = 2 * np.pi * frequency
-            return -1j * self.conductivity() / omega
         return self._relative_permittivity * VACUUM_PERMITTIVITY
 
     def permeability(self, frequency: float = 0) -> float:
@@ -43,7 +40,7 @@ class MaterialProperties:
 
     def resistivity(self, frequency: float = 0) -> float:
         """Returns the resistivity at the given frequency in Ohm*m."""
-        return 1 / self._resistivity
+        return self._resistivity
 
     @staticmethod
     def is_conductor(material: Material) -> bool:

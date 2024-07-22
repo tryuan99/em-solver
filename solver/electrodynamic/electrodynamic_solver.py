@@ -451,17 +451,11 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                   electric_field_x_unknown_index] = (
                       conductor_properties.permeability(self.config.frequency) *
                       conductor_properties.conductivity(self.config.frequency) *
-                      num_adjacent_triangles + 1j * omega *
-                      conductor_properties.permeability(self.config.frequency) *
-                      conductor_properties.permittivity(self.config.frequency) *
                       num_adjacent_triangles)
                 A[ampere_law_y_equation_index,
                   electric_field_y_unknown_index] = (
                       conductor_properties.permeability(self.config.frequency) *
                       conductor_properties.conductivity(self.config.frequency) *
-                      num_adjacent_triangles + 1j * omega *
-                      conductor_properties.permeability(self.config.frequency) *
-                      conductor_properties.permittivity(self.config.frequency) *
                       num_adjacent_triangles)
 
             # Set the voltage and magnetic vector potential boundary conditions

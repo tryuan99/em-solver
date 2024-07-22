@@ -139,6 +139,28 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         electric_field_y = (
             self.electromagnetic_fields[self.electric_field_y_column])
 
+        # Plot the heat map.
+        plt.style.use(["science", "grid"])
+        fig, ax = plt.subplots(
+            figsize=(12, 6),
+            subplot_kw={"projection": "3d"},
+        )
+        surf = ax.plot_trisurf(
+            X,
+            Y,
+            np.sqrt(np.abs(electric_field_x)**2 + np.abs(electric_field_y)**2),
+            cmap=COLOR_MAPS["parula"],
+            antialiased=False,
+        )
+        ax.set_title(r"Electric field $\vec{E}$")
+        ax.set_xlabel(r"$x$")
+        ax.set_ylabel(r"$y$")
+        ax.set_zlabel(r"$\vec{E}$")
+        ax.view_init(90, -90)
+        plt.colorbar(surf)
+        plt.show()
+
+        # Plot the vector field.
         plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.quiver(
@@ -167,6 +189,31 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         magnetic_vector_potential_z = (self.electromagnetic_fields[
             self.magnetic_vector_potential_z_column])
 
+        # Plot the heat map.
+        plt.style.use(["science", "grid"])
+        fig, ax = plt.subplots(
+            figsize=(12, 6),
+            subplot_kw={"projection": "3d"},
+        )
+        surf = ax.plot_trisurf(
+            X,
+            Y,
+            np.sqrt(
+                np.abs(magnetic_vector_potential_x)**2 +
+                np.abs(magnetic_vector_potential_y)**2 +
+                np.abs(magnetic_vector_potential_z)**2),
+            cmap=COLOR_MAPS["parula"],
+            antialiased=False,
+        )
+        ax.set_title(r"Magnetic vector potential $\vec{A}$")
+        ax.set_xlabel(r"$x$")
+        ax.set_ylabel(r"$y$")
+        ax.set_zlabel(r"$\vec{A}$")
+        ax.view_init(90, -90)
+        plt.colorbar(surf)
+        plt.show()
+
+        # Plot the vector field.
         plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(
             figsize=(12, 6),
@@ -200,6 +247,31 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         magnetic_flux_density_z = (
             self.electromagnetic_fields[self.magnetic_flux_density_z_column])
 
+        # Plot the heat map.
+        plt.style.use(["science", "grid"])
+        fig, ax = plt.subplots(
+            figsize=(12, 6),
+            subplot_kw={"projection": "3d"},
+        )
+        surf = ax.plot_trisurf(
+            X,
+            Y,
+            np.sqrt(
+                np.abs(magnetic_flux_density_x)**2 +
+                np.abs(magnetic_flux_density_y)**2 +
+                np.abs(magnetic_flux_density_z)**2),
+            cmap=COLOR_MAPS["parula"],
+            antialiased=False,
+        )
+        ax.set_title(r"Magnetic flux density $\vec{B}$")
+        ax.set_xlabel(r"$x$")
+        ax.set_ylabel(r"$y$")
+        ax.set_zlabel(r"$\vec{B}$")
+        ax.view_init(90, -90)
+        plt.colorbar(surf)
+        plt.show()
+
+        # Plot the vector field.
         plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(
             figsize=(12, 6),
@@ -219,7 +291,7 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         ax.set_xlabel(r"$x$")
         ax.set_ylabel(r"$y$")
         ax.set_zlabel(r"$z$")
-        ax.view_init(90, -90)
+        ax.view_init(45, -45)
         plt.show()
 
 

@@ -148,7 +148,8 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         surf = ax.plot_trisurf(
             X,
             Y,
-            np.sqrt(np.abs(electric_field_x)**2 + np.abs(electric_field_y)**2),
+            (10 * np.log10(
+                np.abs(electric_field_x)**2 + np.abs(electric_field_y)**2)),
             cmap=COLOR_MAPS["parula"],
             antialiased=False,
         )
@@ -198,10 +199,10 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         surf = ax.plot_trisurf(
             X,
             Y,
-            np.sqrt(
+            (10 * np.log10(
                 np.abs(magnetic_vector_potential_x)**2 +
                 np.abs(magnetic_vector_potential_y)**2 +
-                np.abs(magnetic_vector_potential_z)**2),
+                np.abs(magnetic_vector_potential_z)**2)),
             cmap=COLOR_MAPS["parula"],
             antialiased=False,
         )
@@ -256,10 +257,10 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         surf = ax.plot_trisurf(
             X,
             Y,
-            np.sqrt(
+            (10 * np.log10(
                 np.abs(magnetic_flux_density_x)**2 +
                 np.abs(magnetic_flux_density_y)**2 +
-                np.abs(magnetic_flux_density_z)**2),
+                np.abs(magnetic_flux_density_z)**2)),
             cmap=COLOR_MAPS["parula"],
             antialiased=False,
         )

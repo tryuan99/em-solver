@@ -2,10 +2,10 @@
 #include <Eigen/LU>
 #include <cstdlib>
 
-#include "base/logging.h"
+#include "base/base.h"
 
-int main() {
-  base::InitLogging();
+int main(int argc, char** argv) {
+  base::Init(argc, argv);
 
   // Solve a matrix-vector equation.
   Eigen::Matrix2f A{{

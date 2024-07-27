@@ -1,9 +1,22 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
-    name = "flags",
-    hdrs = ["flags.h"],
-    deps = ["@abseil-cpp//absl/flags:flag"],
+    name = "base",
+    hdrs = ["base.h"],
+    deps = [
+        ":commandlineflags",
+        ":logging",
+    ],
+)
+
+cc_library(
+    name = "commandlineflags",
+    srcs = ["commandlineflags.cc"],
+    hdrs = ["commandlineflags.h"],
+    deps = [
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/flags:parse",
+    ],
 )
 
 cc_library(

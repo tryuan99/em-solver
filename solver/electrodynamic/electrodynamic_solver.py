@@ -26,7 +26,7 @@ class ElectrodynamicSolver(ElectromagneticSolver):
         return (self.num_electric_potential_unknowns +
                 self.num_electric_field_unknowns +
                 self.num_magnetic_vector_potential_unknowns +
-                self.num_magnetic_flux_density_unknowns)
+                self.num_magnetic_flux_density_unknowns + self.num_nodes)
 
     def _get_ac_phasor(self, tag: int) -> float:
         """Returns the AC phasor voltage for the tag.
@@ -115,6 +115,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     self._get_ampere_law_x_equation_index(tag))
                 ampere_law_y_equation_index = (
                     self._get_ampere_law_y_equation_index(tag))
+                gauge_equation_index = self._get_gauge_equation_index(tag)
 
                 # Unknown indices.
                 electric_potential_unknown_index = (
@@ -129,6 +130,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     self._get_magnetic_vector_potential_y_unknown_index(tag))
                 magnetic_flux_density_z_unknown_index = (
                     self._get_magnetic_flux_density_z_unknown_index(tag))
+                gauge_unknown_index = self._get_gauge_unknown_index(tag)
 
                 # Iterate over all adjacent triangles.
                 for (tag_neighbor1, tag_neighbor2
@@ -145,6 +147,14 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     electric_potential_unknown_index_neighbor2 = (
                         self._get_electric_potential_unknown_index(
                             tag_neighbor2))
+                    electric_field_x_unknown_index_neighbor1 = (
+                        self._get_electric_field_x_unknown_index(tag_neighbor1))
+                    electric_field_x_unknown_index_neighbor2 = (
+                        self._get_electric_field_x_unknown_index(tag_neighbor2))
+                    electric_field_y_unknown_index_neighbor1 = (
+                        self._get_electric_field_y_unknown_index(tag_neighbor1))
+                    electric_field_y_unknown_index_neighbor2 = (
+                        self._get_electric_field_y_unknown_index(tag_neighbor2))
                     magnetic_vector_potential_x_unknown_index_neighbor1 = (
                         self._get_magnetic_vector_potential_x_unknown_index(
                             tag_neighbor1))
@@ -163,6 +173,10 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     magnetic_flux_density_z_unknown_index_neighbor2 = (
                         self._get_magnetic_flux_density_z_unknown_index(
                             tag_neighbor2))
+                    gauge_unknown_index_neighbor1 = (
+                        self._get_gauge_unknown_index(tag_neighbor1))
+                    gauge_unknown_index_neighbor2 = (
+                        self._get_gauge_unknown_index(tag_neighbor2))
 
                     # Calculate the denominator.
                     denominator = (x_neighbor1 * y_neighbor2 - x_neighbor1 * y -
@@ -172,22 +186,22 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     # Add the coefficients for the equation corresponding to
                     # Gauss's law.
                     A[gauss_law_electric_potential_equation_index,
-                      magnetic_vector_potential_x_unknown_index_neighbor1] += (
+                      electric_field_x_unknown_index_neighbor1] += (
                           (y_neighbor2 - y) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      magnetic_vector_potential_y_unknown_index_neighbor1] += (
+                      electric_field_y_unknown_index_neighbor1] += (
                           (x - x_neighbor2) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      magnetic_vector_potential_x_unknown_index_neighbor2] += (
+                      electric_field_x_unknown_index_neighbor2] += (
                           (y - y_neighbor1) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      magnetic_vector_potential_y_unknown_index_neighbor2] += (
+                      electric_field_y_unknown_index_neighbor2] += (
                           (x_neighbor1 - x) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      magnetic_vector_potential_x_unknown_index] += (
+                      electric_field_x_unknown_index] += (
                           (y_neighbor1 - y_neighbor2) / denominator)
                     A[gauss_law_electric_potential_equation_index,
-                      magnetic_vector_potential_y_unknown_index] += (
+                      electric_field_y_unknown_index] += (
                           (x_neighbor2 - x_neighbor1) / denominator)
 
                     # Add the coefficients for the equation corresponding to
@@ -246,6 +260,15 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     A[ampere_law_x_equation_index,
                       magnetic_flux_density_z_unknown_index] += (
                           -(x_neighbor2 - x_neighbor1) / denominator)
+                    A[ampere_law_x_equation_index,
+                      gauge_unknown_index_neighbor1] += ((y_neighbor2 - y) /
+                                                         denominator)
+                    A[ampere_law_x_equation_index,
+                      gauge_unknown_index_neighbor2] += ((y - y_neighbor1) /
+                                                         denominator)
+                    A[ampere_law_x_equation_index,
+                      gauge_unknown_index] += ((y_neighbor1 - y_neighbor2) /
+                                               denominator)
 
                     # Add the coefficients for the equation corresponding to
                     # Ampere's law in the y-direction.
@@ -258,6 +281,36 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     A[ampere_law_y_equation_index,
                       magnetic_flux_density_z_unknown_index] += (
                           (y_neighbor1 - y_neighbor2) / denominator)
+                    A[ampere_law_y_equation_index,
+                      gauge_unknown_index_neighbor1] += ((x - x_neighbor2) /
+                                                         denominator)
+                    A[ampere_law_y_equation_index,
+                      gauge_unknown_index_neighbor2] += ((x_neighbor1 - x) /
+                                                         denominator)
+                    A[ampere_law_y_equation_index,
+                      gauge_unknown_index] += ((x_neighbor2 - x_neighbor1) /
+                                               denominator)
+
+                    # Add the coefficients for the equation corresponding to
+                    # the gauge.
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_x_unknown_index_neighbor1] += (
+                          (y_neighbor2 - y) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_y_unknown_index_neighbor1] += (
+                          (x - x_neighbor2) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_x_unknown_index_neighbor2] += (
+                          (y - y_neighbor1) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_y_unknown_index_neighbor2] += (
+                          (x_neighbor1 - x) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_x_unknown_index] += (
+                          (y_neighbor1 - y_neighbor2) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_y_unknown_index] += (
+                          (x_neighbor2 - x_neighbor1) / denominator)
 
                 # Set the coefficients for the electric fields and magnetic
                 # vector potentials for the equations corresponding to
@@ -329,6 +382,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     self._get_ampere_law_x_equation_index(tag))
                 ampere_law_y_equation_index = (
                     self._get_ampere_law_y_equation_index(tag))
+                gauge_equation_index = self._get_gauge_equation_index(tag)
 
                 # Unknown indices.
                 electric_potential_unknown_index = (
@@ -343,6 +397,7 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     self._get_magnetic_vector_potential_y_unknown_index(tag))
                 magnetic_flux_density_z_unknown_index = (
                     self._get_magnetic_flux_density_z_unknown_index(tag))
+                gauge_unknown_index = self._get_gauge_unknown_index(tag)
 
                 # Set the voltage boundary conditions.
                 A[gauss_law_electric_potential_equation_index,
@@ -377,6 +432,10 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     magnetic_flux_density_z_unknown_index_neighbor2 = (
                         self._get_magnetic_flux_density_z_unknown_index(
                             tag_neighbor2))
+                    gauge_unknown_index_neighbor1 = (
+                        self._get_gauge_unknown_index(tag_neighbor1))
+                    gauge_unknown_index_neighbor2 = (
+                        self._get_gauge_unknown_index(tag_neighbor2))
 
                     # Calculate the denominator.
                     denominator = (x_neighbor1 * y_neighbor2 - x_neighbor1 * y -
@@ -415,6 +474,15 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     A[ampere_law_x_equation_index,
                       magnetic_flux_density_z_unknown_index] += (
                           -(x_neighbor2 - x_neighbor1) / denominator)
+                    A[ampere_law_x_equation_index,
+                      gauge_unknown_index_neighbor1] += ((y_neighbor2 - y) /
+                                                         denominator)
+                    A[ampere_law_x_equation_index,
+                      gauge_unknown_index_neighbor2] += ((y - y_neighbor1) /
+                                                         denominator)
+                    A[ampere_law_x_equation_index,
+                      gauge_unknown_index] += ((y_neighbor1 - y_neighbor2) /
+                                               denominator)
 
                     # Add the coefficients for the equation corresponding to
                     # Ampere's law in the y-direction.
@@ -427,6 +495,36 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                     A[ampere_law_y_equation_index,
                       magnetic_flux_density_z_unknown_index] += (
                           (y_neighbor1 - y_neighbor2) / denominator)
+                    A[ampere_law_y_equation_index,
+                      gauge_unknown_index_neighbor1] += ((x - x_neighbor2) /
+                                                         denominator)
+                    A[ampere_law_y_equation_index,
+                      gauge_unknown_index_neighbor2] += ((x_neighbor1 - x) /
+                                                         denominator)
+                    A[ampere_law_y_equation_index,
+                      gauge_unknown_index] += ((x_neighbor2 - x_neighbor1) /
+                                               denominator)
+
+                    # Add the coefficients for the equation corresponding to
+                    # the gauge.
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_x_unknown_index_neighbor1] += (
+                          (y_neighbor2 - y) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_y_unknown_index_neighbor1] += (
+                          (x - x_neighbor2) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_x_unknown_index_neighbor2] += (
+                          (y - y_neighbor1) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_y_unknown_index_neighbor2] += (
+                          (x_neighbor1 - x) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_x_unknown_index] += (
+                          (y_neighbor1 - y_neighbor2) / denominator)
+                    A[gauge_equation_index,
+                      magnetic_vector_potential_y_unknown_index] += (
+                          (x_neighbor2 - x_neighbor1) / denominator)
 
                 # Set the coefficients for the electric fields and magnetic
                 # vector potentials for the equations corresponding to
@@ -468,10 +566,12 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 # Equation indices.
                 gauss_law_electric_potential_equation_index = (
                     self._get_gauss_law_electric_potential_equation_index(tag))
+                gauge_equation_index = self._get_gauge_equation_index(tag)
 
                 # Unknown indices.
                 electric_potential_unknown_index = (
                     self._get_electric_potential_unknown_index(tag))
+                gauge_unknown_index = self._get_gauge_unknown_index(tag)
 
                 # Set the voltage boundary conditions.
                 A[gauss_law_electric_potential_equation_index, :] = 0
@@ -479,6 +579,11 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                   electric_potential_unknown_index] = 1
                 b[gauss_law_electric_potential_equation_index] = (
                     self._get_ac_phasor(conductor_tag))
+
+                # Set the gauge boundary conditions.
+                A[gauge_equation_index, :] = 0
+                A[gauge_equation_index, gauge_unknown_index] = 1
+                b[gauge_equation_index] = 1
 
         # Solve for the electric potential, the electric field, the magnetic
         # vector potential, and the magnetic flux density.
@@ -549,6 +654,15 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 self.num_electric_field_unknowns +
                 self.num_magnetic_vector_potential_unknowns)
 
+    def _get_gauge_unknown_index(self, tag: int) -> int:
+        """Returns the unknown index corresponding to the gauge.
+        """
+        return (self._get_index_from_tag(tag) +
+                self.num_electric_potential_unknowns +
+                self.num_electric_field_unknowns +
+                self.num_magnetic_vector_potential_unknowns +
+                self.num_magnetic_flux_density_unknowns)
+
     def _get_gauss_law_electric_potential_equation_index(self, tag: int) -> int:
         """Returns the equation index corresponding to Gauss's law or any
         voltage boundary condition.
@@ -594,6 +708,15 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
                 self.num_electric_potential_unknowns +
                 self.num_electric_field_unknowns +
                 self.num_magnetic_flux_density_unknowns)
+
+    def _get_gauge_equation_index(self, tag: int) -> int:
+        """Returns the equation index corresponding to the gauge.
+        """
+        return (self._get_index_from_tag(tag) +
+                self.num_electric_potential_unknowns +
+                self.num_electric_field_unknowns +
+                self.num_magnetic_flux_density_unknowns +
+                self.num_magnetic_vector_potential_unknowns)
 
 
 class ElectrodynamicSolver3D(ElectrodynamicSolver, ElectromagneticSolver3D):

@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import scienceplots
 
-from mesh.gmsh_interface import GmshInterface
+from mesh.py.gmsh_interface import GmshInterface
 from visualization.color_maps import COLOR_MAPS
 
 

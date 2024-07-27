@@ -10,7 +10,7 @@ import numpy as np
 from proto.material_pb2 import Material
 from proto.solver_config_pb2 import SolverConfig
 
-from mesh.gmsh_interface import GmshInterface
+from mesh.py.gmsh_interface import GmshInterface
 
 
 class ElectromagneticSolver(GmshInterface, ABC):

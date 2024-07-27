@@ -6,7 +6,7 @@ py_library(
     name = "electromagnetic_solver",
     srcs = ["electromagnetic_solver.py"],
     deps = [
-        "//mesh:gmsh_interface",
+        "//mesh/py:gmsh_interface",
         "//proto:material_py_proto",
         "//proto:solver_config_py_proto",
         requirement("gmsh"),

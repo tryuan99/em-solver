@@ -7,7 +7,7 @@ py_library(
     name = "electrostatic_solver",
     srcs = ["electrostatic_solver.py"],
     deps = [
-        "//mesh:gmsh_interface",
+        "//mesh/py:gmsh_interface",
         "//model:material",
         "//proto:solver_config_py_proto",
         "//solver:electromagnetic_solver",
@@ -22,7 +22,7 @@ py_library(
     srcs = ["capacitor_electrostatic_solver.py"],
     deps = [
         ":electrostatic_solver",
-        "//mesh:gmsh_interface",
+        "//mesh/py:gmsh_interface",
         "//model:constants",
         "//model:material",
         "//proto:capacitor_py_proto",

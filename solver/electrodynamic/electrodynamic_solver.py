@@ -6,7 +6,7 @@ import numpy as np
 import scipy.sparse
 from proto.solver_config_pb2 import SolverConfig
 
-from mesh.gmsh_interface import GmshNodeType
+from mesh.py.gmsh_interface import GmshNodeType
 from model.material import MATERIAL_TO_PROPERTIES, MaterialProperties
 from solver.electromagnetic_solver import (ElectromagneticSolver,
                                            ElectromagneticSolver2D,

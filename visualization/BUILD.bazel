@@ -12,7 +12,7 @@ py_library(
     name = "electromagnetic_field_plotter",
     srcs = ["electromagnetic_field_plotter.py"],
     deps = [
-        "//mesh:gmsh_interface",
+        "//mesh/py:gmsh_interface",
         "//visualization:color_maps",
         requirement("gmsh"),
         requirement("matplotlib"),

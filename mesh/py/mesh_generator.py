@@ -7,7 +7,7 @@ import numpy as np
 from proto.material_pb2 import Material
 from proto.mesh_config_pb2 import EntityConfig, MeshConfig, MeshGeneratorConfig
 
-from mesh.gmsh_interface import GmshInterface
+from mesh.py.gmsh_interface import GmshInterface
 
 # Mesh bounding box factor.
 MESH_BOUNDING_BOX_FACTOR = 2

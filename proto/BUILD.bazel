@@ -1,3 +1,4 @@
+load("@com_google_protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
 load("@com_google_protobuf//bazel:py_proto_library.bzl", "py_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
@@ -8,6 +9,11 @@ proto_library(
     srcs = ["capacitor.proto"],
 )
 
+cc_proto_library(
+    name = "capacitor_cc_proto",
+    deps = [":capacitor_proto"],
+)
+
 py_proto_library(
     name = "capacitor_py_proto",
     deps = [":capacitor_proto"],
@@ -16,6 +22,11 @@ py_proto_library(
 proto_library(
     name = "capacitor_three_plates_proto",
     srcs = ["capacitor_three_plates.proto"],
+)
+
+cc_proto_library(
+    name = "capacitor_three_plates_cc_proto",
+    deps = [":capacitor_three_plates_proto"],
 )
 
 py_proto_library(
@@ -33,6 +44,11 @@ proto_library(
     srcs = ["material.proto"],
 )
 
+cc_proto_library(
+    name = "material_cc_proto",
+    deps = [":material_proto"],
+)
+
 py_proto_library(
     name = "material_py_proto",
     deps = [":material_proto"],
@@ -44,6 +60,11 @@ proto_library(
     deps = [":material_proto"],
 )
 
+cc_proto_library(
+    name = "mesh_config_cc_proto",
+    deps = [":mesh_config_proto"],
+)
+
 py_proto_library(
     name = "mesh_config_py_proto",
     deps = [":mesh_config_proto"],
@@ -53,6 +74,11 @@ proto_library(
     name = "solver_config_proto",
     srcs = ["solver_config.proto"],
     deps = [":complex_number_proto"],
+)
+
+cc_proto_library(
+    name = "solver_config_cc_proto",
+    deps = [":solver_config_proto"],
 )
 
 py_proto_library(

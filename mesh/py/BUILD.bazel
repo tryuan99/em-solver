@@ -1,0 +1,73 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "gmsh_interface",
+    srcs = ["gmsh_interface.py"],
+    deps = [
+        requirement("gmsh"),
+        requirement("numpy"),
+    ],
+)
+
+py_library(
+    name = "mesh_generator",
+    srcs = ["mesh_generator.py"],
+    deps = [
+        ":gmsh_interface",
+        "//proto:material_py_proto",
+        "//proto:mesh_config_py_proto",
+        requirement("gmsh"),
+        requirement("numpy"),
+    ],
+)
+
+py_binary(
+    name = "mesh_generator_2d_main",
+    srcs = ["mesh_generator_2d_main.py"],
+    data = [
+        "//cad/capacitor:capacitor_2d_models",
+        "//mesh/configs:capacitor_mesh_configs",
+        "//mesh/configs:mesh_generator_configs",
+    ],
+    deps = [
+        ":mesh_generator",
+        "//proto:mesh_config_py_proto",
+        requirement("absl-py"),
+        requirement("protobuf"),
+    ],
+)
+
+pkg_tar(
+    name = "mesh_generator_2d_main_tar_pkg",
+    srcs = [":mesh_generator_2d_main"],
+    extension = ".tar.gz",
+    include_runfiles = True,
+    strip_prefix = "/mesh/",
+)
+
+py_binary(
+    name = "mesh_generator_3d_main",
+    srcs = ["mesh_generator_3d_main.py"],
+    data = [
+        "//cad/capacitor:capacitor_2d_models",
+        "//mesh/configs:capacitor_mesh_configs",
+        "//mesh/configs:mesh_generator_configs",
+    ],
+    deps = [
+        ":mesh_generator",
+        "//proto:mesh_config_py_proto",
+        requirement("absl-py"),
+        requirement("protobuf"),
+    ],
+)
+
+pkg_tar(
+    name = "mesh_generator_3d_main_tar_pkg",
+    srcs = [":mesh_generator_3d_main"],
+    extension = ".tar.gz",
+    include_runfiles = True,
+    strip_prefix = "/mesh/",
+)

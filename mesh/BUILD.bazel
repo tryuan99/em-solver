@@ -1,0 +1,8 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "gmsh_interface",
+    srcs = ["gmsh_interface.cc"],
+    hdrs = ["gmsh_interface.h"],
+    deps = ["@gmsh"],
+)

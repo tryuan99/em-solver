@@ -162,7 +162,7 @@ class GmshInterface(ABC):
 
     @staticmethod
     def get_tetrahedra(tag: int = -1) -> tuple[np.ndarray, np.ndarray]:
-        """Returns the list of tetrahedra volumes in the mesh.
+        """Returns the list of tetrahedral volumes in the mesh.
 
         Args:
             tag: Tag of the entity.

@@ -1,6 +1,11 @@
-// The flag library contains base utilities.
+// The file contains base utilities.
 
 #pragma once
+
+#include <cstdbool>
+#include <cstdint>
+#include <cstdlib>
+#include <string>
 
 #include "base/commandlineflags.h"
 #include "base/logging.h"

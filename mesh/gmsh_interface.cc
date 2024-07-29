@@ -3,6 +3,7 @@
 #include <gmsh.h>
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <iterator>
 #include <stdexcept>
@@ -79,9 +80,10 @@ std::unordered_map<Tag, Coordinates> GmshInterface::GetNodeCoordinates(
   // Insert the node tags and coordinates into a map.
   std::unordered_map<Tag, Coordinates> node_tag_to_coordinates;
   for (uint32_t i = 0; i < node_tags.size(); ++i) {
-    node_tag_to_coordinates.try_emplace(node_tags[i], node_coordinates[3 * i],
-                                        node_coordinates[3 * i + 1],
-                                        node_coordinates[3 * i + 2]);
+    node_tag_to_coordinates.try_emplace(
+        node_tags[i], std::array<double, 3>{node_coordinates[3 * i],
+                                            node_coordinates[3 * i + 1],
+                                            node_coordinates[3 * i + 2]});
   }
   return node_tag_to_coordinates;
 }
@@ -104,7 +106,7 @@ std::pair<std::vector<int>, std::vector<int>> GmshInterface::GetAdjacencies(
                         std::move(downward_adjacencies));
 }
 
-std::unordered_map<Tag, std::pair<Tag, Tag>> GmshInterface::GetLines(
+std::unordered_map<Tag, std::array<Tag, 2>> GmshInterface::GetLines(
     const int tag) {
   std::vector<Tag> line_tags;
   std::vector<Tag> node_tags;
@@ -112,14 +114,16 @@ std::unordered_map<Tag, std::pair<Tag, Tag>> GmshInterface::GetLines(
       static_cast<int>(ElementType::kTwoNodeLine), line_tags, node_tags, tag);
 
   // Insert the line and node tags into a map.
-  std::unordered_map<Tag, std::pair<Tag, Tag>> lines;
+  std::unordered_map<Tag, std::array<Tag, 2>> lines;
   for (uint32_t i = 0; i < line_tags.size(); ++i) {
-    lines.try_emplace(line_tags[i], node_tags[2 * i], node_tags[2 * i + 1]);
+    lines.try_emplace(
+        line_tags[i],
+        std::array<gmsh::Tag, 2>{node_tags[2 * i], node_tags[2 * i + 1]});
   }
   return lines;
 }
 
-std::unordered_map<Tag, std::tuple<Tag, Tag, Tag>> GmshInterface::GetFaces(
+std::unordered_map<Tag, std::array<Tag, 3>> GmshInterface::GetFaces(
     const int tag) {
   std::vector<Tag> face_tags;
   std::vector<Tag> node_tags;
@@ -128,16 +132,17 @@ std::unordered_map<Tag, std::tuple<Tag, Tag, Tag>> GmshInterface::GetFaces(
       tag);
 
   // Insert the face and node tags into a map.
-  std::unordered_map<Tag, std::tuple<Tag, Tag, Tag>> faces;
+  std::unordered_map<Tag, std::array<Tag, 3>> faces;
   for (uint32_t i = 0; i < face_tags.size(); ++i) {
-    faces.try_emplace(face_tags[i], node_tags[3 * i], node_tags[3 * i + 1],
-                      node_tags[3 * i + 2]);
+    faces.try_emplace(face_tags[i], std::array<gmsh::Tag, 3>{
+                                        node_tags[3 * i], node_tags[3 * i + 1],
+                                        node_tags[3 * i + 2]});
   }
   return faces;
 }
 
-std::unordered_map<Tag, std::tuple<Tag, Tag, Tag, Tag>>
-GmshInterface::GetTetrahedra(const int tag) {
+std::unordered_map<Tag, std::array<Tag, 4>> GmshInterface::GetTetrahedra(
+    const int tag) {
   std::vector<Tag> volume_tags;
   std::vector<Tag> node_tags;
   gmsh::model::mesh::getElementsByType(
@@ -145,10 +150,12 @@ GmshInterface::GetTetrahedra(const int tag) {
       node_tags, tag);
 
   // Insert the volume and node tags into a map.
-  std::unordered_map<Tag, std::tuple<Tag, Tag, Tag, Tag>> volumes;
+  std::unordered_map<Tag, std::array<Tag, 4>> volumes;
   for (uint32_t i = 0; i < volume_tags.size(); ++i) {
-    volumes.try_emplace(volume_tags[i], node_tags[4 * i], node_tags[4 * i + 1],
-                        node_tags[4 * i + 2], node_tags[4 * i + 3]);
+    volumes.try_emplace(
+        volume_tags[i],
+        std::array<gmsh::Tag, 4>{node_tags[4 * i], node_tags[4 * i + 1],
+                                 node_tags[4 * i + 2], node_tags[4 * i + 3]});
   }
   return volumes;
 }

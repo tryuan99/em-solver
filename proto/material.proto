@@ -1,18 +1,20 @@
 syntax = "proto3";
 
+package model;
+
 // Material.
 enum Material {
-    UNSPECIFIED = 0;
+  UNSPECIFIED = 0;
 
-    // Ideal materials.
-    INSULATOR = 1;
-    CONDUCTOR = 2;
+  // Ideal materials.
+  INSULATOR = 1;
+  CONDUCTOR = 2;
 
-    // Insulators.
-    AIR = 3;
-    SILICON_DIOXIDE = 4;
+  // Insulators.
+  AIR = 3;
+  SILICON_DIOXIDE = 4;
 
-    // Conductors.
-    COPPER = 5;
-    GOLD = 6;
+  // Conductors.
+  COPPER = 5;
+  GOLD = 6;
 }

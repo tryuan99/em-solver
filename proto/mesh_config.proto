@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package mesh;
+
 import "proto/material.proto";
 
 // Mesh generator configuration.
@@ -19,11 +21,11 @@ message MeshGeneratorConfig {
 
 // Entity configuration.
 message EntityConfig {
-    // Entity tag.
-    uint32 tag = 1;
+  // Entity tag.
+  uint32 tag = 1;
 
-    // Entity material.
-    Material material = 2;
+  // Entity material.
+  model.Material material = 2;
 }
 
 // Mesh configuration.

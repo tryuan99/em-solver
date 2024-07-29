@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package utils;
+
 // Complex number.
 message ComplexNumber {
   // Real component.

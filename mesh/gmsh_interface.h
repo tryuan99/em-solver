@@ -2,9 +2,9 @@
 
 #pragma once
 
+#include <array>
 #include <cstdlib>
 #include <string>
-#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -12,7 +12,7 @@ namespace gmsh {
 
 // Type definitions.
 using Tag = std::size_t;
-using Coordinates = std::tuple<double, double, double>;
+using Coordinates = std::array<double, 3>;
 using DimTag = std::pair<int, int>;
 
 // Mesh element type enumeration.
@@ -68,16 +68,15 @@ class GmshInterface {
 
   // Get the list of lines in the mesh and return a map from the line tags to
   // the node tags adjacent to each line.
-  static std::unordered_map<Tag, std::pair<Tag, Tag>> GetLines(int tag = -1);
+  static std::unordered_map<Tag, std::array<Tag, 2>> GetLines(int tag = -1);
 
   // Get the list of triangular faces in the mesh and return a map from the face
   // tags to the node tags belonging to each face.
-  static std::unordered_map<Tag, std::tuple<Tag, Tag, Tag>> GetFaces(
-      int tag = -1);
+  static std::unordered_map<Tag, std::array<Tag, 3>> GetFaces(int tag = -1);
 
   // Get the list of tetrahedral volumes in the mesh and return a map from the
   // tetrahedra tags to the node tags belonging to each tetrahedron.
-  static std::unordered_map<Tag, std::tuple<Tag, Tag, Tag, Tag>> GetTetrahedra(
+  static std::unordered_map<Tag, std::array<Tag, 4>> GetTetrahedra(
       int tag = -1);
 
   // Get the list of physical groups in the mesh and return a list of pairs

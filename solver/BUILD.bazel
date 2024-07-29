@@ -1,0 +1,22 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "electromagnetic_solver",
+    srcs = ["electromagnetic_solver.cc"],
+    hdrs = ["electromagnetic_solver.h"],
+    deps = [
+        "//mesh:gmsh_interface",
+        "//proto:material_cc_proto",
+        "//proto:solver_config_cc_proto",
+        "@abseil-cpp//absl/strings:str_format",
+        "@eigen",
+        "@gmsh",
+    ],
+)
+
+cc_library(
+    name = "neighbor_lookup",
+    srcs = ["neighbor_lookup.cc"],
+    hdrs = ["neighbor_lookup.h"],
+    deps = ["//mesh:gmsh_interface"],
+)

@@ -1,9 +1,11 @@
 syntax = "proto3";
 
+package model;
+
 // Capacitor entity.
 enum CapacitorEntity {
-    INVALID = 0;
-    GROUND_PLATE = 1;
-    VDD_PLATE = 2;
-    DIELECTRIC = 3;
+  INVALID = 0;
+  GROUND_PLATE = 1;
+  VDD_PLATE = 2;
+  DIELECTRIC = 3;
 }

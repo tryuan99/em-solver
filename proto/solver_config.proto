@@ -1,17 +1,19 @@
 syntax = "proto3";
 
+package solver;
+
 import "proto/complex_number.proto";
 
 // Entity configuration.
 message EntityConfig {
-    // Entity tag.
-    uint32 tag = 1;
+  // Entity tag.
+  uint32 tag = 1;
 
-    // DC voltage.
-    float dc_voltage = 2;
+  // DC voltage.
+  float dc_voltage = 2;
 
-    // AC phasor voltage.
-    ComplexNumber ac_phasor = 3;
+  // AC phasor voltage.
+  utils.ComplexNumber ac_phasor = 3;
 }
 
 // Solver configuration.

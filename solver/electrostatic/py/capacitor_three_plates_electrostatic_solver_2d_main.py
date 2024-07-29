@@ -1,10 +1,10 @@
 import google.protobuf
-from absl import app, flags, logging
+from absl import app, flags
 from proto.solver_config_pb2 import SolverConfig
 
-from solver.electrostatic.capacitor_electrostatic_solver import \
-    CapacitorElectrostaticSolver2D
-from visualization.electromagnetic_field_plotter import \
+from solver.electrostatic.py.capacitor_three_plates_electrostatic_solver import \
+    CapacitorThreePlatesElectrostaticSolver2D
+from visualization.py.electromagnetic_field_plotter import \
     ElectromagneticFieldPlotter2D
 
 FLAGS = flags.FLAGS
@@ -24,10 +24,9 @@ def _solve_mesh(mesh_file: str, solver_config: str, csv_output: str) -> None:
             solver_config_file.read(), SolverConfig())
 
     # Solve the mesh.
-    capacitor_solver = CapacitorElectrostaticSolver2D(mesh_file, solver_config)
+    capacitor_solver = CapacitorThreePlatesElectrostaticSolver2D(
+        mesh_file, solver_config)
     capacitor_solver.solve()
-    capacitance = capacitor_solver.calculate_capacitance()
-    logging.info("Capacitance = %g", capacitance)
     if csv_output is not None:
         capacitor_solver.write_solution(csv_output)
 

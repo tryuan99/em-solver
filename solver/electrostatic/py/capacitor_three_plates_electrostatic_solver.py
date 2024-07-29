@@ -5,8 +5,8 @@ field around a capacitor with three plates.
 from proto.capacitor_three_plates_pb2 import CapacitorThreePlatesEntity
 from proto.solver_config_pb2 import SolverConfig
 
-from model.material import MaterialProperties
-from solver.electrostatic.electrostatic_solver import ElectrostaticSolver2D
+from model.py.material import MaterialProperties
+from solver.electrostatic.py.electrostatic_solver import ElectrostaticSolver2D
 
 
 class CapacitorThreePlatesElectrostaticSolver2D(ElectrostaticSolver2D):

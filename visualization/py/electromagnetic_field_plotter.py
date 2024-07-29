@@ -11,7 +11,7 @@ import pandas as pd
 import scienceplots
 
 from mesh.py.gmsh_interface import GmshInterface
-from visualization.color_maps import COLOR_MAPS
+from visualization.py.color_maps import COLOR_MAPS
 
 
 class ElectromagneticFieldPlotter(GmshInterface, ABC):

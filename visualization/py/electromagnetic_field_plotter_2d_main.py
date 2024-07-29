@@ -1,6 +1,6 @@
 from absl import app, flags
 
-from visualization.electromagnetic_field_plotter import \
+from visualization.py.electromagnetic_field_plotter import \
     ElectromagneticFieldPlotter2D
 
 FLAGS = flags.FLAGS

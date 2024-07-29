@@ -1,0 +1,19 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "constants",
+    srcs = ["constants.py"],
+    deps = [requirement("numpy")],
+)
+
+py_library(
+    name = "material",
+    srcs = ["material.py"],
+    deps = [
+        ":constants",
+        "//proto:material_py_proto",
+        requirement("numpy"),
+    ],
+)

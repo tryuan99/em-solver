@@ -45,7 +45,7 @@ pkg_tar(
     srcs = [":mesh_generator_2d_main"],
     extension = ".tar.gz",
     include_runfiles = True,
-    strip_prefix = "/mesh/",
+    strip_prefix = "/mesh/py/",
 )
 
 py_binary(
@@ -69,5 +69,5 @@ pkg_tar(
     srcs = [":mesh_generator_3d_main"],
     extension = ".tar.gz",
     include_runfiles = True,
-    strip_prefix = "/mesh/",
+    strip_prefix = "/mesh/py/",
 )

@@ -6,8 +6,9 @@ import numpy as np
 from proto.capacitor_pb2 import CapacitorEntity
 from proto.solver_config_pb2 import SolverConfig
 
-from model.material import MaterialProperties
-from solver.electrodynamic.electrodynamic_solver import ElectrodynamicSolver2D
+from model.py.material import MaterialProperties
+from solver.electrodynamic.py.electrodynamic_solver import \
+    ElectrodynamicSolver2D
 
 
 class CapacitorElectrodynamicSolver2D(ElectrodynamicSolver2D):

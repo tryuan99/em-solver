@@ -7,9 +7,9 @@ from proto.capacitor_pb2 import CapacitorEntity
 from proto.solver_config_pb2 import SolverConfig
 
 from mesh.py.gmsh_interface import GmshNodeType
-from model.constants import VACUUM_PERMITTIVITY
-from model.material import MATERIAL_TO_PROPERTIES, MaterialProperties
-from solver.electrostatic.electrostatic_solver import ElectrostaticSolver2D
+from model.py.constants import VACUUM_PERMITTIVITY
+from model.py.material import MATERIAL_TO_PROPERTIES, MaterialProperties
+from solver.electrostatic.py.electrostatic_solver import ElectrostaticSolver2D
 
 
 class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):

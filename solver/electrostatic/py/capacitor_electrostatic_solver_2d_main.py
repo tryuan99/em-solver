@@ -1,10 +1,10 @@
 import google.protobuf
-from absl import app, flags
+from absl import app, flags, logging
 from proto.solver_config_pb2 import SolverConfig
 
-from solver.electrodynamic.capacitor_electrodynamic_solver import \
-    CapacitorElectrodynamicSolver2D
-from visualization.electromagnetic_field_plotter import \
+from solver.electrostatic.py.capacitor_electrostatic_solver import \
+    CapacitorElectrostaticSolver2D
+from visualization.py.electromagnetic_field_plotter import \
     ElectromagneticFieldPlotter2D
 
 FLAGS = flags.FLAGS
@@ -24,8 +24,10 @@ def _solve_mesh(mesh_file: str, solver_config: str, csv_output: str) -> None:
             solver_config_file.read(), SolverConfig())
 
     # Solve the mesh.
-    capacitor_solver = CapacitorElectrodynamicSolver2D(mesh_file, solver_config)
+    capacitor_solver = CapacitorElectrostaticSolver2D(mesh_file, solver_config)
     capacitor_solver.solve()
+    capacitance = capacitor_solver.calculate_capacitance()
+    logging.info("Capacitance = %g", capacitance)
     if csv_output is not None:
         capacitor_solver.write_solution(csv_output)
 
@@ -37,11 +39,9 @@ def _plot_electromagnetic_fields(mesh_file: str, csv_output: str) -> None:
         mesh_file: Mesh file.
         csv_output: CSV output file.
     """
-    plotter = ElectromagneticFieldPlotter2D(mesh_file, csv_output)
+    plotter = ElectromagneticFieldPlotter2D(FLAGS.mesh_file, FLAGS.csv_output)
     plotter.plot_electric_potential()
     plotter.plot_electric_field()
-    plotter.plot_magnetic_vector_potential()
-    plotter.plot_magnetic_flux_density()
 
 
 def main(argv):

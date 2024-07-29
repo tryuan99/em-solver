@@ -5,7 +5,7 @@ conductors and insulators.
 import numpy as np
 from proto.material_pb2 import Material
 
-from model.constants import VACUUM_PERMEABILITY, VACUUM_PERMITTIVITY
+from model.py.constants import VACUUM_PERMEABILITY, VACUUM_PERMITTIVITY
 
 
 class MaterialProperties:

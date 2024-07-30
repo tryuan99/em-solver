@@ -7,6 +7,12 @@ from proto.material_pb2 import Material
 
 from model.py.constants import VACUUM_PERMEABILITY, VACUUM_PERMITTIVITY
 
+# Conductivity threshold for a conductor in S/m.
+CONDUCTOR_CONDUCTIVITY_THRESHOLD = 1e-2
+
+# Conductivity threshold for an insulator in S/m.
+INSULATOR_CONDUCTIVITY_THRESHOLD = 1e-4
+
 
 class MaterialProperties:
     """Material properties."""
@@ -42,23 +48,15 @@ class MaterialProperties:
         """Returns the resistivity at the given frequency in Ohm*m."""
         return self._resistivity
 
-    @staticmethod
-    def is_conductor(material: Material) -> bool:
+    def is_conductor(self) -> bool:
         """Returns whether the given material is a conductor."""
-        return material in [
-            Material.CONDUCTOR,
-            Material.COPPER,
-            Material.GOLD,
-        ]
+        return (self.conductivity(frequency=0)
+                > CONDUCTOR_CONDUCTIVITY_THRESHOLD)
 
-    @staticmethod
-    def is_insulator(material: Material) -> bool:
+    def is_insulator(self) -> bool:
         """Returns whether the given material is an insulator."""
-        return material in [
-            Material.INSULATOR,
-            Material.AIR,
-            Material.SILICON_DIOXIDE,
-        ]
+        return (self.conductivity(frequency=0)
+                < INSULATOR_CONDUCTIVITY_THRESHOLD)
 
 
 # Map from the material to its properties.

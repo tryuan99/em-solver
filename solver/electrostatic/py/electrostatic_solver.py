@@ -7,7 +7,7 @@ import scipy.sparse
 from proto.solver_config_pb2 import SolverConfig
 
 from mesh.py.gmsh_interface import GmshNodeType
-from model.py.material import MaterialProperties
+from model.py.material import MATERIAL_TO_PROPERTIES
 from solver.py.electromagnetic_solver import (ElectromagneticSolver,
                                               ElectromagneticSolver2D,
                                               ElectromagneticSolver3D)
@@ -69,9 +69,9 @@ class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
                 tag=physical_group_tag)
             entities = self.get_entities_for_physical_group(
                 dim=self.dimension(), tag=physical_group_tag)
-            if MaterialProperties.is_conductor(material):
+            if MATERIAL_TO_PROPERTIES[material].is_conductor():
                 conductor_entity_tags.extend(entities)
-            elif MaterialProperties.is_insulator(material):
+            elif MATERIAL_TO_PROPERTIES[material].is_insulator():
                 insulator_entity_tags.extend(entities)
 
         # Initialize the matrix-vector equation.

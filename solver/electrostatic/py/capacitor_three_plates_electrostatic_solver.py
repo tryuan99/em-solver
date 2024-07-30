@@ -5,7 +5,7 @@ field around a capacitor with three plates.
 from proto.capacitor_three_plates_pb2 import CapacitorThreePlatesEntity
 from proto.solver_config_pb2 import SolverConfig
 
-from model.py.material import MaterialProperties
+from model.py.material import MATERIAL_TO_PROPERTIES
 from solver.electrostatic.py.electrostatic_solver import ElectrostaticSolver2D
 
 
@@ -27,13 +27,12 @@ class CapacitorThreePlatesElectrostaticSolver2D(ElectrostaticSolver2D):
                 CapacitorThreePlatesEntity.MIDDLE_PLATE,
                 CapacitorThreePlatesEntity.VDD_PLATE,
         ]:
-            if not MaterialProperties.is_conductor(
-                    self.get_material_for_entity(tag=conductor_entity_tag)):
+            if not MATERIAL_TO_PROPERTIES[self.get_material_for_entity(
+                    tag=conductor_entity_tag)].is_conductor():
                 raise ValueError(
                     f"Entity {conductor_entity_tag} is not a conductor.")
-        if not MaterialProperties.is_insulator(
-                self.get_material_for_entity(
-                    tag=CapacitorThreePlatesEntity.DIELECTRIC)):
+        if not MATERIAL_TO_PROPERTIES[self.get_material_for_entity(
+                tag=CapacitorThreePlatesEntity.DIELECTRIC)].is_insulator():
             raise ValueError(
-                f"Entity {CapacitorThreePlatesEntity.DIELECTRIC} is not an insulator."
-            )
+                f"Entity {CapacitorThreePlatesEntity.DIELECTRIC} is not an "
+                f"insulator.")

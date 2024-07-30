@@ -1,0 +1,16 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "material",
+    srcs = ["material.cc"],
+    hdrs = ["material.h"],
+    deps = [
+        ":constants",
+        "//proto:material_cc_proto",
+    ],
+)
+
+cc_library(
+    name = "constants",
+    hdrs = ["constants.h"],
+)

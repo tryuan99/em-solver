@@ -21,19 +21,21 @@ namespace solver {
 template <std::size_t Dimension>
 class NeighborLookup {
  public:
-  using T = std::array<gmsh::Tag, Dimension>;
-  using U = std::array<gmsh::Tag, Dimension - 1>;
+  using T = std::array<gmsh::Tag, Dimension + 1>;
+  using U = std::array<gmsh::Tag, Dimension>;
 
   NeighborLookup(const std::unordered_map<gmsh::Tag, T>& element_tag_to_nodes)
       : neighbors_(InitNeighbors(element_tag_to_nodes)) {}
 
   // Get the number of adjancent entities to the given node.
   std::size_t num_adjacent_entities(const int tag) const {
-    return neighbors_[tag].size();
+    return neighbors_.at(tag).size();
   }
 
   // Get the neighbors of the given node.
-  const std::list<U>& neighbors(const int tag) const { return neighbors_[tag]; }
+  const std::list<U>& neighbors(const int tag) const {
+    return neighbors_.at(tag);
+  }
 
  private:
   // Initialize the neighbors.
@@ -44,6 +46,10 @@ class NeighborLookup {
   // the adjacent entities.
   std::unordered_map<gmsh::Tag, std::list<U>> neighbors_;
 };
+
+// Explicit instantiations of the template.
+template class NeighborLookup<2>;
+template class NeighborLookup<3>;
 
 // Type definitions.
 using NeighborLookup2D = NeighborLookup<2>;

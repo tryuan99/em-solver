@@ -10,6 +10,16 @@ cc_binary(
 )
 
 cc_binary(
+    name = "eigen_sparse_example_main",
+    srcs = ["eigen_sparse_example_main.cc"],
+    deps = [
+        "//base",
+        "@abseil-cpp//absl/strings:str_format",
+        "@eigen",
+    ],
+)
+
+cc_binary(
     name = "gmsh_example_main",
     srcs = ["gmsh_example_main.cc"],
     deps = [

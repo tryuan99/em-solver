@@ -5,8 +5,8 @@ package utils;
 // Complex number.
 message ComplexNumber {
   // Real component.
-  float real = 1;
+  double real = 1;
 
   // Imaginary component.
-  float imaginary = 2;
+  double imaginary = 2;
 }

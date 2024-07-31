@@ -7,10 +7,10 @@ import "proto/complex_number.proto";
 // Entity configuration.
 message EntityConfig {
   // Entity tag.
-  uint32 tag = 1;
+  int32 tag = 1;
 
   // DC voltage.
-  float dc_voltage = 2;
+  double dc_voltage = 2;
 
   // AC phasor voltage.
   utils.ComplexNumber ac_phasor = 3;
@@ -22,5 +22,5 @@ message SolverConfig {
   repeated EntityConfig entity_configs = 1;
 
   // Frequency in Hz.
-  float frequency = 2;
+  double frequency = 2;
 }

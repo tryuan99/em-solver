@@ -19,7 +19,10 @@ template <std::size_t Dimension>
 class ElectromagneticSolver : public gmsh::GmshInterface {
  public:
   ElectromagneticSolver(const std::string& mesh_file,
-                        solver::SolverConfig solver_config);
+                        SolverConfig solver_config);
+
+  // Get the dimension of the mesh structure.
+  static std::size_t dimension() { return Dimension; }
 
   // Get the number of electric potential unknowns.
   std::size_t num_electric_potential_unknowns() const {
@@ -42,9 +45,8 @@ class ElectromagneticSolver : public gmsh::GmshInterface {
   }
 
   // Get the number of unknowns.
-  std::size_t num_unknowns() const {
-    return num_electric_potential_unknowns() +
-           num_electric_potential_unknowns() +
+  virtual std::size_t num_unknowns() const {
+    return num_electric_potential_unknowns() + num_electric_field_unknowns() +
            num_magnetic_vector_potential_unknowns() +
            num_magnetic_flux_density_unknowns();
   }
@@ -58,13 +60,13 @@ class ElectromagneticSolver : public gmsh::GmshInterface {
 
  protected:
   // Get the material of the given physical group.
-  model::Material GetMaterialForPhysicalGroup(int tag);
+  model::Material GetMaterialForPhysicalGroup(int tag) const;
 
   // Get the material of the given entity.
-  model::Material GetMaterialForEntity(int tag);
+  model::Material GetMaterialForEntity(int tag) const;
 
   // Validate the mesh.
-  virtual void ValidateMesh() {}
+  virtual void ValidateMesh() const {}
 
   // Implementation for solving the electric potential, the electric field, the
   // magnetic vector potential, and the magnetic flux density.
@@ -77,7 +79,7 @@ class ElectromagneticSolver : public gmsh::GmshInterface {
   static int node_tag_from_index(const int index) { return index + 1; }
 
   // Solver configuration.
-  solver::SolverConfig config_;
+  SolverConfig config_;
 
   // Number of nodes in the mesh.
   std::size_t num_nodes_ = 0;
@@ -98,8 +100,8 @@ class ElectromagneticSolver : public gmsh::GmshInterface {
   bool solved_ = false;
 };
 
-// Type definitions.
-using ElectromagneticSolver2D = ElectromagneticSolver<2>;
-using ElectromagneticSolver3D = ElectromagneticSolver<3>;
+// Explicit instantiations of the template.
+template class ElectromagneticSolver<2>;
+template class ElectromagneticSolver<3>;
 
 }  // namespace solver

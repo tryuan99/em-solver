@@ -191,7 +191,7 @@ class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
         # non-zero resistivity.
         for conductor_tag in conductor_entity_tags:
             # Set the voltage boundary conditions and electric fields within
-            # the capacitor plates.
+            # the conductor.
             conductor_internal_node_tags = self.get_nodes(
                 tag=conductor_tag,
                 dim=self.dimension(),
@@ -224,8 +224,8 @@ class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
                 A[electric_field_y_equation_index,
                   electric_field_y_unknown_index] = 1
 
-            # Set the voltage boundary conditions for the boundary nodes at the
-            # capacitor plates.
+            # Set the voltage boundary conditions for the boundary nodes of the
+            # conductor.
             conductor_boundary_node_tags = self.get_nodes(
                 tag=conductor_tag,
                 dim=self.dimension(),

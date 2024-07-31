@@ -7,6 +7,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 
 #include "absl/strings/str_format.h"
 #include "mesh/gmsh_interface.h"
@@ -17,7 +18,7 @@ namespace solver {
 
 template <std::size_t Dimension>
 ElectromagneticSolver<Dimension>::ElectromagneticSolver(
-    const std::string& mesh_file, const solver::SolverConfig solver_config)
+    const std::string& mesh_file, const SolverConfig solver_config)
     : config_(std::move(solver_config)) {
   // Open the mesh file.
   gmsh::open(mesh_file);
@@ -27,7 +28,10 @@ ElectromagneticSolver<Dimension>::ElectromagneticSolver(
 
   // Initialize the electric potential, electric field, magnetic vector
   // potential, and magnetic flux density vectors.
-  num_nodes_ = GetNodes(/*tag=*/-1, Dimension).size();
+  const auto node_tags = GetNodes(/*tag=*/-1, Dimension);
+  const std::unordered_set<gmsh::Tag> unique_node_tags(node_tags.cbegin(),
+                                                       node_tags.cend());
+  num_nodes_ = unique_node_tags.size();
   electric_potential_ = Eigen::VectorXcd::Zero(num_nodes_);
   electric_field_ = Eigen::MatrixXcd::Zero(num_nodes_, Dimension);
   magnetic_vector_potential_ = Eigen::MatrixXcd::Zero(num_nodes_, Dimension);
@@ -64,25 +68,46 @@ void ElectromagneticSolver<Dimension>::WriteSolution(
                 "y,Magnetic vector potential z,"
                 "Magnetic flux density x,Magnetic flux density y,Magnetic flux "
                 "density z\n";
+  const auto complex_number_to_string =
+      []<typename T>(const std::complex<T> value) {
+        return absl::StrFormat("%g%+gj", value.real(), value.imag());
+      };
   for (std::size_t i = 0; i < num_nodes_; ++i) {
     output_csv << node_tag_from_index(i) << ",";
-    output_csv << electric_potential_(i) << ",";
-    output_csv << electric_field_(i, 0) << "," << electric_field_(i, 1) << ","
-               << (Dimension > 2 ? electric_field_(i, 2) : 0) << ",";
-    output_csv << magnetic_vector_potential_(i, 0) << ","
-               << magnetic_vector_potential_(i, 1) << ","
-               << (Dimension > 2 ? magnetic_vector_potential_(i, 2) : 0) << ",";
-    output_csv << (Dimension > 2 ? magnetic_flux_density_(i, 0) : 0) << ","
-               << (Dimension > 2 ? magnetic_flux_density_(i, 1) : 0) << ","
-               << (Dimension > 2 ? magnetic_flux_density_(i, 2)
-                                 : magnetic_flux_density_(i, 0));
+    output_csv << complex_number_to_string(electric_potential_(i)) << ",";
+    output_csv << complex_number_to_string(electric_field_(i, 0)) << ","
+               << complex_number_to_string(electric_field_(i, 1)) << ","
+               << (Dimension > 2
+                       ? complex_number_to_string(electric_field_(i, 2))
+                       : "0")
+               << ",";
+    output_csv << complex_number_to_string(magnetic_vector_potential_(i, 0))
+               << ","
+               << complex_number_to_string(magnetic_vector_potential_(i, 1))
+               << ","
+               << (Dimension > 2 ? complex_number_to_string(
+                                       magnetic_vector_potential_(i, 2))
+                                 : "0")
+               << ",";
+    output_csv << (Dimension > 2
+                       ? complex_number_to_string(magnetic_flux_density_(i, 0))
+                       : "0")
+               << ","
+               << (Dimension > 2
+                       ? complex_number_to_string(magnetic_flux_density_(i, 1))
+                       : "0")
+               << ","
+               << (Dimension > 2
+                       ? complex_number_to_string(magnetic_flux_density_(i, 2))
+                       : complex_number_to_string(
+                             magnetic_flux_density_(i, 0)));
     output_csv << "\n";
   }
 }
 
 template <std::size_t Dimension>
 model::Material ElectromagneticSolver<Dimension>::GetMaterialForPhysicalGroup(
-    const int tag) {
+    const int tag) const {
   std::string physical_group_name;
   gmsh::model::getPhysicalName(Dimension, tag, physical_group_name);
   model::Material material = model::Material::UNSPECIFIED;
@@ -93,7 +118,7 @@ model::Material ElectromagneticSolver<Dimension>::GetMaterialForPhysicalGroup(
 }
 template <std::size_t Dimension>
 model::Material ElectromagneticSolver<Dimension>::GetMaterialForEntity(
-    const int tag) {
+    const int tag) const {
   const auto physical_group_tags = GetPhysicalGroupsForEntity(Dimension, tag);
   if (physical_group_tags.size() > 1) {
     throw std::invalid_argument(

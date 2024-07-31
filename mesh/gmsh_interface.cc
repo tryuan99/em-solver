@@ -57,7 +57,7 @@ std::vector<Tag> GmshInterface::GetNodes(const int tag, const int dim,
       std::vector<Tag> boundary_node_tags;
       std::copy_if(node_tags.cbegin(), node_tags.cend(),
                    std::back_inserter(boundary_node_tags), [&](const Tag tag) {
-                     return internal_node_tags_set.contains(tag);
+                     return !internal_node_tags_set.contains(tag);
                    });
       return boundary_node_tags;
     }

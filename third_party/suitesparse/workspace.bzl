@@ -4,10 +4,12 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 SUITESPARSE_VERSION = "7.7.0"
 AMD_VERSION = "3.3.2"
+BTF_VERSION = "2.3.2"
 CAMD_VERSION = "3.3.2"
 CCOLAMD_VERSION = "3.3.3"
 COLAMD_VERSION = "3.3.3"
 CHOLMOD_VERSION = "5.2.1"
+KLU_VERSION = "2.3.3"
 UMFPACK_VERSION = "6.3.3"
 
 def suitesparse_workspace():

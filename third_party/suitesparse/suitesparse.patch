@@ -1,0 +1,466 @@
+diff --git AMD/CMakeLists.txt AMD/CMakeLists.txt
+index 372e60e..85facb0 100644
+--- AMD/CMakeLists.txt
++++ AMD/CMakeLists.txt
+@@ -56,15 +56,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
+     endif ( )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/amd.h.in" "${PROJECT_SOURCE_DIR}/Include/amd.h"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/amd_version.tex.in" "${PROJECT_SOURCE_DIR}/Doc/amd_version.tex"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git BTF/CMakeLists.txt BTF/CMakeLists.txt
+index 043569d..2a64918 100644
+--- BTF/CMakeLists.txt
++++ BTF/CMakeLists.txt
+@@ -51,13 +51,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
+     endif ( )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/btf.h.in" "${PROJECT_SOURCE_DIR}/Include/btf.h"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git CAMD/CMakeLists.txt CAMD/CMakeLists.txt
+index ae1bcd0..e03e184 100644
+--- CAMD/CMakeLists.txt
++++ CAMD/CMakeLists.txt
+@@ -50,17 +50,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
+     endif ( )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/camd.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/camd.h"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/camd_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/camd_version.tex"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git CCOLAMD/CMakeLists.txt CCOLAMD/CMakeLists.txt
+index 723cc6f..eb258b4 100644
+--- CCOLAMD/CMakeLists.txt
++++ CCOLAMD/CMakeLists.txt
+@@ -50,14 +50,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
+     endif ( )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/ccolamd.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/ccolamd.h"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git CHOLMOD/CMakeLists.txt CHOLMOD/CMakeLists.txt
+index 78d2588..70aae72 100644
+--- CHOLMOD/CMakeLists.txt
++++ CHOLMOD/CMakeLists.txt
+@@ -298,17 +298,6 @@ endif ( )
+         include ( SuiteSparseLAPACK )   # requires cmake 3.22
+     endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/cholmod.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/cholmod.h"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/cholmod_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/cholmod_version.tex"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git COLAMD/CMakeLists.txt COLAMD/CMakeLists.txt
+index 4d4b17c..8491848 100644
+--- COLAMD/CMakeLists.txt
++++ COLAMD/CMakeLists.txt
+@@ -50,14 +50,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
+     endif ( )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/colamd.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/colamd.h"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git CSparse/CMakeLists.txt CSparse/CMakeLists.txt
+index 8c5a889..c78e539 100644
+--- CSparse/CMakeLists.txt
++++ CSparse/CMakeLists.txt
+@@ -67,14 +67,6 @@ if ( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+     set ( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-extra-semi-stmt" )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# Configure cs.h with version number
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/cs.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/cs.h"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git CXSparse/CMakeLists.txt CXSparse/CMakeLists.txt
+index 83fb4ed..62fd56d 100644
+--- CXSparse/CMakeLists.txt
++++ CXSparse/CMakeLists.txt
+@@ -77,14 +77,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
+     endif ( )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# Configure cs.h with version number
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/cs.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/cs.h"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git Example/CMakeLists.txt Example/CMakeLists.txt
+index c3c8179..dd33ceb 100644
+--- Example/CMakeLists.txt
++++ Example/CMakeLists.txt
+@@ -111,14 +111,6 @@ find_package ( UMFPACK 6.3.3 REQUIRED )
+ find_package ( MPFR 4.0.2 REQUIRED )    # from SPEX/cmake_modules
+ find_package ( GMP 6.1.2 REQUIRED )     # from SPEX/cmake_modules
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/my.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/my.h"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git GraphBLAS/CMakeLists.txt GraphBLAS/CMakeLists.txt
+index 8229506..0aed7b7 100644
+--- GraphBLAS/CMakeLists.txt
++++ GraphBLAS/CMakeLists.txt
+@@ -185,24 +185,6 @@ else ( )
+     message ( STATUS "Building static GraphBLAS library (no shared)" )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# Configure Include/GraphBLAS.h and documentation with version number
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/GraphBLAS.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/GraphBLAS.h"
+-    NEWLINE_STYLE LF )
+-
+-configure_file ( "Config/GraphBLAS_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/GraphBLAS_version.tex"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/GraphBLAS_API_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/GraphBLAS_API_version.tex"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/README.md.in"
+-    "${PROJECT_SOURCE_DIR}/README.md"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories for both graphblas and the demos
+ #-------------------------------------------------------------------------------
+@@ -702,10 +684,6 @@ endif ( )
+ 
+ include ( GraphBLAS_JIT_configure )
+ 
+-configure_file ( "Config/GB_config.h.in"
+-    "${PROJECT_SOURCE_DIR}/Config/GB_config.h"
+-    NEWLINE_STYLE LF )
+-
+ include ( GraphBLAS_PreJIT )
+ 
+ #-------------------------------------------------------------------------------
+diff --git GraphBLAS/GraphBLAS/CMakeLists.txt GraphBLAS/GraphBLAS/CMakeLists.txt
+index 51156a9..55a5045 100644
+--- GraphBLAS/GraphBLAS/CMakeLists.txt
++++ GraphBLAS/GraphBLAS/CMakeLists.txt
+@@ -275,8 +275,3 @@ install ( TARGETS graphblas_matlab
+ #-------------------------------------------------------------------------------
+ 
+ include ( GraphBLAS_JIT_configure )
+-
+-configure_file ( "../Config/GB_config.h.in"
+-    "${PROJECT_SOURCE_DIR}/Config/GB_config.h"
+-    NEWLINE_STYLE LF )
+-
+diff --git GraphBLAS/cmake_modules/GraphBLAS_PreJIT.cmake GraphBLAS/cmake_modules/GraphBLAS_PreJIT.cmake
+index e9078c8..c4d2adb 100644
+--- GraphBLAS/cmake_modules/GraphBLAS_PreJIT.cmake
++++ GraphBLAS/cmake_modules/GraphBLAS_PreJIT.cmake
+@@ -111,10 +111,6 @@ list ( LENGTH PREJIT GB_PREJIT_LEN )
+ list ( JOIN PREJIT ",\n" PREFUNCS )
+ list ( JOIN PREQ ",\n" PREQFUNCS )
+ 
+-configure_file ( "Config/GB_prejit.c.in"
+-    "${PROJECT_SOURCE_DIR}/Config/GB_prejit.c"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # create a list of files of CUDA PreJIT kernels
+ #-------------------------------------------------------------------------------
+@@ -125,8 +121,3 @@ configure_file ( "Config/GB_prejit.c.in"
+ #   elseif ( ${F} MATCHES "^GB_jit__cuda_reduce" )
+ #       list ( APPEND PREPRO "JIT_CUDA_RED (" ${F} ")\n" )
+ #   endif ( )
+-
+-# configure_file ( "CUDA/Config/GB_prejit.c.in"
+-#     "${PROJECT_SOURCE_DIR}/CUDA/Config/GB_prejit.c"
+-#     NEWLINE_STYLE LF )
+-
+diff --git KLU/CMakeLists.txt KLU/CMakeLists.txt
+index 984507b..a62a4b5 100644
+--- KLU/CMakeLists.txt
++++ KLU/CMakeLists.txt
+@@ -105,17 +105,6 @@ if ( SUITESPARSE_USE_STRICT AND KLU_USE_CHOLMOD AND NOT KLU_HAS_CHOLMOD )
+     message ( FATAL_ERROR "CHOLMOD required for KLU but not found" )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/klu.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/klu.h"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/klu_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/klu_version.tex"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git LDL/CMakeLists.txt LDL/CMakeLists.txt
+index 84f504b..0929e4f 100644
+--- LDL/CMakeLists.txt
++++ LDL/CMakeLists.txt
+@@ -59,17 +59,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
+     endif ( )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# Configure ldl.h with version number
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/ldl.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/ldl.h"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/ldl_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/ldl_version.tex"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git ParU/CMakeLists.txt ParU/CMakeLists.txt
+index 7055750..eebe698 100644
+--- ParU/CMakeLists.txt
++++ ParU/CMakeLists.txt
+@@ -118,17 +118,6 @@ endif ( )
+ 
+ include ( SuiteSparseBLAS )     # requires cmake 3.22
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/ParU_definitions.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/ParU_definitions.h"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/paru_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/paru_version.tex"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git RBio/CMakeLists.txt RBio/CMakeLists.txt
+index 83e8617..4c9d4ad 100644
+--- RBio/CMakeLists.txt
++++ RBio/CMakeLists.txt
+@@ -50,14 +50,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
+     endif ( )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/RBio.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/RBio.h"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git SPEX/CMakeLists.txt SPEX/CMakeLists.txt
+index b9a3929..a9da40b 100644
+--- SPEX/CMakeLists.txt
++++ SPEX/CMakeLists.txt
+@@ -96,17 +96,6 @@ endif ( )
+ find_package ( GMP 6.1.2 REQUIRED )     # from SPEX/cmake_modules
+ find_package ( MPFR 4.0.2 REQUIRED )    # from SPEX/cmake_modules
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/SPEX.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/SPEX.h"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/SPEX_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/SPEX_version.tex"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------
+diff --git SPQR/CMakeLists.txt SPQR/CMakeLists.txt
+index e45e168..a1d5e09 100644
+--- SPQR/CMakeLists.txt
++++ SPQR/CMakeLists.txt
+@@ -84,17 +84,6 @@ if ( SUITESPARSE_USE_STRICT AND SPQR_USE_CUDA AND NOT SPQR_HAS_CUDA )
+     message ( FATAL_ERROR "CUDA required for SPQR but not found" )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/SuiteSparseQR_definitions.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/SuiteSparseQR_definitions.h"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/spqr_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/spqr_version.tex"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # dynamic spqr library properties
+ #-------------------------------------------------------------------------------
+diff --git SPQR/GPUQREngine/CMakeLists.txt SPQR/GPUQREngine/CMakeLists.txt
+index 9622cfb..f527348 100644
+--- SPQR/GPUQREngine/CMakeLists.txt
++++ SPQR/GPUQREngine/CMakeLists.txt
+@@ -56,14 +56,6 @@ else ( )
+     set ( DEMO_OK false )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/GPUQREngine.hpp.in"
+-    "${PROJECT_SOURCE_DIR}/Include/GPUQREngine.hpp"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ 
+ file ( GLOB GPUQRENGINE_SOURCES "Source/*.cpp"
+diff --git SPQR/GPURuntime/CMakeLists.txt SPQR/GPURuntime/CMakeLists.txt
+index 48cd7d2..1f23282 100644
+--- SPQR/GPURuntime/CMakeLists.txt
++++ SPQR/GPURuntime/CMakeLists.txt
+@@ -34,14 +34,6 @@ set ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+ 
+ # include ( SuiteSparsePolicy )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/SuiteSparse_GPURuntime.hpp.in"
+-    "${PROJECT_SOURCE_DIR}/Include/SuiteSparse_GPURuntime.hpp"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ 
+ file ( GLOB SUITESPARSE_GPURUNTIME_SOURCES "Source/*.cpp" )
+diff --git SuiteSparse_config/CMakeLists.txt SuiteSparse_config/CMakeLists.txt
+index 690fba0..8cc7e2c 100644
+--- SuiteSparse_config/CMakeLists.txt
++++ SuiteSparse_config/CMakeLists.txt
+@@ -122,18 +122,6 @@ endif ( )
+ 
+ include ( SuiteSparseBLAS )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/SuiteSparse_config.h.in"
+-    "${PROJECT_SOURCE_DIR}/SuiteSparse_config.h"
+-    NEWLINE_STYLE LF )
+-
+-configure_file ( "Config/README.md.in"
+-    "${PROJECT_SOURCE_DIR}/../README.md"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # dynamic SuiteSparseConfig library properties
+ #-------------------------------------------------------------------------------
+diff --git UMFPACK/CMakeLists.txt UMFPACK/CMakeLists.txt
+index 24d858b..3443886 100644
+--- UMFPACK/CMakeLists.txt
++++ UMFPACK/CMakeLists.txt
+@@ -100,17 +100,6 @@ if ( SUITESPARSE_USE_STRICT AND UMFPACK_USE_CHOLMOD AND NOT UMFPACK_HAS_CHOLMOD
+     message ( FATAL_ERROR "CHOLMOD required for UMFPACK but not found" )
+ endif ( )
+ 
+-#-------------------------------------------------------------------------------
+-# configure files
+-#-------------------------------------------------------------------------------
+-
+-configure_file ( "Config/umfpack.h.in"
+-    "${PROJECT_SOURCE_DIR}/Include/umfpack.h"
+-    NEWLINE_STYLE LF )
+-configure_file ( "Config/umfpack_version.tex.in"
+-    "${PROJECT_SOURCE_DIR}/Doc/umfpack_version.tex"
+-    NEWLINE_STYLE LF )
+-
+ #-------------------------------------------------------------------------------
+ # include directories
+ #-------------------------------------------------------------------------------

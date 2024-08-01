@@ -9,6 +9,7 @@ load("//third_party/rules_foreign_cc:workspace.bzl", "rules_foreign_cc_workspace
 load("//third_party/rules_pkg:workspace.bzl", "rules_pkg_workspace")
 load("//third_party/rules_proto:workspace.bzl", "rules_proto_workspace")
 load("//third_party/rules_python:workspace.bzl", "rules_python_workspace")
+load("//third_party/suitesparse:workspace.bzl", "suitesparse_workspace")
 
 def load_third_party_workspaces():
     """Loads all third-party workspaces."""
@@ -21,3 +22,4 @@ def load_third_party_workspaces():
     rules_pkg_workspace()
     rules_proto_workspace()
     rules_python_workspace()
+    suitesparse_workspace()

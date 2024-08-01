@@ -36,5 +36,6 @@ cc_library(
         "//solver:neighbor_lookup",
         "@abseil-cpp//absl/strings:str_format",
         "@eigen",
+        "@suitesparse//:umfpack",
     ],
 )

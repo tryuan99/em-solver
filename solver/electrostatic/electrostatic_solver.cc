@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
-#include <Eigen/SparseLU>
+#include <Eigen/UmfPackSupport>
 #include <complex>
 #include <forward_list>
 #include <stdexcept>
@@ -254,7 +254,7 @@ void ElectrostaticSolver2D::SolveImpl() {
   b.setFromTriplets(b_triplets.cbegin(), b_triplets.cend());
 
   // Solve for the electric potential and the electric field.
-  Eigen::SparseLU<Eigen::SparseMatrix<std::complex<double>>> solver;
+  Eigen::UmfPackLU<Eigen::SparseMatrix<std::complex<double>>> solver;
   solver.compute(A);
   if (solver.info() != Eigen::Success) {
     throw std::runtime_error(absl::StrFormat(

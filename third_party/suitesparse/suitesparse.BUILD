@@ -47,7 +47,10 @@ cmake(
         "-DSUITESPARSE_ENABLE_PROJECTS=\"umfpack\"",
         "-DBUILD_STATIC_LIBS=OFF",
         "-DBUILD_SHARED_LIBS=ON",
+        "-DBLAS_LIBRARIES=\"$EXT_BUILD_DEPS/openblas/lib/libopenblas.so\"",
+        "-DLAPACK_LIBRARIES=\"$EXT_BUILD_DEPS/openblas/lib/libopenblas.so\"",
     ],
     lib_source = "@suitesparse//:all",
     out_shared_libs = SUITESPARSE_SHARED_LIBS,
+    deps = ["@openblas"],
 )

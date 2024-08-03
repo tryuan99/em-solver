@@ -10,6 +10,7 @@
 
 namespace solver {
 
+// 2D capacitor electrostatic solver.
 class CapacitorElectrostaticSolver2D : public ElectrostaticSolver2D {
  public:
   CapacitorElectrostaticSolver2D(const std::string& mesh_file,

@@ -6,7 +6,7 @@
 #include "base/commandlineflags.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "google/protobuf/text_format.h"
-#include "solver/electrostatic/capacitor_electrostatic_solver.h"
+#include "solver/electrodynamic/capacitor_electrodynamic_solver.h"
 
 DEFINE_string(mesh_file, "", "Mesh file.");
 DEFINE_string(solver_config, "", "Solver configuration file.");
@@ -30,8 +30,8 @@ int main(int argc, char** argv) {
   solver_config_file.Close();
 
   // Solve the mesh.
-  solver::CapacitorElectrostaticSolver2D capacitor_solver(FLAGS(mesh_file),
-                                                          solver_config);
+  solver::CapacitorElectrodynamicSolver2D capacitor_solver(FLAGS(mesh_file),
+                                                           solver_config);
   capacitor_solver.Solve();
   if (!FLAGS(csv_output).empty()) {
     capacitor_solver.WriteSolution(FLAGS(csv_output));

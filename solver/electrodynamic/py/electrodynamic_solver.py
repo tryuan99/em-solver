@@ -1,5 +1,6 @@
-"""The electrodynamic solver solves for the voltage, the electric field, the
-magnetic vector potential, and the magnetic flux density at a given frequency.
+"""The electrodynamic solver solves for the electric potential, the electric
+field, the magnetic vector potential, and the magnetic flux density at a given
+frequency.
 """
 
 import numpy as np
@@ -28,7 +29,7 @@ class ElectrodynamicSolver(ElectromagneticSolver):
                 self.num_magnetic_vector_potential_unknowns +
                 self.num_magnetic_flux_density_unknowns + self.num_nodes)
 
-    def _get_ac_phasor(self, tag: int) -> float:
+    def _get_ac_phasor(self, tag: int) -> np.complex128:
         """Returns the AC phasor voltage for the tag.
 
         Args:
@@ -54,12 +55,14 @@ class ElectrodynamicSolver2D(ElectrodynamicSolver, ElectromagneticSolver2D):
         In the matrix-vector equation, the first unknowns correspond to the
         nodes' electric potentials, the next unknowns correspond to the nodes'
         electric fields, and the next unknowns correspond to the nodes'
-        magnetic vector potentials, and the last unknowns correspond to the
-        nodes' magnetic fulx densities.
+        magnetic vector potentials, the next unknowns correspond to the nodes'
+        magnetic flux densities, and the last unknowns correspond to the
+        Lagrange multiplier for the gauge.
         Similarly, the first equations correspond to Gauss's law and voltage
         boundary conditions, the next equations correspond to Faraday's law,
-        the next equations correspond to Gauss's law for magnetism, and the
-        last equations correspond to Ampere's law.
+        the next equations correspond to Gauss's law for magnetism, the
+        next equations correspond to Ampere's law, and the last equation
+        corresponds to the Lagrange multiplier for the gauge.
         """
         omega = 2 * np.pi * self.config.frequency
 

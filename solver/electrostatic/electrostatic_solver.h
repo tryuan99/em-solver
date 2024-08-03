@@ -6,10 +6,8 @@
 #include <cstdlib>
 #include <string>
 
-#include "mesh/gmsh_interface.h"
 #include "proto/solver_config.pb.h"
 #include "solver/electromagnetic_solver.h"
-#include "solver/neighbor_lookup.h"
 
 namespace solver {
 

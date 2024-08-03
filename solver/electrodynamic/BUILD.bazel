@@ -1,0 +1,41 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "capacitor_electrodynamic_solver",
+    srcs = ["capacitor_electrodynamic_solver.cc"],
+    hdrs = ["capacitor_electrodynamic_solver.h"],
+    deps = [
+        ":electrodynamic_solver",
+        "//model:material",
+        "//proto:capacitor_cc_proto",
+        "//proto:solver_config_cc_proto",
+        "@abseil-cpp//absl/strings:str_format",
+    ],
+)
+
+cc_binary(
+    name = "capacitor_electrodynamic_solver_2d_main",
+    srcs = ["capacitor_electrodynamic_solver_2d_main.cc"],
+    deps = [
+        ":capacitor_electrodynamic_solver",
+        "//base",
+        "//base:commandlineflags",
+        "@com_google_protobuf//:protobuf",
+    ],
+)
+
+cc_library(
+    name = "electrodynamic_solver",
+    srcs = ["electrodynamic_solver.cc"],
+    hdrs = ["electrodynamic_solver.h"],
+    deps = [
+        "//mesh:gmsh_interface",
+        "//model:material",
+        "//proto:solver_config_cc_proto",
+        "//solver:electromagnetic_solver",
+        "//solver:neighbor_lookup",
+        "@abseil-cpp//absl/strings:str_format",
+        "@eigen",
+        "@superlu",
+    ],
+)

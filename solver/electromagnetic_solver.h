@@ -100,8 +100,4 @@ class ElectromagneticSolver : public gmsh::GmshInterface {
   bool solved_ = false;
 };
 
-// Explicit instantiations of the template.
-template class ElectromagneticSolver<2>;
-template class ElectromagneticSolver<3>;
-
 }  // namespace solver

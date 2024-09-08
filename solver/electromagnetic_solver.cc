@@ -128,4 +128,8 @@ model::Material ElectromagneticSolver<Dimension>::GetMaterialForEntity(
   return GetMaterialForPhysicalGroup(physical_group_tag);
 }
 
+// Explicit instantiations of the template.
+template class ElectromagneticSolver<2>;
+template class ElectromagneticSolver<3>;
+
 }  // namespace solver

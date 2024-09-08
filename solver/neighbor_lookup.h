@@ -47,10 +47,6 @@ class NeighborLookup {
   std::unordered_map<gmsh::Tag, std::list<U>> neighbors_;
 };
 
-// Explicit instantiations of the template.
-template class NeighborLookup<2>;
-template class NeighborLookup<3>;
-
 // Type definitions.
 using NeighborLookup2D = NeighborLookup<2>;
 using NeighborLookup3D = NeighborLookup<3>;

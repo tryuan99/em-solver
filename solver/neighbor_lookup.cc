@@ -24,4 +24,8 @@ NeighborLookup<Dimension>::InitNeighbors(
   return neighbors;
 }
 
+// Explicit instantiations of the template.
+template class NeighborLookup<2>;
+template class NeighborLookup<3>;
+
 }  // namespace solver

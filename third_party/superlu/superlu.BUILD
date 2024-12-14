@@ -13,11 +13,11 @@ cmake(
     cache_entries = select({
         "@platforms//os:osx": {
             "BUILD_SHARED_LIBS": "ON",
-            "TPL_BLAS_LIBRARIES": "$EXT_BUILD_DEPS/openblas/lib/libopenblas.dylib",
+            "TPL_BLAS_LIBRARIES": "$$EXT_BUILD_DEPS/openblas/lib/libopenblas.dylib",
         },
         "@platforms//os:linux": {
             "BUILD_SHARED_LIBS": "ON",
-            "TPL_BLAS_LIBRARIES": "$EXT_BUILD_DEPS/openblas/lib/libopenblas.so",
+            "TPL_BLAS_LIBRARIES": "$$EXT_BUILD_DEPS/openblas/lib/libopenblas.so",
         },
         "//conditions:default": {},
     }),

@@ -5,7 +5,7 @@ index 372e60e..85facb0 100644
 @@ -56,15 +56,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
      endif ( )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ index 043569d..2a64918 100644
 @@ -51,13 +51,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
      endif ( )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ index ae1bcd0..e03e184 100644
 @@ -50,17 +50,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
      endif ( )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ index 723cc6f..eb258b4 100644
 @@ -50,14 +50,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
      endif ( )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ index 78d2588..70aae72 100644
 @@ -298,17 +298,6 @@ endif ( )
          include ( SuiteSparseLAPACK )   # requires cmake 3.22
      endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ index 4d4b17c..8491848 100644
 @@ -50,14 +50,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
      endif ( )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ index 8c5a889..c78e539 100644
 @@ -67,14 +67,6 @@ if ( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
      set ( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-extra-semi-stmt" )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# Configure cs.h with version number
 -#-------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ index 83fb4ed..62fd56d 100644
 @@ -77,14 +77,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
      endif ( )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# Configure cs.h with version number
 -#-------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ index c3c8179..dd33ceb 100644
 @@ -111,14 +111,6 @@ find_package ( UMFPACK 6.3.3 REQUIRED )
  find_package ( MPFR 4.0.2 REQUIRED )    # from SPEX/cmake_modules
  find_package ( GMP 6.1.2 REQUIRED )     # from SPEX/cmake_modules
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ index 8229506..0aed7b7 100644
 @@ -185,24 +185,6 @@ else ( )
      message ( STATUS "Building static GraphBLAS library (no shared)" )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# Configure Include/GraphBLAS.h and documentation with version number
 -#-------------------------------------------------------------------------------
@@ -205,15 +205,15 @@ index 8229506..0aed7b7 100644
  # include directories for both graphblas and the demos
  #-------------------------------------------------------------------------------
 @@ -702,10 +684,6 @@ endif ( )
- 
+
  include ( GraphBLAS_JIT_configure )
- 
+
 -configure_file ( "Config/GB_config.h.in"
 -    "${PROJECT_SOURCE_DIR}/Config/GB_config.h"
 -    NEWLINE_STYLE LF )
 -
  include ( GraphBLAS_PreJIT )
- 
+
  #-------------------------------------------------------------------------------
 diff --git GraphBLAS/GraphBLAS/CMakeLists.txt GraphBLAS/GraphBLAS/CMakeLists.txt
 index 51156a9..55a5045 100644
@@ -221,7 +221,7 @@ index 51156a9..55a5045 100644
 +++ GraphBLAS/GraphBLAS/CMakeLists.txt
 @@ -275,8 +275,3 @@ install ( TARGETS graphblas_matlab
  #-------------------------------------------------------------------------------
- 
+
  include ( GraphBLAS_JIT_configure )
 -
 -configure_file ( "../Config/GB_config.h.in"
@@ -235,7 +235,7 @@ index e9078c8..c4d2adb 100644
 @@ -111,10 +111,6 @@ list ( LENGTH PREJIT GB_PREJIT_LEN )
  list ( JOIN PREJIT ",\n" PREFUNCS )
  list ( JOIN PREQ ",\n" PREQFUNCS )
- 
+
 -configure_file ( "Config/GB_prejit.c.in"
 -    "${PROJECT_SOURCE_DIR}/Config/GB_prejit.c"
 -    NEWLINE_STYLE LF )
@@ -259,7 +259,7 @@ index 984507b..a62a4b5 100644
 @@ -105,17 +105,6 @@ if ( SUITESPARSE_USE_STRICT AND KLU_USE_CHOLMOD AND NOT KLU_HAS_CHOLMOD )
      message ( FATAL_ERROR "CHOLMOD required for KLU but not found" )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -281,7 +281,7 @@ index 84f504b..0929e4f 100644
 @@ -59,17 +59,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
      endif ( )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# Configure ldl.h with version number
 -#-------------------------------------------------------------------------------
@@ -301,9 +301,9 @@ index 7055750..eebe698 100644
 --- ParU/CMakeLists.txt
 +++ ParU/CMakeLists.txt
 @@ -118,17 +118,6 @@ endif ( )
- 
+
  include ( SuiteSparseBLAS )     # requires cmake 3.22
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -325,7 +325,7 @@ index 83e8617..4c9d4ad 100644
 @@ -50,14 +50,6 @@ if ( NOT SUITESPARSE_ROOT_CMAKELISTS )
      endif ( )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -344,7 +344,7 @@ index b9a3929..a9da40b 100644
 @@ -96,17 +96,6 @@ endif ( )
  find_package ( GMP 6.1.2 REQUIRED )     # from SPEX/cmake_modules
  find_package ( MPFR 4.0.2 REQUIRED )    # from SPEX/cmake_modules
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -366,7 +366,7 @@ index e45e168..a1d5e09 100644
 @@ -84,17 +84,6 @@ if ( SUITESPARSE_USE_STRICT AND SPQR_USE_CUDA AND NOT SPQR_HAS_CUDA )
      message ( FATAL_ERROR "CUDA required for SPQR but not found" )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -388,7 +388,7 @@ index 9622cfb..f527348 100644
 @@ -56,14 +56,6 @@ else ( )
      set ( DEMO_OK false )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -398,16 +398,16 @@ index 9622cfb..f527348 100644
 -    NEWLINE_STYLE LF )
 -
  #-------------------------------------------------------------------------------
- 
+
  file ( GLOB GPUQRENGINE_SOURCES "Source/*.cpp"
 diff --git SPQR/GPURuntime/CMakeLists.txt SPQR/GPURuntime/CMakeLists.txt
 index 48cd7d2..1f23282 100644
 --- SPQR/GPURuntime/CMakeLists.txt
 +++ SPQR/GPURuntime/CMakeLists.txt
 @@ -34,14 +34,6 @@ set ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
- 
+
  # include ( SuiteSparsePolicy )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -417,16 +417,16 @@ index 48cd7d2..1f23282 100644
 -    NEWLINE_STYLE LF )
 -
  #-------------------------------------------------------------------------------
- 
+
  file ( GLOB SUITESPARSE_GPURUNTIME_SOURCES "Source/*.cpp" )
 diff --git SuiteSparse_config/CMakeLists.txt SuiteSparse_config/CMakeLists.txt
 index 690fba0..8cc7e2c 100644
 --- SuiteSparse_config/CMakeLists.txt
 +++ SuiteSparse_config/CMakeLists.txt
 @@ -122,18 +122,6 @@ endif ( )
- 
+
  include ( SuiteSparseBLAS )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------
@@ -449,7 +449,7 @@ index 24d858b..3443886 100644
 @@ -100,17 +100,6 @@ if ( SUITESPARSE_USE_STRICT AND UMFPACK_USE_CHOLMOD AND NOT UMFPACK_HAS_CHOLMOD
      message ( FATAL_ERROR "CHOLMOD required for UMFPACK but not found" )
  endif ( )
- 
+
 -#-------------------------------------------------------------------------------
 -# configure files
 -#-------------------------------------------------------------------------------

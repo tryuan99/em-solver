@@ -30,11 +30,17 @@ load("//deps:pip_deps.bzl", "load_pip_dependencies")
 
 load_pip_dependencies()
 
+# Load package rules dependencies.
+load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
+
+rules_pkg_dependencies()
+
 # Load Protobuf dependencies and toolchains.
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
 
+# Load Protobuf rules dependencies and toolchains.
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
 rules_proto_dependencies()
@@ -47,6 +53,7 @@ load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 
 rules_proto_toolchains()
 
+# Load Bazel features dependencies.
 load("@bazel_features//:deps.bzl", "bazel_features_deps")
 
 bazel_features_deps()

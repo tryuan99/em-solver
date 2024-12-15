@@ -1,7 +1,8 @@
-load("@//third_party/superlu:workspace.bzl", "SUPERLU_VERSION")
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 package(default_visibility = ["//visibility:public"])
+
+SUPERLU_VERSION = "7.0.0"
 
 filegroup(
     name = "all",

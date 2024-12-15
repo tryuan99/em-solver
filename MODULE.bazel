@@ -1,0 +1,98 @@
+module(name = "em-solver")
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+bazel_dep(
+    name = "abseil-cpp",
+    version = "20240116.2",
+)
+bazel_dep(
+    name = "eigen",
+    version = "4.0.0-20241125",
+)
+bazel_dep(
+    name = "platforms",
+    version = "0.0.10",
+)
+bazel_dep(
+    name = "protobuf",
+    version = "29.1",
+    repo_name = "com_google_protobuf",
+)
+bazel_dep(
+    name = "rules_cc",
+    version = "0.1.0",
+)
+bazel_dep(
+    name = "rules_foreign_cc",
+    version = "0.13.0",
+)
+bazel_dep(
+    name = "rules_pkg",
+    version = "1.0.1",
+)
+bazel_dep(
+    name = "rules_python",
+    version = "1.0.0",
+)
+
+# Gmsh library.
+GMSH_VERSION = "4.13.1"
+
+http_archive(
+    name = "gmsh",
+    build_file = "//third_party/gmsh:gmsh.BUILD",
+    sha256 = "77972145f431726026d50596a6a44fb3c1c95c21255218d66955806b86edbe8d",
+    strip_prefix = "gmsh-{}-source".format(GMSH_VERSION),
+    url = "https://gmsh.info/src/gmsh-{}-source.tgz".format(GMSH_VERSION),
+)
+
+# OpenBLAS library.
+OPENBLAS_VERSION = "0.3.28"
+
+http_archive(
+    name = "openblas",
+    build_file = "//third_party/openblas:openblas.BUILD",
+    sha256 = "f1003466ad074e9b0c8d421a204121100b0751c96fc6fcf3d1456bd12f8a00a1",
+    strip_prefix = "OpenBLAS-{}".format(OPENBLAS_VERSION),
+    url = "https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v{}.tar.gz".format(OPENBLAS_VERSION),
+)
+
+# SuiteSparse library.
+SUITESPARSE_VERSION = "7.8.3"
+
+http_archive(
+    name = "suitesparse",
+    build_file = "//third_party/suitesparse:suitesparse.BUILD",
+    patches = ["//third_party/suitesparse:suitesparse.patch"],
+    sha256 = "ce39b28d4038a09c14f21e02c664401be73c0cb96a9198418d6a98a7db73a259",
+    strip_prefix = "SuiteSparse-{}".format(SUITESPARSE_VERSION),
+    url = "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v{}.tar.gz".format(SUITESPARSE_VERSION),
+)
+
+# SuperLU library.
+SUPERLU_VERSION = "7.0.0"
+
+http_archive(
+    name = "superlu",
+    build_file = "//third_party/superlu:superlu.BUILD",
+    sha256 = "d7b91d4e0bb52644ca74c1a4dd466a694ddf1244a7bbf93cb453e8ca1f6527eb",
+    strip_prefix = "superlu-{}".format(SUPERLU_VERSION),
+    url = "https://github.com/xiaoyeli/superlu/archive/refs/tags/v{}.tar.gz".format(SUPERLU_VERSION),
+)
+
+# Configure the Python toolchain.
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    is_default = True,
+    python_version = "3.12",
+)
+
+# Load pip dependencies.
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.12",
+    requirements_lock = "//deps:requirements.txt",
+)
+use_repo(pip, "pypi")

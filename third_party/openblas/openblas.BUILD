@@ -1,7 +1,8 @@
-load("@//third_party/openblas:workspace.bzl", "OPENBLAS_VERSION")
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 package(default_visibility = ["//visibility:public"])
+
+OPENBLAS_VERSION = "0.3.28"
 
 filegroup(
     name = "all",

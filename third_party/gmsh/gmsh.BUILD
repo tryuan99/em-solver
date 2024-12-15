@@ -1,7 +1,8 @@
-load("@//third_party/gmsh:workspace.bzl", "GMSH_VERSION")
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 package(default_visibility = ["//visibility:public"])
+
+GMSH_VERSION = "4.13.1"
 
 filegroup(
     name = "all",

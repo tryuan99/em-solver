@@ -1,18 +1,22 @@
-load(
-    "@//third_party/suitesparse:workspace.bzl",
-    "AMD_VERSION",
-    "BTF_VERSION",
-    "CAMD_VERSION",
-    "CCOLAMD_VERSION",
-    "CHOLMOD_VERSION",
-    "COLAMD_VERSION",
-    "KLU_VERSION",
-    "SUITESPARSE_VERSION",
-    "UMFPACK_VERSION",
-)
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 package(default_visibility = ["//visibility:public"])
+
+AMD_VERSION = "3.3.3"
+
+BTF_VERSION = "2.3.2"
+
+CAMD_VERSION = "3.3.3"
+
+CCOLAMD_VERSION = "3.3.4"
+
+COLAMD_VERSION = "3.3.4"
+
+CHOLMOD_VERSION = "5.3.0"
+
+KLU_VERSION = "2.3.5"
+
+UMFPACK_VERSION = "6.3.5"
 
 KLU_SHARED_LIBS = select({
     "@platforms//os:osx": [

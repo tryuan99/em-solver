@@ -20,7 +20,7 @@ cc_binary(
         ":capacitor_electrodynamic_solver",
         "//base",
         "//base:commandlineflags",
-        "@com_google_protobuf//:protobuf",
+        "@protobuf",
     ],
 )
 

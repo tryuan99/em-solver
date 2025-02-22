@@ -4,11 +4,11 @@ on: push
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: bazel-contrib/setup-bazel@0.9.1
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y libjpeg-dev
+      - run: sudo apt update
+      - run: sudo apt install -y libjpeg-dev libtinfo5
       - run: bazel build //...
       - run: bazel test --test_output=errors //...

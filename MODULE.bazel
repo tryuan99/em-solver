@@ -4,19 +4,19 @@ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 
 bazel_dep(
     name = "abseil-cpp",
-    version = "20240116.2",
+    version = "20250127.0",
 )
 bazel_dep(
     name = "eigen",
-    version = "4.0.0-20241125",
+    version = "4.0.0-20241125.bcr.1",
 )
 bazel_dep(
     name = "platforms",
-    version = "0.0.10",
+    version = "0.0.11",
 )
 bazel_dep(
     name = "protobuf",
-    version = "29.1",
+    version = "30.0",
 )
 bazel_dep(
     name = "rules_cc",
@@ -24,7 +24,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_foreign_cc",
-    version = "0.13.0",
+    version = "0.14.0",
 )
 bazel_dep(
     name = "rules_pkg",
@@ -32,7 +32,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_python",
-    version = "1.0.0",
+    version = "1.2.0",
 )
 
 # Gmsh library.
@@ -47,24 +47,24 @@ http_archive(
 )
 
 # OpenBLAS library.
-OPENBLAS_VERSION = "0.3.28"
+OPENBLAS_VERSION = "0.3.29"
 
 http_archive(
     name = "openblas",
     build_file = "//third_party/openblas:openblas.BUILD",
-    sha256 = "f1003466ad074e9b0c8d421a204121100b0751c96fc6fcf3d1456bd12f8a00a1",
+    sha256 = "38240eee1b29e2bde47ebb5d61160207dc68668a54cac62c076bb5032013b1eb",
     strip_prefix = "OpenBLAS-{}".format(OPENBLAS_VERSION),
     url = "https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v{}.tar.gz".format(OPENBLAS_VERSION),
 )
 
 # SuiteSparse library.
-SUITESPARSE_VERSION = "7.8.3"
+SUITESPARSE_VERSION = "7.10.1"
 
 http_archive(
     name = "suitesparse",
     build_file = "//third_party/suitesparse:suitesparse.BUILD",
     patches = ["//third_party/suitesparse:suitesparse.patch"],
-    sha256 = "ce39b28d4038a09c14f21e02c664401be73c0cb96a9198418d6a98a7db73a259",
+    sha256 = "9e2974e22dba26a3cffe269731339ae8e01365cfe921b06be6359902bd05862c",
     strip_prefix = "SuiteSparse-{}".format(SUITESPARSE_VERSION),
     url = "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v{}.tar.gz".format(SUITESPARSE_VERSION),
 )

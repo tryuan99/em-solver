@@ -2,7 +2,7 @@ load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 package(default_visibility = ["//visibility:public"])
 
-SUPERLU_VERSION = "7.0.0"
+SUPERLU_VERSION = "7.0.1"
 
 filegroup(
     name = "all",

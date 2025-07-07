@@ -4,78 +4,78 @@ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 
 bazel_dep(
     name = "abseil-cpp",
-    version = "20250127.0",
+    version = "20250512.1",
 )
 bazel_dep(
     name = "eigen",
-    version = "4.0.0-20241125.bcr.1",
+    version = "4.0.0-20241125.bcr.2",
 )
 bazel_dep(
     name = "platforms",
-    version = "0.0.11",
+    version = "1.0.0",
 )
 bazel_dep(
     name = "protobuf",
-    version = "30.0",
+    version = "31.1",
 )
 bazel_dep(
     name = "rules_cc",
-    version = "0.1.1",
+    version = "0.1.2",
 )
 bazel_dep(
     name = "rules_foreign_cc",
-    version = "0.14.0",
+    version = "0.15.0",
 )
 bazel_dep(
     name = "rules_pkg",
-    version = "1.0.1",
+    version = "1.1.0",
 )
 bazel_dep(
     name = "rules_python",
-    version = "1.2.0",
+    version = "1.5.1",
 )
 
 # Gmsh library.
-GMSH_VERSION = "4.13.1"
+GMSH_VERSION = "4.14.0"
 
 http_archive(
     name = "gmsh",
     build_file = "//third_party/gmsh:gmsh.BUILD",
-    sha256 = "77972145f431726026d50596a6a44fb3c1c95c21255218d66955806b86edbe8d",
+    sha256 = "db4d7da2062e9a4356a820832138ab99f97af6388bfeb21599a2eadfb0b76a28",
     strip_prefix = "gmsh-{}-source".format(GMSH_VERSION),
     url = "https://gmsh.info/src/gmsh-{}-source.tgz".format(GMSH_VERSION),
 )
 
 # OpenBLAS library.
-OPENBLAS_VERSION = "0.3.29"
+OPENBLAS_VERSION = "0.3.30"
 
 http_archive(
     name = "openblas",
     build_file = "//third_party/openblas:openblas.BUILD",
-    sha256 = "38240eee1b29e2bde47ebb5d61160207dc68668a54cac62c076bb5032013b1eb",
+    sha256 = "27342cff518646afb4c2b976d809102e368957974c250a25ccc965e53063c95d",
     strip_prefix = "OpenBLAS-{}".format(OPENBLAS_VERSION),
     url = "https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v{}.tar.gz".format(OPENBLAS_VERSION),
 )
 
 # SuiteSparse library.
-SUITESPARSE_VERSION = "7.10.1"
+SUITESPARSE_VERSION = "7.10.3"
 
 http_archive(
     name = "suitesparse",
     build_file = "//third_party/suitesparse:suitesparse.BUILD",
     patches = ["//third_party/suitesparse:suitesparse.patch"],
-    sha256 = "9e2974e22dba26a3cffe269731339ae8e01365cfe921b06be6359902bd05862c",
+    sha256 = "09e7bcc8e5de0a5b55d2ae9fd6378d5f4dc1b85a933593339a0872b24e2cc102",
     strip_prefix = "SuiteSparse-{}".format(SUITESPARSE_VERSION),
     url = "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v{}.tar.gz".format(SUITESPARSE_VERSION),
 )
 
 # SuperLU library.
-SUPERLU_VERSION = "7.0.0"
+SUPERLU_VERSION = "7.0.1"
 
 http_archive(
     name = "superlu",
     build_file = "//third_party/superlu:superlu.BUILD",
-    sha256 = "d7b91d4e0bb52644ca74c1a4dd466a694ddf1244a7bbf93cb453e8ca1f6527eb",
+    sha256 = "86dcca1e086f8b8079990d07f00eb707fc9ef412cf3b2ce808b37956f0de2cb8",
     strip_prefix = "superlu-{}".format(SUPERLU_VERSION),
     url = "https://github.com/xiaoyeli/superlu/archive/refs/tags/v{}.tar.gz".format(SUPERLU_VERSION),
 )

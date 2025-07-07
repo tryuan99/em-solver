@@ -2,7 +2,7 @@ load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 package(default_visibility = ["//visibility:public"])
 
-OPENBLAS_VERSION = "0.3.29"
+OPENBLAS_VERSION = "0.3.30"
 
 filegroup(
     name = "all",

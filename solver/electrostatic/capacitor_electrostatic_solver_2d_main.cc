@@ -1,6 +1,6 @@
-#include <fcntl.h>
-
 #include <cstdlib>
+#include <fstream>
+#include <stdexcept>
 
 #include "base/base.h"
 #include "base/commandlineflags.h"
@@ -16,18 +16,16 @@ int main(int argc, char** argv) {
   base::Init(argc, argv);
 
   // Parse the solver configuration.
-  int fd = open(FLAGS(solver_config).c_str(), O_RDONLY);
-  if (fd < 0) {
+  std::ifstream ifs(FLAGS(solver_config).c_str());
+  if (!ifs.is_open()) {
     throw std::runtime_error(
         "Unable to open the output solver configuration file.");
   }
-  google::protobuf::io::FileInputStream solver_config_file(fd);
+  google::protobuf::io::IstreamInputStream file_stream(&ifs);
   solver::SolverConfig solver_config;
-  if (!google::protobuf::TextFormat::Parse(&solver_config_file,
-                                           &solver_config)) {
+  if (!google::protobuf::TextFormat::Parse(&file_stream, &solver_config)) {
     throw std::runtime_error("Failed to parse the solver configuration file.");
   }
-  solver_config_file.Close();
 
   // Solve the mesh.
   solver::CapacitorElectrostaticSolver2D capacitor_solver(FLAGS(mesh_file),

@@ -4,5 +4,8 @@
 # Bazel.
 /bazel-*
 
+# VS Code.
+.vscode
+
 # Mesh files.
 **/.msh

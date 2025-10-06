@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.15.0
       - run: sudo apt update
       - run: sudo apt install -y libjpeg-dev
       - run: bazel build //...

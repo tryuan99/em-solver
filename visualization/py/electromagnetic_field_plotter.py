@@ -8,8 +8,8 @@ import gmsh
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scienceplots
 
+import visualization.py.mpl_config
 from mesh.py.gmsh_interface import GmshInterface
 from visualization.py.color_maps import COLOR_MAPS
 
@@ -110,7 +110,6 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         electric_potential = (
             self.electromagnetic_fields[self.electric_potential_column])
 
-        plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(
             figsize=(12, 6),
             subplot_kw={"projection": "3d"},
@@ -140,7 +139,6 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
             self.electromagnetic_fields[self.electric_field_y_column])
 
         # Plot the heat map.
-        plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(
             figsize=(12, 6),
             subplot_kw={"projection": "3d"},
@@ -162,7 +160,6 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         plt.show()
 
         # Plot the vector field.
-        plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.quiver(
             X,
@@ -191,7 +188,6 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
             self.magnetic_vector_potential_z_column])
 
         # Plot the heat map.
-        plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(
             figsize=(12, 6),
             subplot_kw={"projection": "3d"},
@@ -215,7 +211,6 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         plt.show()
 
         # Plot the vector field.
-        plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(
             figsize=(12, 6),
             subplot_kw={"projection": "3d"},
@@ -249,7 +244,6 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
             self.electromagnetic_fields[self.magnetic_flux_density_z_column])
 
         # Plot the heat map.
-        plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(
             figsize=(12, 6),
             subplot_kw={"projection": "3d"},
@@ -273,7 +267,6 @@ class ElectromagneticFieldPlotter2D(ElectromagneticFieldPlotter):
         plt.show()
 
         # Plot the vector field.
-        plt.style.use(["science", "grid"])
         fig, ax = plt.subplots(
             figsize=(12, 6),
             subplot_kw={"projection": "3d"},

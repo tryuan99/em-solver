@@ -19,7 +19,7 @@ namespace solver {
 
 template <std::size_t Dimension>
 std::complex<double> ElectrodynamicSolver<Dimension>::GetAcPhasor(
-    const int tag) {
+    const int tag) const {
   for (const auto& entity_config : this->config_.entity_configs()) {
     if (entity_config.tag() == tag) {
       return std::complex<double>(entity_config.ac_phasor().real(),
@@ -52,8 +52,8 @@ void ElectrodynamicSolver2D::SolveImpl() {
   const auto physical_groups = GetPhysicalGroups(dimension());
   std::unordered_set<int> conductor_entity_tags;
   std::unordered_set<int> insulator_entity_tags;
-  for (const auto& [physical_group_dimension, physical_group_tag] :
-       physical_groups) {
+  for (const auto& physical_group : physical_groups) {
+    const auto physical_group_tag = physical_group.second;
     const auto material = GetMaterialForPhysicalGroup(physical_group_tag);
     const auto& material_properties =
         model::MaterialProperties::kMaterialToProperties.at(material);
@@ -339,132 +339,23 @@ void ElectrodynamicSolver2D::SolveImpl() {
               num_adjacent_triangles);
     }
 
-    // Fill in the equations for the boundary nodes.
+    // Set the voltage boundary conditions for the boundary nodes. The field
+    // equations at the interface are provided by the adjacent insulator
+    // region.
     const auto conductor_boundary_node_tags =
         GetNodes(conductor_tag, dimension(), gmsh::NodeType::kBoundary);
     for (const auto tag : conductor_boundary_node_tags) {
-      const auto& node_coordinates = node_tag_to_coordinates.at(tag);
-      const auto x = node_coordinates[0];
-      const auto y = node_coordinates[1];
-      const auto num_adjacent_triangles =
-          conductor_triangle_neighbors.num_adjacent_entities(tag);
-
-      // Equation indices.
       const auto gauss_law_electric_potential_equation_index =
           this->gauss_law_electric_potential_equation_index(tag);
-      const auto ampere_law_x_equation_index =
-          this->ampere_law_x_equation_index(tag);
-      const auto ampere_law_y_equation_index =
-          this->ampere_law_y_equation_index(tag);
-      const auto gauge_equation_index = this->gauge_equation_index(tag);
 
-      // Unknown indices.
       const auto electric_potential_unknown_index =
           this->electric_potential_unknown_index(tag);
-      const auto electric_field_x_unknown_index =
-          this->electric_field_x_unknown_index(tag);
-      const auto electric_field_y_unknown_index =
-          this->electric_field_y_unknown_index(tag);
-      const auto magnetic_flux_density_z_unknown_index =
-          this->magnetic_flux_density_z_unknown_index(tag);
-      const auto gauge_unknown_index = this->gauge_unknown_index(tag);
 
       // Set the voltage boundary conditions.
       A_triplets.emplace_front(gauss_law_electric_potential_equation_index,
                                electric_potential_unknown_index, 1);
       b_triplets.emplace_front(gauss_law_electric_potential_equation_index, 0,
                                GetAcPhasor(conductor_tag));
-
-      // Iterate over all adjacent triangles.
-      for (const auto& [tag_neighbor1, tag_neighbor2] :
-           conductor_triangle_neighbors.neighbors(tag)) {
-        const auto& node_coordinates_neighbor1 =
-            node_tag_to_coordinates.at(tag_neighbor1);
-        const auto x_neighbor1 = node_coordinates_neighbor1[0];
-        const auto y_neighbor1 = node_coordinates_neighbor1[1];
-        const auto& node_coordinates_neighbor2 =
-            node_tag_to_coordinates.at(tag_neighbor2);
-        const auto x_neighbor2 = node_coordinates_neighbor2[0];
-        const auto y_neighbor2 = node_coordinates_neighbor2[1];
-
-        // Unknown indices for both neighbors.
-        const auto magnetic_flux_density_z_unknown_index_neighbor1 =
-            this->magnetic_flux_density_z_unknown_index(tag_neighbor1);
-        const auto magnetic_flux_density_z_unknown_index_neighbor2 =
-            this->magnetic_flux_density_z_unknown_index(tag_neighbor2);
-        const auto gauge_unknown_index_neighbor1 =
-            this->gauge_unknown_index(tag_neighbor1);
-        const auto gauge_unknown_index_neighbor2 =
-            this->gauge_unknown_index(tag_neighbor2);
-
-        // Calculate the denominator.
-        const auto denominator = (x_neighbor1 * y_neighbor2 - x_neighbor1 * y -
-                                  x_neighbor2 * y_neighbor1 + x_neighbor2 * y +
-                                  x * y_neighbor1 - x * y_neighbor2);
-
-        // Add the coefficients for the equation corresponding to Ampere's law
-        // in the x-direction.
-        A_triplets.emplace_front(
-            ampere_law_x_equation_index,
-            magnetic_flux_density_z_unknown_index_neighbor1,
-            -(x - x_neighbor2) / denominator);
-        A_triplets.emplace_front(
-            ampere_law_x_equation_index,
-            magnetic_flux_density_z_unknown_index_neighbor2,
-            -(x_neighbor1 - x) / denominator);
-        A_triplets.emplace_front(ampere_law_x_equation_index,
-                                 magnetic_flux_density_z_unknown_index,
-                                 -(x_neighbor2 - x_neighbor1) / denominator);
-        A_triplets.emplace_front(ampere_law_x_equation_index,
-                                 gauge_unknown_index_neighbor1,
-                                 (y_neighbor2 - y) / denominator);
-        A_triplets.emplace_front(ampere_law_x_equation_index,
-                                 gauge_unknown_index_neighbor2,
-                                 (y - y_neighbor1) / denominator);
-        A_triplets.emplace_front(ampere_law_x_equation_index,
-                                 gauge_unknown_index,
-                                 (y_neighbor1 - y_neighbor2) / denominator);
-
-        // Add the coefficients for the equation corresponding to Ampere's law
-        // in the y-direction.
-        A_triplets.emplace_front(
-            ampere_law_y_equation_index,
-            magnetic_flux_density_z_unknown_index_neighbor1,
-            (y_neighbor2 - y) / denominator);
-        A_triplets.emplace_front(
-            ampere_law_y_equation_index,
-            magnetic_flux_density_z_unknown_index_neighbor2,
-            (y - y_neighbor1) / denominator);
-        A_triplets.emplace_front(ampere_law_y_equation_index,
-                                 magnetic_flux_density_z_unknown_index,
-                                 (y_neighbor1 - y_neighbor2) / denominator);
-        A_triplets.emplace_front(ampere_law_y_equation_index,
-                                 gauge_unknown_index_neighbor1,
-                                 (x - x_neighbor2) / denominator);
-        A_triplets.emplace_front(ampere_law_y_equation_index,
-                                 gauge_unknown_index_neighbor2,
-                                 (x_neighbor1 - x) / denominator);
-        A_triplets.emplace_front(ampere_law_y_equation_index,
-                                 gauge_unknown_index,
-                                 (x_neighbor2 - x_neighbor1) / denominator);
-      }
-
-      // Set the coefficients for the electric fields for the equations
-      // corresponding to Ampere's law.
-      A_triplets.emplace_front(
-          ampere_law_x_equation_index, electric_field_x_unknown_index,
-          conductor_properties.permeability(config_.frequency()) *
-              conductor_properties.conductivity(config_.frequency()) *
-              num_adjacent_triangles);
-      A_triplets.emplace_front(
-          ampere_law_y_equation_index, electric_field_y_unknown_index,
-          conductor_properties.permeability(config_.frequency()) *
-              conductor_properties.conductivity(config_.frequency()) *
-              num_adjacent_triangles);
-
-      // Set the gauge boundary conditions.
-      A_triplets.emplace_front(gauge_equation_index, gauge_unknown_index, 1);
-      b_triplets.emplace_front(gauge_equation_index, 0, 1);
     }
     boundary_tags.insert(conductor_boundary_node_tags.cbegin(),
                          conductor_boundary_node_tags.cend());
@@ -611,79 +502,73 @@ void ElectrodynamicSolver2D::SolveImpl() {
 
         // Add the coefficients for the equation corresponding to Ampere's law
         // in the x-direction.
-        if (!boundary_tags.contains(tag)) {
-          A_triplets.emplace_front(
-              ampere_law_x_equation_index,
-              magnetic_flux_density_z_unknown_index_neighbor1,
-              -(x - x_neighbor2) / denominator);
-          A_triplets.emplace_front(
-              ampere_law_x_equation_index,
-              magnetic_flux_density_z_unknown_index_neighbor2,
-              -(x_neighbor1 - x) / denominator);
-          A_triplets.emplace_front(ampere_law_x_equation_index,
-                                   magnetic_flux_density_z_unknown_index,
-                                   -(x_neighbor2 - x_neighbor1) / denominator);
-          A_triplets.emplace_front(ampere_law_x_equation_index,
-                                   gauge_unknown_index_neighbor1,
-                                   (y_neighbor2 - y) / denominator);
-          A_triplets.emplace_front(ampere_law_x_equation_index,
-                                   gauge_unknown_index_neighbor2,
-                                   (y - y_neighbor1) / denominator);
-          A_triplets.emplace_front(ampere_law_x_equation_index,
-                                   gauge_unknown_index,
-                                   (y_neighbor1 - y_neighbor2) / denominator);
-        }
+        A_triplets.emplace_front(
+            ampere_law_x_equation_index,
+            magnetic_flux_density_z_unknown_index_neighbor1,
+            -(x - x_neighbor2) / denominator);
+        A_triplets.emplace_front(
+            ampere_law_x_equation_index,
+            magnetic_flux_density_z_unknown_index_neighbor2,
+            -(x_neighbor1 - x) / denominator);
+        A_triplets.emplace_front(ampere_law_x_equation_index,
+                                 magnetic_flux_density_z_unknown_index,
+                                 -(x_neighbor2 - x_neighbor1) / denominator);
+        A_triplets.emplace_front(ampere_law_x_equation_index,
+                                 gauge_unknown_index_neighbor1,
+                                 (y_neighbor2 - y) / denominator);
+        A_triplets.emplace_front(ampere_law_x_equation_index,
+                                 gauge_unknown_index_neighbor2,
+                                 (y - y_neighbor1) / denominator);
+        A_triplets.emplace_front(ampere_law_x_equation_index,
+                                 gauge_unknown_index,
+                                 (y_neighbor1 - y_neighbor2) / denominator);
 
         // Add the coefficients for the equation corresponding to Ampere's law
         // in the y-direction.
-        if (!boundary_tags.contains(tag)) {
-          A_triplets.emplace_front(
-              ampere_law_y_equation_index,
-              magnetic_flux_density_z_unknown_index_neighbor1,
-              (y_neighbor2 - y) / denominator);
-          A_triplets.emplace_front(
-              ampere_law_y_equation_index,
-              magnetic_flux_density_z_unknown_index_neighbor2,
-              (y - y_neighbor1) / denominator);
-          A_triplets.emplace_front(ampere_law_y_equation_index,
-                                   magnetic_flux_density_z_unknown_index,
-                                   (y_neighbor1 - y_neighbor2) / denominator);
-          A_triplets.emplace_front(ampere_law_y_equation_index,
-                                   gauge_unknown_index_neighbor1,
-                                   (x - x_neighbor2) / denominator);
-          A_triplets.emplace_front(ampere_law_y_equation_index,
-                                   gauge_unknown_index_neighbor2,
-                                   (x_neighbor1 - x) / denominator);
-          A_triplets.emplace_front(ampere_law_y_equation_index,
-                                   gauge_unknown_index,
-                                   (x_neighbor2 - x_neighbor1) / denominator);
-        }
+        A_triplets.emplace_front(
+            ampere_law_y_equation_index,
+            magnetic_flux_density_z_unknown_index_neighbor1,
+            (y_neighbor2 - y) / denominator);
+        A_triplets.emplace_front(
+            ampere_law_y_equation_index,
+            magnetic_flux_density_z_unknown_index_neighbor2,
+            (y - y_neighbor1) / denominator);
+        A_triplets.emplace_front(ampere_law_y_equation_index,
+                                 magnetic_flux_density_z_unknown_index,
+                                 (y_neighbor1 - y_neighbor2) / denominator);
+        A_triplets.emplace_front(ampere_law_y_equation_index,
+                                 gauge_unknown_index_neighbor1,
+                                 (x - x_neighbor2) / denominator);
+        A_triplets.emplace_front(ampere_law_y_equation_index,
+                                 gauge_unknown_index_neighbor2,
+                                 (x_neighbor1 - x) / denominator);
+        A_triplets.emplace_front(ampere_law_y_equation_index,
+                                 gauge_unknown_index,
+                                 (x_neighbor2 - x_neighbor1) / denominator);
 
         // Add the coefficients for the equation corresponding to the gauge.
-        if (!boundary_tags.contains(tag)) {
-          A_triplets.emplace_front(
-              gauge_equation_index,
-              magnetic_vector_potential_x_unknown_index_neighbor1,
-              (y_neighbor2 - y) / denominator);
-          A_triplets.emplace_front(
-              gauge_equation_index,
-              magnetic_vector_potential_y_unknown_index_neighbor1,
-              (x - x_neighbor2) / denominator);
-          A_triplets.emplace_front(
-              gauge_equation_index,
-              magnetic_vector_potential_x_unknown_index_neighbor2,
-              (y - y_neighbor1) / denominator);
-          A_triplets.emplace_front(
-              gauge_equation_index,
-              magnetic_vector_potential_y_unknown_index_neighbor2,
-              (x_neighbor1 - x) / denominator);
-          A_triplets.emplace_front(gauge_equation_index,
-                                   magnetic_vector_potential_x_unknown_index,
-                                   (y_neighbor1 - y_neighbor2) / denominator);
-          A_triplets.emplace_front(gauge_equation_index,
-                                   magnetic_vector_potential_y_unknown_index,
-                                   (x_neighbor2 - x_neighbor1) / denominator);
-        }
+        A_triplets.emplace_front(
+            gauge_equation_index,
+            magnetic_vector_potential_x_unknown_index_neighbor1,
+            (y_neighbor2 - y) / denominator);
+        A_triplets.emplace_front(
+            gauge_equation_index,
+            magnetic_vector_potential_y_unknown_index_neighbor1,
+            (x - x_neighbor2) / denominator);
+        A_triplets.emplace_front(
+            gauge_equation_index,
+            magnetic_vector_potential_x_unknown_index_neighbor2,
+            (y - y_neighbor1) / denominator);
+        A_triplets.emplace_front(
+            gauge_equation_index,
+            magnetic_vector_potential_y_unknown_index_neighbor2,
+            (x_neighbor1 - x) / denominator);
+        A_triplets.emplace_front(gauge_equation_index,
+                                 magnetic_vector_potential_x_unknown_index,
+                                 (y_neighbor1 - y_neighbor2) / denominator);
+        A_triplets.emplace_front(gauge_equation_index,
+                                 magnetic_vector_potential_y_unknown_index,
+                                 (x_neighbor2 - x_neighbor1) / denominator);
       }
 
       // Set the coefficients for the electric fields and magnetic vector
@@ -705,34 +590,34 @@ void ElectrodynamicSolver2D::SolveImpl() {
 
       // Set the coefficients for the electric fields for the equations
       // corresponding to Ampere's law.
-      if (!boundary_tags.contains(tag)) {
-        A_triplets.emplace_front(
-            ampere_law_x_equation_index, electric_field_x_unknown_index,
-            std::complex<double>(
-                insulator_properties.permeability(config_.frequency()) *
-                    insulator_properties.conductivity(config_.frequency()) *
-                    num_adjacent_triangles,
-                omega * insulator_properties.permeability(config_.frequency()) *
-                    insulator_properties.permittivity(config_.frequency()) *
-                    num_adjacent_triangles));
-        A_triplets.emplace_front(
-            ampere_law_y_equation_index, electric_field_y_unknown_index,
-            std::complex<double>(
-                insulator_properties.permeability(config_.frequency()) *
-                    insulator_properties.conductivity(config_.frequency()) *
-                    num_adjacent_triangles,
-                omega * insulator_properties.permeability(config_.frequency()) *
-                    insulator_properties.permittivity(config_.frequency()) *
-                    num_adjacent_triangles));
-      }
+      A_triplets.emplace_front(
+          ampere_law_x_equation_index, electric_field_x_unknown_index,
+          std::complex<double>(
+              insulator_properties.permeability(config_.frequency()) *
+                  insulator_properties.conductivity(config_.frequency()) *
+                  num_adjacent_triangles,
+              omega * insulator_properties.permeability(config_.frequency()) *
+                  insulator_properties.permittivity(config_.frequency()) *
+                  num_adjacent_triangles));
+      A_triplets.emplace_front(
+          ampere_law_y_equation_index, electric_field_y_unknown_index,
+          std::complex<double>(
+              insulator_properties.permeability(config_.frequency()) *
+                  insulator_properties.conductivity(config_.frequency()) *
+                  num_adjacent_triangles,
+              omega * insulator_properties.permeability(config_.frequency()) *
+                  insulator_properties.permittivity(config_.frequency()) *
+                  num_adjacent_triangles));
     }
   }
 
   // Create the sparse matrix-vector equation.
   Eigen::SparseMatrix<std::complex<double>> A(num_unknowns(), num_unknowns());
   A.setFromTriplets(A_triplets.cbegin(), A_triplets.cend());
-  Eigen::SparseMatrix<std::complex<double>> b(num_unknowns(), 1);
-  b.setFromTriplets(b_triplets.cbegin(), b_triplets.cend());
+  Eigen::VectorXcd b = Eigen::VectorXcd::Zero(num_unknowns());
+  for (const auto& triplet : b_triplets) {
+    b(triplet.row()) += triplet.value();
+  }
 
   // Solve for the electromagnetic fields.
   Eigen::SuperLU<Eigen::SparseMatrix<std::complex<double>>> solver;
@@ -742,7 +627,7 @@ void ElectrodynamicSolver2D::SolveImpl() {
         "Failed to compute the decomposition of the matrix: %d.",
         solver.info()));
   }
-  Eigen::VectorXcd x = solver.solve(b);
+  const Eigen::VectorXcd x = solver.solve(b);
   electric_potential_ = x(Eigen::seqN(0, num_electric_potential_unknowns()));
   electric_field_ = x(Eigen::seqN(num_electric_potential_unknowns(),
                                   num_electric_field_unknowns()))

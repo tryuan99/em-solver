@@ -3,7 +3,6 @@ field, the magnetic vector potential, and the magnetic flux density.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
 
 import gmsh
 import numpy as np
@@ -28,7 +27,11 @@ class ElectromagneticSolver(GmshInterface, ABC):
 
         # Initialize the electric potential, electric field, magnetic vector
         # potential, and magnetic flux density vectors.
-        self.num_nodes = len(np.unique(self.get_nodes(dim=self.dimension())))
+        self.node_tags = np.unique(self.get_nodes(dim=self.dimension()))
+        self.node_tag_to_index = {
+            int(tag): index for index, tag in enumerate(self.node_tags)
+        }
+        self.num_nodes = len(self.node_tags)
         self.electric_potential = np.zeros(self.num_nodes)
         self.electric_field = np.zeros((self.num_nodes, self.dimension()))
         self.magnetic_vector_potential = np.zeros(
@@ -97,6 +100,8 @@ class ElectromagneticSolver(GmshInterface, ABC):
         """
         physical_group_tags = self.get_physical_groups_for_entity(
             dim=self.dimension(), tag=tag)
+        if len(physical_group_tags) == 0:
+            raise ValueError(f"Entity {tag} cannot be found.")
         if len(physical_group_tags) > 1:
             raise ValueError(f"Entity {tag} belongs to multiple physical "
                              f"groups.")
@@ -165,23 +170,26 @@ class ElectromagneticSolver(GmshInterface, ABC):
         field, the magnetic vector potential, and the magnetic flux density.
         """
 
-    @staticmethod
-    def _get_index_from_tag(tag: int | Any) -> int | Any:
+    def _get_index_from_tag(self, tag: int) -> int:
         """Returns the index corresponding to the node tag.
 
         Args:
             tag: Node tag.
         """
-        return np.int64(tag - 1)
+        try:
+            return self.node_tag_to_index[int(tag)]
+        except KeyError as exc:
+            raise ValueError(f"Node tag {tag} cannot be found.") from exc
 
-    @staticmethod
-    def _get_tag_from_index(index: int | Any) -> int | Any:
+    def _get_tag_from_index(self, index: int) -> int:
         """Returns the node tag corresponding to the index.
 
         Args:
             index: Node index.
         """
-        return np.int64(index + 1)
+        if index < 0 or index >= self.num_nodes:
+            raise IndexError(f"Node index {index} is out of range.")
+        return int(self.node_tags[index])
 
 
 class ElectromagneticSolver2D(ElectromagneticSolver):

@@ -27,7 +27,7 @@ class ElectrostaticSolver : public ElectromagneticSolver<Dimension> {
 
  protected:
   // Get the DC voltage for the given tag.
-  double GetDcVoltage(int tag);
+  double GetDcVoltage(int tag) const;
 };
 
 // 2D electrostatic solver.
@@ -45,40 +45,40 @@ class ElectrostaticSolver2D : public ElectrostaticSolver<2> {
  private:
   // Get the unknown index corresponding to the node's electric potential.
   std::size_t electric_potential_unknown_index(const int tag) {
-    return node_index_from_tag(tag);
+    return this->node_index_from_tag(tag);
   }
 
   // Get the unknown index corresponding to the node's electric field in the
   // x-direction.
   std::size_t electric_field_x_unknown_index(const int tag) {
-    return dimension() * node_index_from_tag(tag) +
+    return dimension() * this->node_index_from_tag(tag) +
            num_electric_potential_unknowns();
   }
 
   // Get the unknown index corresponding to the node's electric field in the
   // y-direction.
   std::size_t electric_field_y_unknown_index(const int tag) {
-    return dimension() * node_index_from_tag(tag) + 1 +
+    return dimension() * this->node_index_from_tag(tag) + 1 +
            num_electric_potential_unknowns();
   }
 
   // Get the equation index corresponding to Poisson's equation or any voltage
   // boundary condition.
   std::size_t poisson_electric_potential_equation_index(const int tag) {
-    return node_index_from_tag(tag);
+    return this->node_index_from_tag(tag);
   }
 
   // Get the equation index corresponding to the node's electric field in the
   // x-direction.
   std::size_t electric_field_x_equation_index(const int tag) {
-    return dimension() * node_index_from_tag(tag) +
+    return dimension() * this->node_index_from_tag(tag) +
            num_electric_potential_unknowns();
   }
 
   // Get the equation index corresponding to the node's electric field in the
   // y-direction.
   std::size_t electric_field_y_equation_index(const int tag) {
-    return dimension() * node_index_from_tag(tag) + 1 +
+    return dimension() * this->node_index_from_tag(tag) + 1 +
            num_electric_potential_unknowns();
   }
 };

@@ -13,6 +13,7 @@ cmake(
     name = "gmsh",
     cache_entries = {
         "ENABLE_BUILD_SHARED": "1",
+        "ENABLE_FLTK": "0",
     },
     lib_source = "@gmsh//:all",
     out_shared_libs = select({
@@ -28,4 +29,5 @@ cmake(
         ],
         "//conditions:default": [],
     }),
+    targets = ["shared"],
 )

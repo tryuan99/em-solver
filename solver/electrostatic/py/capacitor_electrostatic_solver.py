@@ -39,6 +39,9 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):
 
     def calculate_capacitance(self) -> float:
         """Calculates the capacitance."""
+        if not self.solved:
+            raise RuntimeError("The electrostatic fields must be solved before "
+                               "calculating capacitance.")
         ground_plate_boundary_node_tags = self.get_nodes(
             tag=CapacitorEntity.GROUND_PLATE,
             dim=self.dimension(),
@@ -68,7 +71,6 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):
 
         # Iterate over all lines along the boundary of the ground plate to find
         # the electric flux.
-        total_line_length = 0
         electric_flux = 0
         for neighbor1, neighbor2 in boundary_line_node_tags:
             # Find the normal vector pointing out of the ground plate.
@@ -98,14 +100,12 @@ class CapacitorElectrostaticSolver2D(ElectrostaticSolver2D):
             # Integrate the dot product between the electric field and the
             # normal vector.
             line_length = np.linalg.norm(line_vector)
-            total_line_length += line_length
             electric_flux += (line_length *
                               np.dot(electric_field_averaged, normal_vector))
-        electric_flux /= total_line_length
 
         # Calculate the surface charge and the capacitance.
         material = self.get_material_for_entity(tag=CapacitorEntity.DIELECTRIC)
         material_properties = MATERIAL_TO_PROPERTIES[material]
         Q = electric_flux * material_properties.permittivity()
-        C = Q / self._get_dc_voltage(CapacitorEntity.VDD_PLATE)
+        C = abs(Q / self._get_dc_voltage(CapacitorEntity.VDD_PLATE))
         return C

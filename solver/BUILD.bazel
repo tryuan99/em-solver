@@ -7,6 +7,7 @@ cc_library(
     srcs = ["electromagnetic_solver.cc"],
     hdrs = ["electromagnetic_solver.h"],
     deps = [
+        ":node_index_lookup",
         "//mesh:gmsh_interface",
         "//proto:material_cc_proto",
         "//proto:solver_config_cc_proto",
@@ -14,6 +15,13 @@ cc_library(
         "@eigen",
         "@gmsh",
     ],
+)
+
+cc_library(
+    name = "node_index_lookup",
+    srcs = ["node_index_lookup.cc"],
+    hdrs = ["node_index_lookup.h"],
+    deps = ["//mesh:gmsh_interface"],
 )
 
 cc_library(

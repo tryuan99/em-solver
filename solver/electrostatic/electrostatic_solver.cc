@@ -16,7 +16,7 @@
 namespace solver {
 
 template <std::size_t Dimension>
-double ElectrostaticSolver<Dimension>::GetDcVoltage(const int tag) {
+double ElectrostaticSolver<Dimension>::GetDcVoltage(const int tag) const {
   for (const auto& entity_config : this->config_.entity_configs()) {
     if (entity_config.tag() == tag) {
       return entity_config.dc_voltage();
@@ -42,8 +42,8 @@ void ElectrostaticSolver2D::SolveImpl() {
   const auto physical_groups = GetPhysicalGroups(dimension());
   std::unordered_set<int> conductor_entity_tags;
   std::unordered_set<int> insulator_entity_tags;
-  for (const auto& [physical_group_dimension, physical_group_tag] :
-       physical_groups) {
+  for (const auto& physical_group : physical_groups) {
+    const auto physical_group_tag = physical_group.second;
     const auto material = GetMaterialForPhysicalGroup(physical_group_tag);
     const auto& material_properties =
         model::MaterialProperties::kMaterialToProperties.at(material);
@@ -128,6 +128,11 @@ void ElectrostaticSolver2D::SolveImpl() {
   // Fill in Poisson's equations and the electric field equations for the nodes
   // within the insulators, including the boundary nodes.
   for (const auto insulator_tag : insulator_entity_tags) {
+    const auto insulator_properties =
+        model::MaterialProperties::kMaterialToProperties.at(
+            GetMaterialForEntity(insulator_tag));
+    const auto permittivity =
+        insulator_properties.permittivity(this->config_.frequency());
     const auto insulator_triangles = GetFaces(insulator_tag);
     const auto insulator_triangle_neighbors =
         NeighborLookup2D(insulator_triangles);
@@ -191,24 +196,30 @@ void ElectrostaticSolver2D::SolveImpl() {
         // Boundary nodes already have a voltage boundary condition, so skip
         // boundary nodes.
         if (!boundary_tags.contains(tag)) {
-          A_triplets.emplace_front(poisson_electric_potential_equation_index,
-                                   electric_field_x_unknown_index_neighbor1,
-                                   (y_neighbor2 - y) / denominator);
-          A_triplets.emplace_front(poisson_electric_potential_equation_index,
-                                   electric_field_y_unknown_index_neighbor1,
-                                   (x - x_neighbor2) / denominator);
-          A_triplets.emplace_front(poisson_electric_potential_equation_index,
-                                   electric_field_x_unknown_index_neighbor2,
-                                   (y - y_neighbor1) / denominator);
-          A_triplets.emplace_front(poisson_electric_potential_equation_index,
-                                   electric_field_y_unknown_index_neighbor2,
-                                   (x_neighbor1 - x) / denominator);
-          A_triplets.emplace_front(poisson_electric_potential_equation_index,
-                                   electric_field_x_unknown_index,
-                                   (y_neighbor1 - y_neighbor2) / denominator);
-          A_triplets.emplace_front(poisson_electric_potential_equation_index,
-                                   electric_field_y_unknown_index,
-                                   (x_neighbor2 - x_neighbor1) / denominator);
+          A_triplets.emplace_front(
+              poisson_electric_potential_equation_index,
+              electric_field_x_unknown_index_neighbor1,
+              permittivity * (y_neighbor2 - y) / denominator);
+          A_triplets.emplace_front(
+              poisson_electric_potential_equation_index,
+              electric_field_y_unknown_index_neighbor1,
+              permittivity * (x - x_neighbor2) / denominator);
+          A_triplets.emplace_front(
+              poisson_electric_potential_equation_index,
+              electric_field_x_unknown_index_neighbor2,
+              permittivity * (y - y_neighbor1) / denominator);
+          A_triplets.emplace_front(
+              poisson_electric_potential_equation_index,
+              electric_field_y_unknown_index_neighbor2,
+              permittivity * (x_neighbor1 - x) / denominator);
+          A_triplets.emplace_front(
+              poisson_electric_potential_equation_index,
+              electric_field_x_unknown_index,
+              permittivity * (y_neighbor1 - y_neighbor2) / denominator);
+          A_triplets.emplace_front(
+              poisson_electric_potential_equation_index,
+              electric_field_y_unknown_index,
+              permittivity * (x_neighbor2 - x_neighbor1) / denominator);
         }
 
         // Add the coefficients of the electric potentials for the electric
@@ -250,8 +261,10 @@ void ElectrostaticSolver2D::SolveImpl() {
   // Create the sparse matrix-vector equation.
   Eigen::SparseMatrix<std::complex<double>> A(num_unknowns(), num_unknowns());
   A.setFromTriplets(A_triplets.cbegin(), A_triplets.cend());
-  Eigen::SparseMatrix<std::complex<double>> b(num_unknowns(), 1);
-  b.setFromTriplets(b_triplets.cbegin(), b_triplets.cend());
+  Eigen::VectorXcd b = Eigen::VectorXcd::Zero(num_unknowns());
+  for (const auto& triplet : b_triplets) {
+    b(triplet.row()) += triplet.value();
+  }
 
   // Solve for the electric potential and the electric field.
   Eigen::SuperLU<Eigen::SparseMatrix<std::complex<double>>> solver;
@@ -261,7 +274,7 @@ void ElectrostaticSolver2D::SolveImpl() {
         "Failed to compute the decomposition of the matrix: %d.",
         solver.info()));
   }
-  Eigen::VectorXcd x = solver.solve(b);
+  const Eigen::VectorXcd x = solver.solve(b);
   electric_potential_ = x(Eigen::seqN(0, num_electric_potential_unknowns()));
   electric_field_ = x(Eigen::seqN(num_electric_potential_unknowns(),
                                   num_electric_field_unknowns()))

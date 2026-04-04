@@ -6,6 +6,7 @@
 #include <array>
 #include <cstdint>
 #include <iterator>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -14,9 +15,40 @@
 
 namespace gmsh {
 
-GmshInterface::GmshInterface() { gmsh::initialize(); }
+namespace {
 
-GmshInterface::~GmshInterface() { gmsh::finalize(); }
+std::mutex& GmshLifetimeMutex() {
+  static std::mutex mutex;
+  return mutex;
+}
+
+std::size_t& GmshLifetimeReferenceCount() {
+  static std::size_t reference_count = 0;
+  return reference_count;
+}
+
+}  // namespace
+
+GmshInterface::GmshInterface() {
+  std::lock_guard<std::mutex> lock(GmshLifetimeMutex());
+  auto& reference_count = GmshLifetimeReferenceCount();
+  if (reference_count == 0) {
+    gmsh::initialize();
+  }
+  ++reference_count;
+}
+
+GmshInterface::~GmshInterface() {
+  std::lock_guard<std::mutex> lock(GmshLifetimeMutex());
+  auto& reference_count = GmshLifetimeReferenceCount();
+  if (reference_count == 0) {
+    return;
+  }
+  --reference_count;
+  if (reference_count == 0) {
+    gmsh::finalize();
+  }
+}
 
 void GmshInterface::WriteMeshFile(const std::string& mesh_file) {
   gmsh::write(mesh_file);
@@ -88,7 +120,7 @@ std::unordered_map<Tag, Coordinates> GmshInterface::GetNodeCoordinates(
   return node_tag_to_coordinates;
 }
 
-std::vector<DimTag> GetBoundary(const int dim, const int tag) {
+std::vector<DimTag> GmshInterface::GetBoundary(const int dim, const int tag) {
   std::vector<DimTag> input_dim_tags{{dim, tag}};
   std::vector<DimTag> output_dim_tags;
   gmsh::model::getBoundary(input_dim_tags, output_dim_tags, /*combined=*/true,

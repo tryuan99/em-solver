@@ -15,7 +15,9 @@ class CapacitorElectrodynamicSolver2D : public ElectrodynamicSolver2D {
  public:
   CapacitorElectrodynamicSolver2D(const std::string& mesh_file,
                                   const SolverConfig solver_config)
-      : ElectrodynamicSolver2D(mesh_file, std::move(solver_config)) {}
+      : ElectrodynamicSolver2D(mesh_file, std::move(solver_config)) {
+    EnsureMeshValidated();
+  }
 
  protected:
   // Validate the mesh.

@@ -82,6 +82,8 @@ class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
         # Fill in Poisson's equations and the electric field equations for the
         # nodes within the insulators, including the boundary nodes.
         for insulator_tag in insulator_entity_tags:
+            permittivity = MATERIAL_TO_PROPERTIES[self.get_material_for_entity(
+                tag=insulator_tag)].permittivity(self.config.frequency)
             _, insulator_triangle_node_tags = self.get_faces(tag=insulator_tag)
             insulator_triangle_neighbors = NeighborLookup(
                 insulator_triangle_node_tags)
@@ -135,22 +137,24 @@ class ElectrostaticSolver2D(ElectrostaticSolver, ElectromagneticSolver2D):
                     # equation.
                     A[poisson_equation_index,
                       electric_field_x_unknown_index_neighbor1] += (
-                          (y_neighbor2 - y) / denominator)
+                          permittivity * (y_neighbor2 - y) / denominator)
                     A[poisson_equation_index,
                       electric_field_y_unknown_index_neighbor1] += (
-                          (x - x_neighbor2) / denominator)
+                          permittivity * (x - x_neighbor2) / denominator)
                     A[poisson_equation_index,
                       electric_field_x_unknown_index_neighbor2] += (
-                          (y - y_neighbor1) / denominator)
+                          permittivity * (y - y_neighbor1) / denominator)
                     A[poisson_equation_index,
                       electric_field_y_unknown_index_neighbor2] += (
-                          (x_neighbor1 - x) / denominator)
+                          permittivity * (x_neighbor1 - x) / denominator)
                     A[poisson_equation_index,
                       electric_field_x_unknown_index] += (
-                          (y_neighbor1 - y_neighbor2) / denominator)
+                          permittivity * (y_neighbor1 - y_neighbor2) /
+                          denominator)
                     A[poisson_equation_index,
                       electric_field_y_unknown_index] += (
-                          (x_neighbor2 - x_neighbor1) / denominator)
+                          permittivity * (x_neighbor2 - x_neighbor1) /
+                          denominator)
 
                     # Add the coefficients of the electric potentials for the
                     # electric field equation in the x-direction.

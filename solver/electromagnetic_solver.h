@@ -11,6 +11,7 @@
 #include "mesh/gmsh_interface.h"
 #include "proto/material.pb.h"
 #include "proto/solver_config.pb.h"
+#include "solver/node_index_lookup.h"
 
 namespace solver {
 
@@ -59,6 +60,16 @@ class ElectromagneticSolver : public gmsh::GmshInterface {
   void WriteSolution(const std::string& csv_file) const;
 
  protected:
+  // Run mesh validation once, after the most-derived object has been
+  // constructed.
+  void EnsureMeshValidated() const {
+    if (mesh_validated_) {
+      return;
+    }
+    ValidateMesh();
+    mesh_validated_ = true;
+  }
+
   // Get the material of the given physical group.
   model::Material GetMaterialForPhysicalGroup(int tag) const;
 
@@ -73,16 +84,23 @@ class ElectromagneticSolver : public gmsh::GmshInterface {
   virtual void SolveImpl() = 0;
 
   // Get the index corresponding to the node tag.
-  static int node_index_from_tag(const int tag) { return tag - 1; }
+  std::size_t node_index_from_tag(const int tag) const {
+    return node_index_lookup_.index_from_tag(tag);
+  }
 
   // Get the node tag corresponding to the index.
-  static int node_tag_from_index(const int index) { return index + 1; }
+  gmsh::Tag node_tag_from_index(const std::size_t index) const {
+    return node_index_lookup_.tag_from_index(index);
+  }
 
   // Solver configuration.
   SolverConfig config_;
 
   // Number of nodes in the mesh.
   std::size_t num_nodes_ = 0;
+
+  // Dense lookup for arbitrary node tags.
+  NodeIndexLookup node_index_lookup_;
 
   // Electric potential.
   Eigen::VectorXcd electric_potential_;
@@ -98,6 +116,9 @@ class ElectromagneticSolver : public gmsh::GmshInterface {
 
   // If true, the electromagnetic fields have been solved.
   bool solved_ = false;
+
+  // If true, mesh validation has already succeeded.
+  mutable bool mesh_validated_ = false;
 };
 
 }  // namespace solver

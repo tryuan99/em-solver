@@ -15,7 +15,9 @@ class CapacitorElectrostaticSolver2D : public ElectrostaticSolver2D {
  public:
   CapacitorElectrostaticSolver2D(const std::string& mesh_file,
                                  const SolverConfig solver_config)
-      : ElectrostaticSolver2D(mesh_file, std::move(solver_config)) {}
+      : ElectrostaticSolver2D(mesh_file, std::move(solver_config)) {
+    EnsureMeshValidated();
+  }
 
   // Calculate the capacitance.
   double CalculateCapacitance() const;

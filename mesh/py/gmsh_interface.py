@@ -1,5 +1,6 @@
 """The Gmsh interface class provides an interface to gmsh utilities."""
 
+import threading
 from abc import ABC
 from enum import Enum, IntEnum, auto
 
@@ -29,11 +30,22 @@ class GmshNodeType(Enum):
 class GmshInterface(ABC):
     """Gmsh interface."""
 
+    _lifetime_lock = threading.Lock()
+    _reference_count = 0
+
     def __init__(self) -> None:
-        gmsh.initialize()
+        with GmshInterface._lifetime_lock:
+            if GmshInterface._reference_count == 0:
+                gmsh.initialize()
+            GmshInterface._reference_count += 1
 
     def __del__(self) -> None:
-        gmsh.finalize()
+        with GmshInterface._lifetime_lock:
+            if GmshInterface._reference_count == 0:
+                return
+            GmshInterface._reference_count -= 1
+            if GmshInterface._reference_count == 0:
+                gmsh.finalize()
 
     @staticmethod
     def write_mesh_file(mesh_file: str) -> None:

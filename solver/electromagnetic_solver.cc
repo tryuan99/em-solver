@@ -7,7 +7,6 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
-#include <unordered_set>
 
 #include "absl/strings/str_format.h"
 #include "mesh/gmsh_interface.h"
@@ -23,15 +22,11 @@ ElectromagneticSolver<Dimension>::ElectromagneticSolver(
   // Open the mesh file.
   gmsh::open(mesh_file);
 
-  // Validate the mesh.
-  ValidateMesh();
-
   // Initialize the electric potential, electric field, magnetic vector
   // potential, and magnetic flux density vectors.
   const auto node_tags = GetNodes(/*tag=*/-1, Dimension);
-  const std::unordered_set<gmsh::Tag> unique_node_tags(node_tags.cbegin(),
-                                                       node_tags.cend());
-  num_nodes_ = unique_node_tags.size();
+  node_index_lookup_ = NodeIndexLookup(node_tags);
+  num_nodes_ = node_index_lookup_.size();
   electric_potential_ = Eigen::VectorXcd::Zero(num_nodes_);
   electric_field_ = Eigen::MatrixXcd::Zero(num_nodes_, Dimension);
   magnetic_vector_potential_ = Eigen::MatrixXcd::Zero(num_nodes_, Dimension);
@@ -42,6 +37,7 @@ ElectromagneticSolver<Dimension>::ElectromagneticSolver(
 
 template <std::size_t Dimension>
 void ElectromagneticSolver<Dimension>::Solve() {
+  EnsureMeshValidated();
   if (solved_) {
     return;
   }
@@ -116,10 +112,15 @@ model::Material ElectromagneticSolver<Dimension>::GetMaterialForPhysicalGroup(
   }
   return material;
 }
+
 template <std::size_t Dimension>
 model::Material ElectromagneticSolver<Dimension>::GetMaterialForEntity(
     const int tag) const {
   const auto physical_group_tags = GetPhysicalGroupsForEntity(Dimension, tag);
+  if (physical_group_tags.empty()) {
+    throw std::invalid_argument(
+        absl::StrFormat("Entity %d cannot be found.", tag));
+  }
   if (physical_group_tags.size() > 1) {
     throw std::invalid_argument(
         absl::StrFormat("Entity %d belongs to multiple physical groups.", tag));

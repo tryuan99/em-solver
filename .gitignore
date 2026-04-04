@@ -5,7 +5,10 @@
 /bazel-*
 
 # VS Code.
-.vscode
+.vscode/
 
 # Mesh files.
 **/.msh
+
+# Python.
+__pycache__/

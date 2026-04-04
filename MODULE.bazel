@@ -4,11 +4,11 @@ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 
 bazel_dep(
     name = "abseil-cpp",
-    version = "20250814.1",
+    version = "20260107.1",
 )
 bazel_dep(
     name = "eigen",
-    version = "5.0.0",
+    version = "5.0.1",
 )
 bazel_dep(
     name = "platforms",
@@ -16,11 +16,11 @@ bazel_dep(
 )
 bazel_dep(
     name = "protobuf",
-    version = "32.1",
+    version = "34.1",
 )
 bazel_dep(
     name = "rules_cc",
-    version = "0.2.9",
+    version = "0.2.17",
 )
 bazel_dep(
     name = "rules_foreign_cc",
@@ -28,43 +28,43 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_pkg",
-    version = "1.1.0",
+    version = "1.2.0",
 )
 bazel_dep(
     name = "rules_python",
-    version = "1.6.3",
+    version = "1.9.0",
 )
 
 # Gmsh library.
-GMSH_VERSION = "4.14.0"
+GMSH_VERSION = "4.15.2"
 
 http_archive(
     name = "gmsh",
     build_file = "//third_party/gmsh:gmsh.BUILD",
-    sha256 = "db4d7da2062e9a4356a820832138ab99f97af6388bfeb21599a2eadfb0b76a28",
+    sha256 = "be3f66f225d27ba9fa014f07e83169285da8a051b0e8ab7103d88066b39bdd3e",
     strip_prefix = "gmsh-{}-source".format(GMSH_VERSION),
     url = "https://gmsh.info/src/gmsh-{}-source.tgz".format(GMSH_VERSION),
 )
 
 # OpenBLAS library.
-OPENBLAS_VERSION = "0.3.30"
+OPENBLAS_VERSION = "0.3.31"
 
 http_archive(
     name = "openblas",
     build_file = "//third_party/openblas:openblas.BUILD",
-    sha256 = "27342cff518646afb4c2b976d809102e368957974c250a25ccc965e53063c95d",
+    sha256 = "6dd2a63ac9d32643b7cc636eab57bf4e57d0ed1fff926dfbc5d3d97f2d2be3a6",
     strip_prefix = "OpenBLAS-{}".format(OPENBLAS_VERSION),
     url = "https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v{}.tar.gz".format(OPENBLAS_VERSION),
 )
 
 # SuiteSparse library.
-SUITESPARSE_VERSION = "7.10.3"
+SUITESPARSE_VERSION = "7.12.2"
 
 http_archive(
     name = "suitesparse",
     build_file = "//third_party/suitesparse:suitesparse.BUILD",
     patches = ["//third_party/suitesparse:suitesparse.patch"],
-    sha256 = "09e7bcc8e5de0a5b55d2ae9fd6378d5f4dc1b85a933593339a0872b24e2cc102",
+    sha256 = "09e7bcc8e5de0a1b55d2ae9fd6378d5f4dc1b85a933593339a0872b24e2cc102",
     strip_prefix = "SuiteSparse-{}".format(SUITESPARSE_VERSION),
     url = "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v{}.tar.gz".format(SUITESPARSE_VERSION),
 )
@@ -84,14 +84,14 @@ http_archive(
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(
     is_default = True,
-    python_version = "3.12",
+    python_version = "3.13",
 )
 
 # Load pip dependencies.
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
     hub_name = "pypi",
-    python_version = "3.12",
+    python_version = "3.13",
     requirements_lock = "//deps:requirements.txt",
 )
 use_repo(pip, "pypi")

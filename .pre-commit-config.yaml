@@ -5,15 +5,15 @@ repos:
       - id: yapf
         args: [-i]
   - repo: https://github.com/pycqa/isort
-    rev: 6.1.0
+    rev: 8.0.1
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v21.1.2
+    rev: v22.1.2
     hooks:
       - id: clang-format
   - repo: https://github.com/keith/pre-commit-buildifier
-    rev: 8.2.1
+    rev: 8.5.1.1
     hooks:
       - id: buildifier
       - id: buildifier-lint

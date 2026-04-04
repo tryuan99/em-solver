@@ -2,7 +2,7 @@ load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 package(default_visibility = ["//visibility:public"])
 
-GMSH_VERSION = "4.14.0"
+GMSH_VERSION = "4.15.2"
 
 filegroup(
     name = "all",
